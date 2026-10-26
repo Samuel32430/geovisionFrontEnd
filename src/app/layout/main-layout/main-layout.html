@@ -1,0 +1,65 @@
+<a class="skip-link" href="#contenido">Ir al contenido</a>
+<button
+  class="mobile-toggle"
+  type="button"
+  (click)="menuAbierto.set(!menuAbierto())"
+  [attr.aria-expanded]="menuAbierto()"
+  aria-controls="sidebar"
+  aria-label="Abrir o cerrar menú"
+>
+  <app-icono nombre="menu" />
+</button>
+@if (menuAbierto()) {
+  <button
+    class="backdrop"
+    type="button"
+    aria-label="Cerrar menú"
+    (click)="menuAbierto.set(false)"
+  ></button>
+}
+<aside id="sidebar" class="sidebar" [class.open]="menuAbierto()">
+  <a class="brand" routerLink="/inicio" (click)="menuAbierto.set(false)">
+    <span class="brand-mark"><app-icono nombre="eye" /></span>
+    <span><strong>Geo Vision</strong><small>SISTEMA ÓPTICO & VENTAS</small></span>
+  </a>
+  <nav aria-label="Navegación principal">
+    <a
+      routerLink="/inicio"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+      ><app-icono nombre="grid" />Inicio / Dashboard</a
+    >
+    <a
+      routerLink="/atencion-paciente-consulta"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+      ><app-icono nombre="user" />Atención al Paciente</a
+    >
+    @for (item of pendientes; track item.etiqueta) {
+      <button type="button" disabled title="Próximamente">
+        <app-icono [nombre]="item.icono" />{{ item.etiqueta }}
+      </button>
+    }
+    <p class="nav-label">SEGURIDAD & SISTEMA</p>
+    @for (item of seguridad; track item.etiqueta) {
+      <button type="button" disabled title="Próximamente">
+        <app-icono [nombre]="item.icono" />{{ item.etiqueta }}
+      </button>
+    }
+  </nav>
+  <div class="sidebar-footer">
+    <div class="profile">
+      <span class="avatar">GV</span>
+      <div>
+        <strong>Usuario</strong><small>Sesión sin configurar</small
+        ><span class="location">● Sede por configurar</span>
+      </div>
+    </div>
+    <button class="logout" type="button" disabled title="Autenticación pendiente">
+      <app-icono nombre="logout" />Cerrar sesión
+    </button>
+  </div>
+</aside>
+<main id="contenido" tabindex="-1"><router-outlet /></main>

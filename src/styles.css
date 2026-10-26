@@ -1,1 +1,322 @@
-/* You can add global styles to this file, and also import other style files */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+:root {
+  --teal: #09998e;
+  --ink: #121c30;
+  --muted: #647b9b;
+  --border: #e5ecf5;
+  --surface: #f7f9fc;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: var(--ink);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button:not(:disabled),
+select {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+a {
+  color: inherit;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #1bbcaf;
+  outline-offset: 3px;
+}
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+button:not(:disabled):hover {
+  filter: brightness(0.97);
+}
+
+/* Reusable dashboard panels, tables and empty states. */
+app-dashboard .panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  overflow: hidden;
+}
+app-dashboard .panel-header {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 22px 20px 18px;
+}
+app-dashboard .panel-header h2 {
+  font-size: 14px;
+  letter-spacing: -0.25px;
+  margin: 0 0 4px;
+  font-weight: 650;
+}
+app-dashboard .sales-header h2 {
+  font-size: 16px;
+}
+app-dashboard .panel-header p {
+  color: var(--muted);
+  font-size: 11px;
+  margin: 0;
+  line-height: 1.5;
+}
+app-dashboard .sales-header p {
+  font-size: 12px;
+}
+app-dashboard .today {
+  font-size: 10px;
+  font-weight: 500;
+  color: #5d718f;
+  background: #f1f5f9;
+  border-radius: 15px;
+  padding: 4px 8px;
+  vertical-align: middle;
+  margin-left: 5px;
+}
+app-dashboard .table-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+app-dashboard .table-actions .btn {
+  padding: 7px 10px;
+}
+app-dashboard .sales-header {
+  flex-wrap: wrap;
+  min-height: 82px;
+}
+app-dashboard .table-scroll {
+  overflow-x: auto;
+}
+app-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  white-space: nowrap;
+}
+app-dashboard thead {
+  background: #fafcff;
+}
+app-dashboard th {
+  padding: 15px 16px;
+  font-size: 10px;
+  color: #637897;
+  font-weight: 600;
+  border-top: 1px solid #f0f3f8;
+  border-bottom: 1px solid #edf2f7;
+}
+app-dashboard td {
+  padding: 0;
+}
+app-dashboard .empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  color: var(--muted);
+  padding: 35px 20px;
+  white-space: normal;
+}
+app-dashboard .empty-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #f2f7fa;
+  color: #9aacc0;
+  margin-bottom: 15px;
+}
+app-dashboard .empty-icon app-icono {
+  width: 25px;
+  height: 25px;
+}
+app-dashboard .empty h3 {
+  color: #465a75;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 7px;
+}
+app-dashboard .empty p {
+  font-size: 12px;
+  line-height: 1.6;
+  max-width: 245px;
+  margin: 0;
+}
+app-dashboard .sales-empty {
+  min-height: 360px;
+}
+app-dashboard .empty-note {
+  font-size: 10px;
+  margin-top: 19px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: #8d9eb5;
+}
+app-dashboard .table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #edf2f7;
+  padding: 16px;
+  font-size: 11px;
+  color: var(--muted);
+}
+app-dashboard .pagination {
+  display: flex;
+  gap: 5px;
+}
+app-dashboard .pagination button {
+  border: 1px solid var(--border);
+  background: white;
+  color: #a2afc2;
+  border-radius: 4px;
+  padding: 5px 9px;
+  font-size: 11px;
+}
+app-dashboard .pagination .current {
+  background: #effcf9;
+  border-color: #25baac;
+  color: var(--teal);
+}
+app-dashboard .right-column {
+  display: grid;
+  gap: 24px;
+}
+app-dashboard .small-tile {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 33px;
+  height: 33px;
+  border-radius: 10px;
+  background: #effcfa;
+  color: var(--teal);
+}
+app-dashboard .small-tile app-icono {
+  width: 17px;
+  height: 17px;
+}
+app-dashboard .panel-title {
+  flex: 1;
+}
+app-dashboard .count {
+  border: 1px solid;
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+app-dashboard .total {
+  color: #8a9bb5;
+  font-size: 11px;
+  white-space: nowrap;
+}
+app-dashboard .compact {
+  min-height: 215px;
+  padding: 26px 22px;
+}
+app-dashboard .panel-footer {
+  margin: 0 20px;
+  border-top: 1px solid #edf2f7;
+  padding: 15px 0;
+}
+app-dashboard .text-button {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  border: 0;
+  background: none;
+  color: var(--teal);
+  padding: 3px 0;
+}
+app-dashboard .text-button app-icono {
+  width: 14px;
+  height: 14px;
+}
+app-dashboard .agenda-button {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 9px;
+  background: #f0f4f8;
+  color: #4c5d76;
+  font-size: 12px;
+  font-weight: 600;
+}
+app-dashboard .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+app-dashboard .btn {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  color: #41536c;
+}
+app-dashboard .btn app-icono {
+  width: 15px;
+  height: 15px;
+}
+app-dashboard .btn-primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #fff;
+  font-weight: 600;
+}
+app-dashboard .btn-light {
+  background: #effbf9;
+  border-color: #9ae8de;
+  color: #008e83;
+}
+app-dashboard .btn-neutral {
+  background: #f8fafc;
+}
+app-dashboard .notification {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: white;
+  color: #73869f;
+}
