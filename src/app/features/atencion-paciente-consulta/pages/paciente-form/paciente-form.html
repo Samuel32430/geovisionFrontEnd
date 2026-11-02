@@ -1,11 +1,10 @@
-<header class="form-topbar">
-  <nav aria-label="Ruta de navegación">
-    <a routerLink="/atencion-paciente-consulta/pacientes">Pacientes</a><span>›</span
-    ><strong>{{ editando() ? 'Editar paciente' : 'Registrar paciente' }}</strong>
-  </nav>
-  <span class="form-badge"><i></i>Datos del paciente</span>
-</header>
 <div class="form-page">
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Pacientes', ruta: '/atencion-paciente-consulta/pacientes' },
+      { texto: editando() ? 'Editar paciente' : 'Registrar paciente' },
+    ]"
+  />
   <div class="form-heading">
     <div>
       <button

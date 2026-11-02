@@ -1,3 +1,4 @@
+import { CabeceraPagina } from '../../../../shared/components/cabecera-pagina/cabecera-pagina';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
@@ -15,7 +16,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, catchError, combineLatest, defer, finalize, of, switchMap } from 'rxjs';
 import { AvisoService } from '../../../../shared/aviso-service';
@@ -48,7 +49,7 @@ const fechaNacimientoValida: ValidatorFn = (control) => {
 
 @Component({
   selector: 'app-paciente-form',
-  imports: [ReactiveFormsModule, RouterLink, Icono],
+  imports: [CabeceraPagina, ReactiveFormsModule, Icono],
   templateUrl: './paciente-form.html',
   styleUrl: './paciente-form.css',
 })
