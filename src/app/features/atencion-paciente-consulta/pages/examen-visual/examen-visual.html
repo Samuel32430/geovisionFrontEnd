@@ -1,0 +1,99 @@
+<div class="page">
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Pacientes', ruta: '/atencion-paciente-consulta/pacientes' },
+      { texto: 'Perfil del paciente', ruta: '/atencion-paciente-consulta/pacientes/' + id() },
+      { texto: 'Nuevo examen visual' },
+    ]"
+  />
+  <header class="heading">
+    <div>
+      <h1>Nuevo examen visual</h1>
+      <p>Registra la refracción y las medidas ópticas del paciente.</p>
+    </div>
+    <button class="button" type="button" [disabled]="guardando()" (click)="volver()">
+      ← Volver al perfil
+    </button>
+  </header>
+  @if (cargando()) {
+    <div class="state" role="status">Cargando paciente…</div>
+  } @else if (error()) {
+    <div class="state" role="alert">
+      <h2>No se pudo abrir el examen</h2>
+      <p>{{ error() }}</p>
+      <button class="button" (click)="reintentar()">Reintentar</button>
+    </div>
+  } @else if (paciente(); as p) {
+    <section class="patient">
+      <span class="avatar"
+        >{{ p.persona.nombres.slice(0, 1) }}{{ p.persona.apellidos.slice(0, 1) }}</span
+      >
+      <div>
+        <h2>{{ p.persona.nombreCompleto || p.persona.nombres + ' ' + p.persona.apellidos }}</h2>
+        <p>
+          {{ p.persona.numeroDocumento }} · Paciente #{{ p.idPersona }} ·
+          {{ p.estado === 1 ? 'Activo' : 'Inactivo' }}
+        </p>
+        <span class="badge">Examen interno</span>
+      </div>
+      <div class="professional">
+        <small>PROFESIONAL QUE REGISTRA</small><strong>{{ sesion.nombre() }}</strong>
+        <p>{{ hoy | date: 'dd/MM/yyyy' }}</p>
+      </div>
+    </section>
+    @if (!habilitado()) {
+      <div class="notice" role="alert">
+        {{
+          p.estado !== 1
+            ? 'El paciente está inactivo. Puedes consultar su historial, pero no registrar nuevos exámenes.'
+            : 'Tu sesión necesita el permiso EXAMENES_REGISTRAR y un empleado activo vinculado para registrar exámenes.'
+        }}
+      </div>
+    } @else {
+      <div class="notice">
+        <strong>Validación de datos</strong>
+        <p>
+          Esfera, cilindro y adición: múltiplos de 0.25. Eje: entero de 0° a 180°. Distancia pupilar
+          obligatoria y positiva. Los demás valores pueden quedar vacíos si no se registraron.
+        </p>
+      </div>
+      @if (guardado()) {
+        <div class="success" role="status">
+          Examen registrado en la receta #{{ guardado() }}.
+          <button type="button" class="button" (click)="configurarLentes()">
+            Configurar lentes →
+          </button>
+        </div>
+      }
+      <form [formGroup]="form" (ngSubmit)="guardar()" id="examen-form">
+        <app-medidas-form
+          [medidas]="medidas"
+          [bloqueado]="guardando() || guardado() !== null"
+          (agregar)="agregar()"
+          (eliminar)="eliminar($event)"
+        />
+      </form>
+    }
+  }
+</div>
+<footer>
+  <span>{{
+    guardando()
+      ? 'Guardando examen…'
+      : guardado()
+        ? 'Examen registrado'
+        : 'Las medidas se guardan al registrar el examen.'
+  }}</span>
+  <div>
+    <button class="button" type="button" [disabled]="guardando()" (click)="volver()">
+      {{ guardado() ? 'Volver al perfil' : 'Cancelar y volver' }}</button
+    ><button
+      class="button primary"
+      type="submit"
+      form="examen-form"
+      [disabled]="!habilitado() || guardando() || guardado() !== null"
+    >
+      {{ guardando() ? 'Guardando…' : 'Registrar examen visual' }}
+    </button>
+  </div>
+</footer>
