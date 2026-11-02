@@ -30,7 +30,6 @@
           <span>{{ p.estado === 1 ? 'Activo' : 'Inactivo' }}</span>
         </p>
       </div>
-      <span class="badge">Solo consulta</span>
     </section>
   }
   @if (cargando()) {
@@ -63,7 +62,7 @@
               (click)="seleccionar(r.idReceta)"
             >
               <div>
-                <strong>Receta #{{ r.idReceta }}</strong
+                <strong>Receta registrada</strong
                 ><span class="origin" [class.external]="r.esRecetaExterna || r.esExterno === 1">{{
                   r.esRecetaExterna || r.esExterno === 1 ? 'Externa' : 'Interna'
                 }}</span>
@@ -71,7 +70,7 @@
               <p>{{ r.fechaRegistro | date: 'dd/MM/yyyy · HH:mm' }}</p>
               <p>{{ r.nombreCompletoEmpleado || 'Responsable sin información' }}</p>
               <span class="link">{{
-                seleccionado() === r.idReceta ? 'Consultando detalle' : 'Ver detalle →'
+                seleccionado() === r.idReceta ? 'Seleccionada' : 'Ver detalle →'
               }}</span>
             </button>
           }
@@ -103,13 +102,11 @@
             </div>
           } @else if (detalle(); as r) {
             <header class="detail-heading">
-              <h2>Receta #{{ r.idReceta }}</h2>
+              <div class="recipe-title"><h2>Detalle de receta</h2><span class="origin" [class.external]="r.esRecetaExterna || r.esExterno === 1">{{ r.esRecetaExterna || r.esExterno === 1 ? 'Externa' : 'Interna' }}</span></div>
               <p>Registrada el {{ r.fechaRegistro | date: 'dd/MM/yyyy · HH:mm' }}</p>
-              <button class="button primary" [disabled]="descargando()" (click)="descargar()">
+              <div class="detail-actions"><button class="button primary" [disabled]="descargando()" (click)="descargar()">
                 {{ descargando() ? 'Descargando…' : 'Descargar PDF' }}
               </button>
-            </header>
-            <div class="detail-body">
               <a
                 class="button"
                 [routerLink]="[
@@ -119,10 +116,12 @@
                   r.idReceta,
                   'lentes',
                 ]"
-                >Configurar lentes →</a
-              >
-              <h3>Responsable del registro</h3>
-              <p>{{ r.nombreCompletoEmpleado || 'Sin información' }}</p>
+                >Configurar lentes →</a>
+              </div>
+            </header>
+            <div class="detail-body">
+              <div class="responsible"><h3>Responsable del registro</h3>
+              <p>{{ r.nombreCompletoEmpleado || 'Sin información' }}</p></div>
               <h3>Refracción óptica y medidas</h3>
               @for (m of r.medidas; track m.idMedida) {
                 <section class="measure">
@@ -151,8 +150,8 @@
                       <tbody>
                         @for (
                           fila of [
-                            { nombre: 'OD', ojo: m.ojoDerecho },
-                            { nombre: 'OI', ojo: m.ojoIzquierdo },
+                            { nombre: 'OD (Derecho)', ojo: m.ojoDerecho },
+                            { nombre: 'OI (Izquierdo)', ojo: m.ojoIzquierdo },
                           ];
                           track fila.nombre
                         ) {

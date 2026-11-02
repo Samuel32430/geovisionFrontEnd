@@ -79,7 +79,8 @@ describe('PacienteHistorial', () => {
     expect(anterior.cancelled).toBe(true);
     http.expectOne((r) => r.url.endsWith('/recetas/22')).flush({ ...receta, idReceta: 22 });
     f.detectChanges();
-    expect(f.nativeElement.querySelector('.detail-heading').textContent).toContain('Receta #22');
+    expect(f.nativeElement.querySelector('.detail-heading').textContent).toContain('Detalle de receta');
+    expect(f.nativeElement.querySelector('.detail-actions a').getAttribute('href')).toContain('/recetas/22/lentes');
   });
   it('permite reintentar después de un error al consultar el historial', () => {
     const f = TestBed.createComponent(PacienteHistorial);

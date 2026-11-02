@@ -140,7 +140,7 @@ export abstract class RegistroClinicoBase implements OnInit {
           this.avisos.abrir({
             tipo: 'exito',
             titulo: this.externa ? 'Receta externa registrada' : 'Examen visual registrado',
-            mensaje: `Se guardaron las medidas en la receta #${r.idReceta}. Puedes consultar el detalle y descargar su PDF desde el historial.`,
+            mensaje: `Se guardaron las medidas de la receta. Puedes consultar el detalle y descargar su PDF desde el historial.`,
             acciones: [
               {
                 etiqueta: 'Configurar lentes',

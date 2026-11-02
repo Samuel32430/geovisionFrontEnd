@@ -25,21 +25,24 @@
     </div>
   } @else if (receta(); as r) {
     <section class="patient">
+      <span class="patient-avatar" aria-hidden="true">{{ r.nombreCompletoPaciente.slice(0, 1) }}</span>
       <div>
         <h2>{{ r.nombreCompletoPaciente }}</h2>
-        <p>Documento: {{ r.numeroDocumentoPaciente }} · Receta #{{ r.idReceta }}</p>
+        <p>Documento: {{ r.numeroDocumentoPaciente }}</p>
       </div>
       <span class="origin">{{
         r.esExterno === 1 || r.esRecetaExterna ? 'Receta externa' : 'Examen interno'
       }}</span>
     </section>
+    <div class="layout">
+      <div>
     <section class="measures">
       <h2>Medidas disponibles</h2>
       <div class="measure-grid">
         @for (m of r.medidas; track m.idMedida) {
           <article>
             <h3>
-              #{{ m.idMedida }} ·
+
               {{
                 m.tipoMedida === 'LEJOS'
                   ? 'Lejos'
@@ -70,12 +73,10 @@
         Tu sesión necesita el permiso RECETAS_REGISTRAR para guardar configuraciones.
       </div>
     }
-    <div class="layout">
-      <div>
         @for (l of r.lentes; track l.idLente) {
           <section class="card saved">
             <header>
-              <h2>Lente #{{ l.idLente }}</h2>
+              <h2>Lente registrado</h2>
               <span class="badge">Registrado · Solo consulta</span>
             </header>
             <div class="body">
@@ -91,13 +92,13 @@
           </section>
         }
         @for (t of tarjetas(); track t.clave; let i = $index) {
-          <section class="card">
+          <section class="card" [class.saved]="t.registrado" [class.pending]="!t.registrado">
             <header>
               <div>
                 <h2>
-                  {{ t.registrado ? 'Lente #' + t.registrado : 'Nueva configuración ' + (i + 1) }}
+                  {{ t.registrado ? 'Lente registrado' : 'Configuración pendiente' }}
                 </h2>
-                <p>{{ t.registrado ? 'Registrado · Solo consulta' : 'Pendiente de guardar' }}</p>
+                <span class="badge" [class.pending-badge]="!t.registrado">{{ t.registrado ? 'Registrado · Solo consulta' : 'Pendiente de guardar' }}</span>
               </div>
               @if (!t.registrado) {
                 <div class="tools">
@@ -136,7 +137,7 @@
                         type="checkbox"
                         [checked]="t.form.controls.medidas.value.includes(m.idMedida)"
                         (change)="alternar(t, 'medidas', m.idMedida)"
-                      />#{{ m.idMedida }} ·
+                      />
                       {{
                         m.tipoMedida === 'LEJOS'
                           ? 'Lejos'
@@ -162,7 +163,7 @@
                       <small>No hay materiales en el catálogo.</small>
                     }</label
                   ><label
-                    >Subtotal cotizado (S/) *<input
+                    >Subtotal del lente (S/) *<input
                       type="number"
                       formControlName="subtotal"
                       min="0"
@@ -231,19 +232,18 @@
         }
       </div>
       <aside class="summary">
-        <h2>Resumen de cotización</h2>
+        <h2>Resumen de importes</h2>
         <div class="summary-body">
           @for (l of r.lentes; track l.idLente) {
             <p>
-              <span>Lente #{{ l.idLente }} · Registrado</span
+              <span>Lente registrado</span
               ><strong>S/ {{ l.subTotal | number: '1.2-2' }}</strong>
             </p>
           }
           @for (t of tarjetas(); track t.clave; let i = $index) {
             <p>
               <span
-                >{{ t.registrado ? 'Lente #' + t.registrado : 'Configuración ' + (i + 1) }} ·
-                {{ t.registrado ? 'Registrado' : 'Pendiente' }}</span
+                >{{ t.registrado ? 'Lente registrado' : 'Configuración pendiente' }}</span
               ><strong>{{
                 t.form.controls.subtotal.valid
                   ? 'S/ ' + (t.form.controls.subtotal.value | number: '1.2-2')

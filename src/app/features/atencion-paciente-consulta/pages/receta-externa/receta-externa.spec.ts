@@ -92,7 +92,7 @@ describe('RecetaExterna', () => {
     });
     req.flush({ idReceta: 42 });
     f.detectChanges();
-    expect(f.nativeElement.textContent).toContain('Receta externa registrada en la receta #42');
+    expect(f.nativeElement.textContent).toContain('Receta externa registrada.');
     expect(f.componentInstance.puedeSalir()).toBe(true);
   });
   it('conserva los valores y permite reintentar si el servidor rechaza el examen', () => {

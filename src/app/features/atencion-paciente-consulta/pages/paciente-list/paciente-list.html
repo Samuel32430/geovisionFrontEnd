@@ -8,12 +8,6 @@
   <div class="header-buttons">
     <button
       type="button"
-      class="button secondary"
-      (click)="avisos.pendiente('Exportar pacientes a Excel')"
-    >
-      <app-icono nombre="download" />Exportar Excel</button
-    ><button
-      type="button"
       class="button primary"
       routerLink="/atencion-paciente-consulta/pacientes/nuevo"
     >
@@ -150,18 +144,18 @@
               @for (paciente of pagina.content; track paciente.idPersona) {
                 <tr>
                   <td>
-                    <span class="doc-type">{{ documento(paciente) }}</span
+                    <span class="doc-type" [attr.data-documento]="paciente.persona.tipoDocumento">{{ documento(paciente) }}</span
                     ><span class="doc-number">{{ paciente.persona.numeroDocumento }}</span>
                   </td>
                   <td>
                     <div class="person">
-                      <span class="avatar">{{ iniciales(paciente) }}</span>
+                      <span class="avatar" [attr.data-color]="paciente.idPersona % 6">{{ iniciales(paciente) }}</span>
                       <div>
                         <strong>{{
                           paciente.persona.nombreCompleto ||
                             paciente.persona.nombres + ' ' + paciente.persona.apellidos
                         }}</strong
-                        ><small>Paciente #{{ paciente.idPersona }}</small>
+                        >
                       </div>
                     </div>
                   </td>
