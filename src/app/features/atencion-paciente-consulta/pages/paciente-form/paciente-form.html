@@ -1,0 +1,249 @@
+<header class="form-topbar">
+  <nav aria-label="Ruta de navegación">
+    <a routerLink="/atencion-paciente-consulta/pacientes">Pacientes</a><span>›</span
+    ><strong>{{ editando() ? 'Editar paciente' : 'Registrar paciente' }}</strong>
+  </nav>
+  <span class="form-badge"><i></i>Datos del paciente</span>
+</header>
+<div class="form-page">
+  <div class="form-heading">
+    <div>
+      <button
+        type="button"
+        class="back-button"
+        aria-label="Volver al listado"
+        [disabled]="guardando()"
+        (click)="volver()"
+      >
+        ←
+      </button>
+      <h1>{{ editando() ? 'Editar paciente' : 'Nuevo paciente' }}</h1>
+    </div>
+    <p>Completa la información de identificación y contacto.</p>
+  </div>
+  @if (cargando()) {
+    <div class="form-state" role="status">Cargando los datos del paciente…</div>
+  }
+  @if (error(); as mensaje) {
+    <div class="form-error" role="alert">
+      <app-icono nombre="warning" />
+      <div>
+        <strong>{{
+          disponible() ? 'No se pudieron guardar los datos' : 'No se pudo abrir el formulario'
+        }}</strong>
+        <p>{{ mensaje }}</p>
+        @if (duplicado()) {
+          <button type="button" [disabled]="buscandoDuplicado()" (click)="buscarExistente()">
+            {{ buscandoDuplicado() ? 'Buscando paciente…' : 'Ver paciente existente' }}
+          </button>
+        }
+        @if (!disponible() && !cargando()) {
+          <button type="button" (click)="reintentar()">Reintentar</button>
+        }
+      </div>
+    </div>
+  }
+  <form
+    id="paciente-form"
+    class="gv-form"
+    [formGroup]="form"
+    (ngSubmit)="guardar()"
+    novalidate
+    [attr.aria-busy]="cargando() || guardando()"
+  >
+    <div class="form-columns">
+      <div class="form-stack">
+        <section class="form-card" aria-labelledby="identificacion-title">
+          <div class="card-heading">
+            <span class="step">01</span>
+            <h2 id="identificacion-title">Identificación y documentación</h2>
+            <span class="required-note"><b>*</b> Campos obligatorios</span>
+          </div>
+          <div class="fields">
+            <div class="field">
+              <label for="tipoDocumento">Tipo de documento <b>*</b></label
+              ><select
+                id="tipoDocumento"
+                formControlName="tipoDocumento"
+                aria-required="true"
+                [attr.aria-invalid]="!!errorCampo('tipoDocumento')"
+                aria-describedby="error-tipoDocumento"
+              >
+                @for (doc of documentos; track doc.valor) {
+                  <option [value]="doc.valor">{{ doc.etiqueta }}</option>
+                }</select
+              ><small id="error-tipoDocumento" class="field-error">{{
+                errorCampo('tipoDocumento')
+              }}</small>
+            </div>
+            <div class="field">
+              <label for="numeroDocumento">Número de documento <b>*</b></label
+              ><input
+                id="numeroDocumento"
+                formControlName="numeroDocumento"
+                maxlength="50"
+                placeholder="Ej. 99010001"
+                autocomplete="off"
+                aria-required="true"
+                [attr.aria-invalid]="!!errorCampo('numeroDocumento')"
+                aria-describedby="error-numeroDocumento"
+              /><small id="error-numeroDocumento" class="field-error">{{
+                errorCampo('numeroDocumento')
+              }}</small>
+            </div>
+            <div class="field">
+              <label for="nombres">Nombres <b>*</b></label
+              ><input
+                id="nombres"
+                formControlName="nombres"
+                maxlength="150"
+                placeholder="Nombres del paciente"
+                autocomplete="given-name"
+                aria-required="true"
+                [attr.aria-invalid]="!!errorCampo('nombres')"
+                aria-describedby="error-nombres"
+              /><small id="error-nombres" class="field-error">{{ errorCampo('nombres') }}</small>
+            </div>
+            <div class="field">
+              <label for="apellidos">Apellidos completos <b>*</b></label
+              ><input
+                id="apellidos"
+                formControlName="apellidos"
+                maxlength="150"
+                placeholder="Apellidos del paciente"
+                autocomplete="family-name"
+                aria-required="true"
+                [attr.aria-invalid]="!!errorCampo('apellidos')"
+                aria-describedby="error-apellidos"
+              /><small id="error-apellidos" class="field-error">{{
+                errorCampo('apellidos')
+              }}</small>
+            </div>
+          </div>
+        </section>
+        <section class="form-card" aria-labelledby="personal-title">
+          <div class="card-heading">
+            <span class="step">02</span>
+            <h2 id="personal-title">Información personal</h2>
+            <span class="optional-note">Datos opcionales</span>
+          </div>
+          <div class="fields">
+            <div class="field">
+              <div class="label-line">
+                <label for="fechaNacimiento">Fecha de nacimiento</label>
+                @if (edad() !== null) {
+                  <span class="age">{{ edad() }} años</span>
+                }
+              </div>
+              <input
+                id="fechaNacimiento"
+                type="date"
+                formControlName="fechaNacimiento"
+                [max]="maxFecha"
+                autocomplete="bday"
+                [attr.aria-invalid]="!!errorCampo('fechaNacimiento')"
+                aria-describedby="error-fechaNacimiento"
+              /><small id="error-fechaNacimiento" class="field-error">{{
+                errorCampo('fechaNacimiento')
+              }}</small>
+            </div>
+            <div class="field">
+              <label for="sexo">Sexo</label
+              ><select
+                id="sexo"
+                formControlName="sexo"
+                [attr.aria-invalid]="!!errorCampo('sexo')"
+                aria-describedby="error-sexo"
+              >
+                <option value="">Sin especificar</option>
+                <option value="MASCULINO">Masculino</option>
+                <option value="FEMENINO">Femenino</option></select
+              ><small id="error-sexo" class="field-error">{{ errorCampo('sexo') }}</small>
+            </div>
+          </div>
+          <p class="card-note">
+            La edad se calcula automáticamente a partir de la fecha de nacimiento.
+          </p>
+        </section>
+      </div>
+      <div class="form-stack">
+        <section class="form-card" aria-labelledby="contacto-title">
+          <div class="card-heading">
+            <span class="step">03</span>
+            <h2 id="contacto-title">Datos de contacto</h2>
+            <app-icono nombre="user" />
+          </div>
+          <div class="fields single">
+            <div class="field">
+              <label for="telefono">Teléfono móvil <span>(Opcional)</span></label
+              ><input
+                id="telefono"
+                type="tel"
+                formControlName="telefono"
+                maxlength="50"
+                placeholder="Número de contacto"
+                autocomplete="tel"
+                [attr.aria-invalid]="!!errorCampo('telefono')"
+                aria-describedby="error-telefono"
+              /><small id="error-telefono" class="field-error">{{ errorCampo('telefono') }}</small>
+            </div>
+            <div class="field">
+              <label for="direccion">Dirección domiciliaria <span>(Opcional)</span></label
+              ><textarea
+                id="direccion"
+                formControlName="direccion"
+                maxlength="200"
+                rows="3"
+                placeholder="Dirección del paciente"
+                autocomplete="street-address"
+                [attr.aria-invalid]="!!errorCampo('direccion')"
+                aria-describedby="error-direccion"
+              ></textarea
+              ><small id="error-direccion" class="field-error">{{ errorCampo('direccion') }}</small>
+            </div>
+          </div>
+        </section>
+        <aside class="information">
+          <span class="info-icon"><app-icono nombre="shield" /></span>
+          <div>
+            <h2>{{ editando() ? 'Actualización de datos' : 'Registro de paciente' }}</h2>
+            <p>
+              {{
+                editando()
+                  ? 'Los cambios actualizan los datos personales. El estado del paciente se gestiona desde el listado.'
+                  : 'El nuevo paciente se registrará como activo. Comprueba el documento antes de guardar.'
+              }}
+            </p>
+            <p>Los campos opcionales pueden quedar vacíos.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </form>
+</div>
+<footer class="form-footer">
+  <span
+    ><i></i
+    >{{
+      guardando()
+        ? 'Guardando los datos…'
+        : editando()
+          ? 'Modo edición · Actualizando datos del paciente'
+          : 'Nuevo registro · Completa los campos obligatorios'
+    }}</span
+  >
+  <div>
+    <button type="button" class="cancel-button" [disabled]="guardando()" (click)="volver()">
+      Cancelar y volver</button
+    ><button
+      type="submit"
+      form="paciente-form"
+      class="save-button"
+      [disabled]="cargando() || guardando() || !disponible()"
+    >
+      <app-icono nombre="user-plus" />{{
+        guardando() ? 'Guardando…' : editando() ? 'Guardar cambios' : 'Registrar paciente'
+      }}
+    </button>
+  </div>
+</footer>

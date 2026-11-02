@@ -1,0 +1,255 @@
+app-paciente-list .table-scroll {
+  overflow-x: auto;
+}
+app-paciente-list table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+app-paciente-list th {
+  padding: 20px;
+  font-size: 10px;
+  color: #667c99;
+  letter-spacing: 0.5px;
+  background: #f7f9fc;
+  line-height: 1.6;
+}
+app-paciente-list td {
+  padding: 22px 20px;
+  border-top: 1px solid #edf2f7;
+}
+app-paciente-list tbody tr:hover {
+  background: #fbfdfd;
+}
+app-paciente-list .doc-type {
+  display: inline-block;
+  padding: 4px 6px;
+  background: #f0f4f8;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  margin-right: 8px;
+}
+app-paciente-list .doc-number {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+app-paciente-list .person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+}
+app-paciente-list .avatar {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #cdf9f0;
+  color: #097c73;
+  font-weight: 600;
+}
+app-paciente-list .person strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+app-paciente-list .person small,
+app-paciente-list td > small {
+  display: block;
+  font-size: 10px;
+  color: #8a9fbb;
+  margin-top: 5px;
+}
+app-paciente-list .phone,
+app-paciente-list .date {
+  color: #536987;
+  white-space: nowrap;
+}
+app-paciente-list .badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  background: #ecfdf5;
+  color: #008765;
+  white-space: nowrap;
+}
+app-paciente-list .badge.inactive {
+  background: #f0f4f8;
+  color: #8192a9;
+}
+app-paciente-list .row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+app-paciente-list .row-actions button {
+  border: 0;
+  background: transparent;
+  color: #00877d;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding: 6px;
+  border-radius: 6px;
+}
+app-paciente-list .row-actions app-icono {
+  width: 16px;
+  height: 16px;
+}
+app-paciente-list .row-actions .icon-button {
+  color: #8a9db8;
+}
+app-paciente-list .row-actions .deactivate {
+  color: #dc8b06;
+}
+app-paciente-list .actions-heading {
+  text-align: center;
+}
+app-paciente-list .table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 11px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+app-paciente-list .page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: 14px;
+}
+app-paciente-list .page-size select {
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: #405471;
+  background: white;
+  font-size: 11px;
+}
+app-paciente-list .pagination {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+app-paciente-list .pagination button {
+  border: 0;
+  background: none;
+  border-radius: 8px;
+  padding: 8px 11px;
+  color: #5d7492;
+  font-size: 11px;
+}
+app-paciente-list .pagination .current {
+  background: var(--teal);
+  color: white;
+}
+app-paciente-list .pagination button:disabled,
+app-paciente-list .clear:disabled {
+  opacity: 0.45;
+}
+app-paciente-list .summaries {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+app-paciente-list .summaries article {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: white;
+  padding: 23px;
+}
+app-paciente-list .summaries p {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+  margin: 2px 0 12px;
+}
+app-paciente-list .summaries strong {
+  font-size: 28px;
+  font-weight: 650;
+}
+app-paciente-list .summaries small {
+  display: block;
+  font-size: 11px;
+  color: #869ab5;
+  margin-top: 8px;
+}
+app-paciente-list .summaries .state-label {
+  font-size: 24px;
+  color: #07877e;
+}
+app-paciente-list .tile {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  background: #effbf9;
+  color: var(--teal);
+}
+app-paciente-list .tile.amber {
+  color: #db8b06;
+  background: #fff9e9;
+}
+app-paciente-list .metric-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+app-paciente-list .metric-line > span {
+  font-size: 11px;
+  color: #8298b3;
+}
+app-paciente-list .active-summary strong {
+  color: #00a77f;
+}
+app-paciente-list .inactive-summary strong {
+  color: #dc8b06;
+}
+app-paciente-list .metric-track {
+  height: 5px;
+  background: #eaf6f2;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 18px;
+}
+app-paciente-list .metric-track span {
+  display: block;
+  height: 100%;
+  background: #10b88c;
+  border-radius: 8px;
+}
+app-paciente-list .metric-line .percent-badge {
+  color: #d68b00;
+  background: #fff8e8;
+  border-radius: 20px;
+  padding: 4px 8px;
+}
+app-paciente-list .summary-notice {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: -12px;
+  margin-bottom: 20px;
+}
+app-paciente-list .summaries p {
+  padding-right: 34px;
+  min-height: 32px;
+  line-height: 1.5;
+}

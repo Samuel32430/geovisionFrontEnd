@@ -6,20 +6,24 @@
     </div>
     <p class="date">{{ fecha }}</p>
   </div>
-  <div class="search">
+  <form class="search" (submit)="$event.preventDefault(); avisos.pendiente('Búsqueda global')">
     <app-icono nombre="search" /><input
       aria-label="Buscar paciente, DNI, ticket o armazón"
       placeholder="Buscar paciente, DNI, ticket o armazón…"
-      disabled
-      title="Búsqueda global próximamente"
-    /><span>⌘K</span>
-  </div>
+      title="Presiona Enter para buscar"
+    /><button type="submit" class="search-submit">Buscar</button>
+  </form>
   <div class="header-actions">
-    <button class="notification" type="button" disabled aria-label="Notificaciones (próximamente)">
+    <button
+      class="notification"
+      type="button"
+      (click)="avisos.pendiente('Notificaciones')"
+      aria-label="Notificaciones"
+    >
       <app-icono nombre="bell" /></button
-    ><button class="btn btn-light" type="button" disabled title="Registro de consulta pendiente">
+    ><button class="btn btn-light" type="button" (click)="avisos.pendiente('Nueva consulta')">
       <app-icono nombre="document" />+ Nueva Consulta</button
-    ><button class="btn btn-primary" type="button" disabled title="Módulo de ventas pendiente">
+    ><button class="btn btn-primary" type="button" (click)="avisos.pendiente('Nueva venta')">
       <app-icono nombre="plus" />Nueva Venta
     </button>
   </div>
@@ -46,8 +50,25 @@
           <p>Órdenes generadas en punto de venta y laboratorio</p>
         </div>
         <div class="table-actions">
-          <button type="button" class="btn btn-neutral" disabled>Filtrar por estado</button
-          ><button type="button" class="btn btn-light" disabled>Exportar lista</button>
+          <button
+            type="button"
+            class="btn btn-neutral"
+            (click)="avisos.pendiente('Filtro por estado')"
+          >
+            Filtrar por estado</button
+          ><button
+            type="button"
+            class="btn btn-light"
+            (click)="
+              avisos.abrir({
+                titulo: 'No se pudo exportar la lista',
+                mensaje: 'No hay ventas ni pedidos para exportar.',
+                tipo: 'informacion',
+              })
+            "
+          >
+            Exportar lista
+          </button>
         </div>
       </div>
       <div class="table-scroll">
@@ -105,7 +126,11 @@
           <p>Aquí verás los productos que necesiten reposición.</p>
         </div>
         <div class="panel-footer">
-          <button type="button" class="text-button" disabled>
+          <button
+            type="button"
+            class="text-button"
+            (click)="avisos.pendiente('Control de inventario')"
+          >
             Gestionar inventario de almacén<app-icono nombre="chevron" />
           </button>
         </div>
@@ -125,7 +150,13 @@
           <p>Las atenciones del día aparecerán en este espacio.</p>
         </div>
         <div class="panel-footer">
-          <button type="button" class="agenda-button" disabled>Ver Agenda Completa</button>
+          <button
+            type="button"
+            class="agenda-button"
+            (click)="avisos.pendiente('Agenda de consultas')"
+          >
+            Ver Agenda Completa
+          </button>
         </div>
       </section>
     </div>

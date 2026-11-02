@@ -1,0 +1,148 @@
+<div class="profile-page">
+  <nav class="breadcrumbs" aria-label="Ruta de navegación">
+    <a routerLink="/atencion-paciente-consulta/pacientes"><app-icono nombre="users" />Pacientes</a
+    ><span>/</span><strong>Perfil del paciente</strong>
+  </nav>
+  @if (cargando()) {
+    <div class="page-state" role="status">
+      <app-icono nombre="user" />
+      <h1>Cargando perfil…</h1>
+      <p>Consultando los datos del paciente.</p>
+    </div>
+  }
+  @if (error(); as mensaje) {
+    <div class="page-state error" role="alert">
+      <app-icono nombre="warning" />
+      <h1>No se pudo abrir el perfil</h1>
+      <p>{{ mensaje }}</p>
+      <div>
+        <button type="button" class="button neutral" (click)="reintentar()">Reintentar</button
+        ><a class="button" routerLink="/atencion-paciente-consulta/pacientes">Volver al listado</a>
+      </div>
+    </div>
+  }
+  @if (paciente(); as datos) {
+    <header class="profile-heading">
+      <div>
+        <div class="title-line">
+          <h1>{{ nombre() }}</h1>
+          <span class="status" [class.inactive]="datos.estado === 0"
+            ><i></i>{{ datos.estado === 1 ? 'Activo' : 'Inactivo' }}</span
+          >
+        </div>
+        <p>
+          {{
+            datos.persona.tipoDocumento === 'CARNET_EXTRANJERIA'
+              ? 'CE'
+              : datos.persona.tipoDocumento
+          }}: <strong>{{ datos.persona.numeroDocumento }}</strong
+          ><span>·</span>Paciente #{{ datos.idPersona }}
+        </p>
+      </div>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="button neutral"
+          [disabled]="guardando()"
+          (click)="cambiarEstado()"
+        >
+          <app-icono [nombre]="datos.estado === 1 ? 'user-minus' : 'user-plus'" />{{
+            guardando()
+              ? 'Actualizando…'
+              : datos.estado === 1
+                ? 'Desactivar paciente'
+                : 'Reactivar paciente'
+          }}</button
+        ><button
+          type="button"
+          class="button"
+          [routerLink]="['/atencion-paciente-consulta/pacientes', datos.idPersona, 'editar']"
+          [disabled]="guardando()"
+        >
+          <app-icono nombre="edit" />Editar datos</button
+        ><a
+          class="button"
+          routerLink="/atencion-paciente-consulta/pacientes"
+          [queryParams]="{ estado: datos.estado }"
+          >← Volver al listado</a
+        >
+      </div>
+    </header>
+    @if (datos.estado === 0) {
+      <div class="inactive-notice" id="inactive-note" role="status">
+        <app-icono nombre="warning" />
+        <p>
+          <strong>Paciente inactivo.</strong> Puedes consultar sus datos e historial. Reactívalo
+          para registrar nuevos exámenes o recetas externas.
+        </p>
+      </div>
+    }
+    <section class="clinical" aria-labelledby="clinical-title">
+      <div class="section-heading">
+        <div>
+          <h2 id="clinical-title">ACCIONES CLÍNICAS PRINCIPALES</h2>
+          <p>Evaluación optométrica y consulta de recetas</p>
+        </div>
+      </div>
+      <div class="clinical-grid">
+        <button
+          type="button"
+          class="clinical-card primary-card"
+          [disabled]="datos.estado === 0 || guardando()"
+          [attr.aria-describedby]="datos.estado === 0 ? 'inactive-note' : null"
+          (click)="accionClinica('Nuevo examen visual')"
+          aria-label="Nuevo examen visual"
+        >
+          <span class="action-icon"><app-icono nombre="eye" /></span
+          ><span class="action-title">Nuevo examen visual</span
+          ><span class="action-description"
+            >Iniciar el registro de medidas ópticas del paciente.</span
+          ><span class="action-link">Abrir examen visual <span>→</span></span>
+        </button>
+        <button
+          type="button"
+          class="clinical-card"
+          [disabled]="datos.estado === 0 || guardando()"
+          [attr.aria-describedby]="datos.estado === 0 ? 'inactive-note' : null"
+          (click)="accionClinica('Registro de receta externa')"
+          aria-label="Registrar receta externa"
+        >
+          <span class="action-icon"><app-icono nombre="document" /></span
+          ><span class="action-title">Registrar receta externa</span
+          ><span class="action-description"
+            >Transcribir las medidas de una receta presentada por el paciente.</span
+          ><span class="action-link">Ingresar receta externa <span>→</span></span>
+        </button>
+        <button
+          type="button"
+          class="clinical-card"
+          (click)="avisos.pendiente('Historial clínico')"
+          aria-label="Ver historial clínico"
+        >
+          <span class="action-icon neutral-icon"><app-icono nombre="document" /></span
+          ><span class="action-title">Ver historial clínico</span
+          ><span class="action-description"
+            >Consultar recetas y medidas ópticas registradas anteriormente.</span
+          ><span class="action-link">Consultar historial <span>→</span></span>
+        </button>
+      </div>
+    </section>
+    <div class="detail-grid">
+      <app-paciente-ficha
+        [paciente]="datos"
+        [ultimaReceta]="ultimaReceta()"
+        [cargandoRecetas]="cargandoRecetas()"
+        [errorRecetas]="errorRecetas()"
+      />
+      <app-recetas-recientes
+        [resultado]="historial()"
+        [cargando]="cargandoRecetas()"
+        [error]="errorRecetas()"
+        (recargar)="reintentar()"
+      />
+    </div>
+    @if (guardando()) {
+      <p class="saving" role="status">Cambio de estado en curso…</p>
+    }
+  }
+</div>

@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { AvisoService } from '../../shared/aviso-service';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Icono } from '../../shared/components/icono/icono';
 
@@ -9,11 +10,12 @@ import { Icono } from '../../shared/components/icono/icono';
   templateUrl: './main-layout.html',
 })
 export class MainLayout {
+  protected readonly avisos = inject(AvisoService);
   protected readonly menuAbierto = signal(false);
   protected readonly pendientes = [
-    { etiqueta: 'Ventas & Caja', icono: 'cart' },
-    { etiqueta: 'Laboratorio & Taller', icono: 'lab' },
-    { etiqueta: 'Inventario & Monturas', icono: 'box' },
+    { etiqueta: 'Venta de productos y servicios', icono: 'cart' },
+    { etiqueta: 'Elaboración de orden de trabajo', icono: 'lab' },
+    { etiqueta: 'Control de inventario', icono: 'box' },
   ];
   protected readonly seguridad = [
     { etiqueta: 'Configuración', icono: 'settings' },
