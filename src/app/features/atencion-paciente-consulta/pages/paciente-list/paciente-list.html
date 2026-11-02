@@ -1,0 +1,309 @@
+<header class="page-header">
+  <div>
+    <div class="heading">
+      <h1>Pacientes</h1>
+      <p>Gestión, registro y consulta de pacientes Geo Vision</p>
+    </div>
+  </div>
+  <div class="header-buttons">
+    <button
+      type="button"
+      class="button secondary"
+      (click)="avisos.pendiente('Exportar pacientes a Excel')"
+    >
+      <app-icono nombre="download" />Exportar Excel</button
+    ><button
+      type="button"
+      class="button primary"
+      routerLink="/atencion-paciente-consulta/pacientes/nuevo"
+    >
+      <app-icono nombre="user-plus" />Nuevo paciente
+    </button>
+  </div>
+</header>
+<div class="page-body">
+  <section class="summaries" aria-label="Resumen de pacientes">
+    <article>
+      <span class="tile"><app-icono nombre="users" /></span>
+      <p>TOTAL PACIENTES</p>
+      <strong>{{ resumen()?.total ?? '—' }}</strong>
+      <small>Pacientes registrados en Geo Vision</small>
+    </article>
+    <article class="active-summary">
+      <span class="tile"><app-icono nombre="check" /></span>
+      <p>PACIENTES ACTIVOS</p>
+      <div class="metric-line">
+        <strong>{{ resumen()?.activos ?? '—' }}</strong>
+        @if (resumen()) {
+          <span>{{ porcentajeActivos() }}% del total</span>
+        }
+      </div>
+      <div class="metric-track" aria-hidden="true">
+        <span [style.width.%]="resumen() ? porcentajeActivos() : 0"></span>
+      </div>
+    </article>
+    <article class="inactive-summary">
+      <span class="tile amber"><app-icono nombre="warning" /></span>
+      <p>PACIENTES INACTIVOS</p>
+      <div class="metric-line">
+        <strong>{{ resumen()?.inactivos ?? '—' }}</strong>
+        @if (resumen()) {
+          <span class="percent-badge">{{ porcentajeInactivos() }}%</span>
+        }
+      </div>
+      <small>Desactivados · conservan su historial</small>
+    </article>
+  </section>
+  @if (errorResumen()) {
+    <p class="summary-notice" role="status">
+      No se pudieron consultar los totales. Se actualizarán al reintentar la consulta.
+    </p>
+  }
+  <section class="filters" aria-label="Filtros de pacientes">
+    <div class="filter-row">
+      <form class="search-box" (submit)="$event.preventDefault(); buscar()">
+        <app-icono nombre="search" /><input
+          [formControl]="busqueda"
+          aria-label="Buscar pacientes"
+          placeholder="Buscar por documento, nombres, apellidos o teléfono…"
+        /><button type="submit" [disabled]="guardando()" aria-label="Ejecutar búsqueda">
+          Buscar
+        </button>
+      </form>
+      <div class="tabs" role="group" aria-label="Estado del paciente">
+        <button
+          type="button"
+          [class.selected]="consulta().estado === 1"
+          [attr.aria-pressed]="consulta().estado === 1"
+          [disabled]="guardando()"
+          (click)="filtrar(1)"
+        >
+          Activos</button
+        ><button
+          type="button"
+          [class.selected]="consulta().estado === 0"
+          [attr.aria-pressed]="consulta().estado === 0"
+          [disabled]="guardando()"
+          (click)="filtrar(0)"
+        >
+          Inactivos
+        </button>
+      </div>
+    </div>
+    <div class="filter-foot">
+      <span
+        ><i class="dot"></i>
+        {{
+          consulta().estado === 1
+            ? 'Pacientes habilitados para nuevas atenciones'
+            : 'Pacientes inactivos · su historial se conserva'
+        }}</span
+      ><button
+        type="button"
+        class="clear"
+        [disabled]="guardando() || (!busqueda.value && !consulta().termino)"
+        (click)="limpiar()"
+      >
+        Limpiar búsqueda
+      </button>
+    </div>
+  </section>
+  <section
+    class="directory"
+    aria-label="Directorio de pacientes"
+    [attr.aria-busy]="cargando() || guardando()"
+  >
+    @if (error(); as mensaje) {
+      <div class="feedback error" role="alert">
+        <span class="empty-icon"><app-icono nombre="warning" /></span>
+        <h2>No se pudo cargar el listado</h2>
+        <p>{{ mensaje }}</p>
+        <button type="button" class="button secondary" (click)="recargar()">Reintentar</button>
+      </div>
+    } @else if (cargando()) {
+      <div class="feedback" role="status">
+        <span class="empty-icon"><app-icono nombre="users" /></span>
+        <h2>Cargando pacientes…</h2>
+        <p>Consultando el directorio de pacientes.</p>
+      </div>
+    } @else if (resultado(); as pagina) {
+      @if (pagina.content.length) {
+        <div class="table-scroll">
+          <table>
+            <caption class="sr-only">
+              Pacientes
+              {{
+                consulta().estado === 1 ? 'activos' : 'inactivos'
+              }}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">DOCUMENTO</th>
+                <th scope="col">NOMBRES Y APELLIDOS</th>
+                <th scope="col">TELÉFONO</th>
+                <th scope="col">FECHA DE REGISTRO</th>
+                <th scope="col">ESTADO</th>
+                <th scope="col" class="actions-heading">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (paciente of pagina.content; track paciente.idPersona) {
+                <tr>
+                  <td>
+                    <span class="doc-type">{{ documento(paciente) }}</span
+                    ><span class="doc-number">{{ paciente.persona.numeroDocumento }}</span>
+                  </td>
+                  <td>
+                    <div class="person">
+                      <span class="avatar">{{ iniciales(paciente) }}</span>
+                      <div>
+                        <strong>{{
+                          paciente.persona.nombreCompleto ||
+                            paciente.persona.nombres + ' ' + paciente.persona.apellidos
+                        }}</strong
+                        ><small>Paciente #{{ paciente.idPersona }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="phone">{{ paciente.persona.telefono || 'Sin registrar' }}</td>
+                  <td>
+                    <span class="date">{{ paciente.fechaRegistro | date: 'dd/MM/yyyy' }}</span
+                    ><small>{{ paciente.fechaRegistro | date: 'HH:mm' }}</small>
+                  </td>
+                  <td>
+                    <span class="badge" [class.inactive]="paciente.estado === 0"
+                      ><i class="dot"></i>{{ paciente.estado === 1 ? 'Activo' : 'Inactivo' }}</span
+                    >
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button
+                        type="button"
+                        class="profile"
+                        (click)="avisos.pendiente('Perfil del paciente (P03)')"
+                        [attr.aria-label]="'Ver perfil de ' + paciente.persona.nombreCompleto"
+                      >
+                        <app-icono nombre="eye" />Ver perfil</button
+                      ><button
+                        type="button"
+                        class="icon-button"
+                        [routerLink]="[
+                          '/atencion-paciente-consulta/pacientes',
+                          paciente.idPersona,
+                          'editar',
+                        ]"
+                        [attr.aria-label]="'Editar datos de ' + paciente.persona.nombreCompleto"
+                        title="Editar datos"
+                      >
+                        <app-icono nombre="edit" /></button
+                      ><button
+                        type="button"
+                        class="icon-button"
+                        [class.deactivate]="paciente.estado === 1"
+                        [disabled]="guardando()"
+                        (click)="cambiarEstado(paciente)"
+                        [attr.aria-label]="
+                          (paciente.estado === 1 ? 'Desactivar a ' : 'Activar a ') +
+                          paciente.persona.nombreCompleto
+                        "
+                        [title]="paciente.estado === 1 ? 'Desactivar paciente' : 'Activar paciente'"
+                      >
+                        <app-icono [nombre]="paciente.estado === 1 ? 'user-minus' : 'user-plus'" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="feedback" role="status">
+          <span class="empty-icon"><app-icono nombre="search" /></span>
+          <h2>
+            {{
+              consulta().termino
+                ? 'No se encontraron pacientes para el criterio de búsqueda'
+                : 'No hay pacientes ' +
+                  (consulta().estado === 1 ? 'activos' : 'inactivos') +
+                  ' registrados'
+            }}
+          </h2>
+          <p>
+            {{
+              consulta().termino
+                ? 'Comprueba el documento, nombre, apellido o teléfono. Puedes limpiar la búsqueda e intentarlo nuevamente.'
+                : 'Los pacientes del estado seleccionado aparecerán aquí.'
+            }}
+          </p>
+          <div class="empty-actions">
+            @if (consulta().termino) {
+              <button type="button" class="button secondary" (click)="limpiar()">
+                Limpiar criterios
+              </button>
+            }
+            <button
+              type="button"
+              class="button primary"
+              routerLink="/atencion-paciente-consulta/pacientes/nuevo"
+            >
+              <app-icono nombre="plus" />Registrar nuevo paciente
+            </button>
+          </div>
+        </div>
+      }
+      <footer class="table-footer">
+        <div>
+          Mostrando <strong>{{ desde() }}–{{ hasta() }}</strong> de
+          <strong>{{ total() }}</strong> pacientes
+          <label class="page-size"
+            >Filas:<select
+              #tamanio
+              [value]="consulta().size"
+              (change)="cambiarTamanio(tamanio.value)"
+              [disabled]="guardando()"
+              aria-label="Pacientes por página"
+            >
+              @for (size of [5, 10, 20, 50, 100]; track size) {
+                <option [value]="size" [selected]="size === consulta().size">
+                  {{ size }} por página
+                </option>
+              }
+            </select></label
+          >
+        </div>
+        <nav class="pagination" aria-label="Páginas de pacientes">
+          <button
+            type="button"
+            [disabled]="guardando() || consulta().page === 0"
+            (click)="irA(consulta().page - 1)"
+          >
+            ‹ Anterior
+          </button>
+          @for (page of paginas(); track page) {
+            <button
+              type="button"
+              [class.current]="page === consulta().page"
+              [attr.aria-current]="page === consulta().page ? 'page' : null"
+              [attr.aria-label]="'Página ' + (page + 1)"
+              [disabled]="guardando()"
+              (click)="irA(page)"
+            >
+              {{ page + 1 }}
+            </button>
+          }
+          <button
+            type="button"
+            [disabled]="guardando() || pagina.last || total() === 0"
+            (click)="irA(consulta().page + 1)"
+          >
+            Siguiente ›
+          </button>
+        </nav>
+      </footer>
+    }
+  </section>
+  @if (guardando()) {
+    <p class="operation" role="status">Cambio de estado en curso…</p>
+  }
+</div>
