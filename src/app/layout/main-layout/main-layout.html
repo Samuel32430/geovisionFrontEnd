@@ -48,6 +48,22 @@
         <app-icono [nombre]="item.icono" />{{ item.etiqueta }}
       </button>
     }
+    @if (accesoSeguridad.permitido()) {
+      <a
+        routerLink="/seguridad/usuarios"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuAbierto.set(false)"
+        ><app-icono nombre="users" />Gestión de Usuarios</a
+      >
+      <a
+        routerLink="/seguridad/roles"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuAbierto.set(false)"
+        ><app-icono nombre="shield" />Roles y Permisos</a
+      >
+    }
   </nav>
   <div class="sidebar-footer">
     <div class="profile">

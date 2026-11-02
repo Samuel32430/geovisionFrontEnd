@@ -25,7 +25,9 @@
     </div>
   } @else if (receta(); as r) {
     <section class="patient">
-      <span class="patient-avatar" aria-hidden="true">{{ r.nombreCompletoPaciente.slice(0, 1) }}</span>
+      <span class="patient-avatar" aria-hidden="true">{{
+        r.nombreCompletoPaciente.slice(0, 1)
+      }}</span>
       <div>
         <h2>{{ r.nombreCompletoPaciente }}</h2>
         <p>Documento: {{ r.numeroDocumentoPaciente }}</p>
@@ -36,43 +38,45 @@
     </section>
     <div class="layout">
       <div>
-    <section class="measures">
-      <h2>Medidas disponibles</h2>
-      <div class="measure-grid">
-        @for (m of r.medidas; track m.idMedida) {
-          <article>
-            <h3>
-
-              {{
-                m.tipoMedida === 'LEJOS'
-                  ? 'Lejos'
-                  : m.tipoMedida === 'CERCA'
-                    ? 'Cerca'
-                    : 'Intermedia'
-              }}
-            </h3>
-            <p>Distancia pupilar: {{ m.distanciaPupilar }} mm · Prisma: {{ m.prisma ?? '—' }}</p>
-            <p>
-              <strong>OD:</strong> ESF {{ m.ojoDerecho?.esfera ?? '—' }} · CIL
-              {{ m.ojoDerecho?.cilindro ?? '—' }} · EJE {{ m.ojoDerecho?.eje ?? '—' }} · ADD
-              {{ m.ojoDerecho?.adicion ?? '—' }} · AV {{ m.ojoDerecho?.agudezaVisual || '—' }}
-            </p>
-            <p>
-              <strong>OI:</strong> ESF {{ m.ojoIzquierdo?.esfera ?? '—' }} · CIL
-              {{ m.ojoIzquierdo?.cilindro ?? '—' }} · EJE {{ m.ojoIzquierdo?.eje ?? '—' }} · ADD
-              {{ m.ojoIzquierdo?.adicion ?? '—' }} · AV {{ m.ojoIzquierdo?.agudezaVisual || '—' }}
-            </p>
-          </article>
-        } @empty {
-          <p>No hay medidas disponibles. No se pueden configurar lentes.</p>
+        <section class="measures">
+          <h2>Medidas disponibles</h2>
+          <div class="measure-grid">
+            @for (m of r.medidas; track m.idMedida) {
+              <article>
+                <h3>
+                  {{
+                    m.tipoMedida === 'LEJOS'
+                      ? 'Lejos'
+                      : m.tipoMedida === 'CERCA'
+                        ? 'Cerca'
+                        : 'Intermedia'
+                  }}
+                </h3>
+                <p>
+                  Distancia pupilar: {{ m.distanciaPupilar }} mm · Prisma: {{ m.prisma ?? '—' }}
+                </p>
+                <p>
+                  <strong>OD:</strong> ESF {{ m.ojoDerecho?.esfera ?? '—' }} · CIL
+                  {{ m.ojoDerecho?.cilindro ?? '—' }} · EJE {{ m.ojoDerecho?.eje ?? '—' }} · ADD
+                  {{ m.ojoDerecho?.adicion ?? '—' }} · AV {{ m.ojoDerecho?.agudezaVisual || '—' }}
+                </p>
+                <p>
+                  <strong>OI:</strong> ESF {{ m.ojoIzquierdo?.esfera ?? '—' }} · CIL
+                  {{ m.ojoIzquierdo?.cilindro ?? '—' }} · EJE {{ m.ojoIzquierdo?.eje ?? '—' }} · ADD
+                  {{ m.ojoIzquierdo?.adicion ?? '—' }} · AV
+                  {{ m.ojoIzquierdo?.agudezaVisual || '—' }}
+                </p>
+              </article>
+            } @empty {
+              <p>No hay medidas disponibles. No se pueden configurar lentes.</p>
+            }
+          </div>
+        </section>
+        @if (!permiso()) {
+          <div class="notice" appAvisoCerrable role="alert">
+            Tu sesión necesita el permiso RECETAS_REGISTRAR para guardar configuraciones.
+          </div>
         }
-      </div>
-    </section>
-    @if (!permiso()) {
-      <div class="notice" role="alert">
-        Tu sesión necesita el permiso RECETAS_REGISTRAR para guardar configuraciones.
-      </div>
-    }
         @for (l of r.lentes; track l.idLente) {
           <section class="card saved">
             <header>
@@ -98,7 +102,9 @@
                 <h2>
                   {{ t.registrado ? 'Lente registrado' : 'Configuración pendiente' }}
                 </h2>
-                <span class="badge" [class.pending-badge]="!t.registrado">{{ t.registrado ? 'Registrado · Solo consulta' : 'Pendiente de guardar' }}</span>
+                <span class="badge" [class.pending-badge]="!t.registrado">{{
+                  t.registrado ? 'Registrado · Solo consulta' : 'Pendiente de guardar'
+                }}</span>
               </div>
               @if (!t.registrado) {
                 <div class="tools">
@@ -236,14 +242,12 @@
         <div class="summary-body">
           @for (l of r.lentes; track l.idLente) {
             <p>
-              <span>Lente registrado</span
-              ><strong>S/ {{ l.subTotal | number: '1.2-2' }}</strong>
+              <span>Lente registrado</span><strong>S/ {{ l.subTotal | number: '1.2-2' }}</strong>
             </p>
           }
           @for (t of tarjetas(); track t.clave; let i = $index) {
             <p>
-              <span
-                >{{ t.registrado ? 'Lente registrado' : 'Configuración pendiente' }}</span
+              <span>{{ t.registrado ? 'Lente registrado' : 'Configuración pendiente' }}</span
               ><strong>{{
                 t.form.controls.subtotal.valid
                   ? 'S/ ' + (t.form.controls.subtotal.value | number: '1.2-2')
@@ -259,7 +263,7 @@
             <span>Subtotales pendientes de guardar</span
             ><strong>S/ {{ totalPendiente() | number: '1.2-2' }}</strong>
           </p>
-          <div class="notice">
+          <div class="notice" appAvisoCerrable>
             Los importes se ingresan manualmente por lente. Las configuraciones pendientes no se
             guardan automáticamente.
           </div>

@@ -5,6 +5,7 @@ import { Icono } from '../../shared/components/icono/icono';
 import { AuthService } from '../../core/auth/auth-service';
 import { SesionService } from '../../core/auth/sesion-service';
 import { Router } from '@angular/router';
+import { SeguridadAccess } from '../../features/seguridad/seguridad-access';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet, Icono],
@@ -15,6 +16,7 @@ import { Router } from '@angular/router';
 export class MainLayout {
   protected readonly avisos = inject(AvisoService);
   protected readonly sesion = inject(SesionService);
+  protected readonly accesoSeguridad = inject(SeguridadAccess);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -25,11 +27,7 @@ export class MainLayout {
     { etiqueta: 'Elaboración de orden de trabajo', icono: 'lab' },
     { etiqueta: 'Control de inventario', icono: 'box' },
   ];
-  protected readonly seguridad = [
-    { etiqueta: 'Configuración', icono: 'settings' },
-    { etiqueta: 'Gestión de Usuarios', icono: 'users' },
-    { etiqueta: 'Roles y Permisos', icono: 'shield' },
-  ];
+  protected readonly seguridad = [{ etiqueta: 'Configuración', icono: 'settings' }];
 
   protected async cerrarSesion(): Promise<void> {
     if (this.cerrando()) return;

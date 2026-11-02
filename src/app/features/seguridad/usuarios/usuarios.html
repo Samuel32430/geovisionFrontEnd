@@ -1,0 +1,216 @@
+<div class="security-page">
+  <header class="heading">
+    <div>
+      <h1>Gestión de Usuarios</h1>
+      <p>Administra las cuentas de acceso y sus roles en Geo Vision.</p>
+    </div>
+    <a class="btn primary" routerLink="/seguridad/usuarios/nuevo"
+      ><app-icono nombre="user-plus" />Nuevo usuario</a
+    >
+  </header>
+  <section class="panel filter-row" aria-label="Filtros de usuarios">
+    <label class="search"
+      ><app-icono nombre="search" /><input
+        type="search"
+        aria-label="Buscar usuarios"
+        placeholder="Buscar por usuario, nombre, correo o rol…"
+        [ngModel]="busqueda()"
+        (ngModelChange)="buscar($event)"
+        [disabled]="ocupado()"
+    /></label>
+    <div class="tabs" role="group" aria-label="Estado de la cuenta">
+      @for (
+        opcion of [
+          { valor: -1, nombre: 'Todos' },
+          { valor: 1, nombre: 'Activos' },
+          { valor: 0, nombre: 'Inactivos' },
+        ];
+        track opcion.valor
+      ) {
+        <button
+          type="button"
+          [class.selected]="estado() === opcion.valor"
+          [attr.aria-pressed]="estado() === opcion.valor"
+          [disabled]="ocupado()"
+          (click)="filtrar(opcion.valor)"
+        >
+          {{ opcion.nombre }}
+        </button>
+      }
+    </div>
+  </section>
+  <section
+    class="panel"
+    aria-label="Listado de usuarios"
+    [attr.aria-busy]="cargando() || ocupado()"
+  >
+    @if (cargando()) {
+      <div class="state" role="status">Cargando usuarios y roles…</div>
+    } @else if (error()) {
+      <div class="state" role="alert">
+        <h2>No se pudo cargar el listado</h2>
+        <p>{{ error() }}</p>
+        <button class="btn" (click)="cargar()">Reintentar</button>
+      </div>
+    } @else {
+      @if (filas().length) {
+        <div class="table-scroll">
+          <table>
+            <caption class="sr-only">
+              Cuentas de usuario
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">USUARIO</th>
+                <th scope="col">CORREO</th>
+                <th scope="col">ROLES</th>
+                <th scope="col">ESTADO</th>
+                <th scope="col">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of filas(); track u.idUsuario) {
+                <tr>
+                  <td>
+                    <div class="identity">
+                      <span class="avatar" [attr.data-color]="u.idUsuario % 4" aria-hidden="true">{{
+                        iniciales(u.nombreCompletoPersona || u.nombre)
+                      }}</span>
+                      <div>
+                        <strong>{{ u.nombre }}</strong
+                        ><small>{{ u.nombreCompletoPersona || 'Persona sin información' }}</small>
+                        @if (propia(u)) {
+                          <small>Tu cuenta</small>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ u.correo }}</td>
+                  <td>
+                    <div class="tags">
+                      @for (rol of u.roles; track rol.idRol) {
+                        <span class="badge">{{ rol.nombre }}</span>
+                      } @empty {
+                        <span>Sin roles</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge" [class.inactive]="u.estado === 0">{{
+                      u.estado === 1 ? 'Activo' : 'Inactivo'
+                    }}</span>
+                  </td>
+                  <td>
+                    <div class="actions">
+                      <button
+                        type="button"
+                        class="text-button"
+                        [routerLink]="['/seguridad/usuarios', u.idUsuario, 'editar']"
+                        [disabled]="ocupado()"
+                        [attr.aria-label]="'Editar ' + u.nombre"
+                      >
+                        <app-icono nombre="edit" />Editar</button
+                      ><button
+                        type="button"
+                        class="text-button"
+                        [disabled]="ocupado()"
+                        (click)="abrirRoles(u)"
+                        [attr.aria-label]="'Asignar roles a ' + u.nombre"
+                      >
+                        <app-icono nombre="shield" />Roles</button
+                      ><button
+                        type="button"
+                        class="text-button"
+                        [class.amber]="u.estado === 1"
+                        [disabled]="ocupado() || propia(u)"
+                        [title]="propia(u) ? 'No puedes desactivar tu propia cuenta' : ''"
+                        [attr.aria-label]="
+                          (u.estado === 1 ? 'Desactivar ' : 'Reactivar ') + u.nombre
+                        "
+                        (click)="cambiarEstado(u)"
+                      >
+                        {{ u.estado === 1 ? 'Desactivar' : 'Reactivar' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="state" role="status">
+          <h2>
+            {{ datos().length ? 'No se encontraron coincidencias' : 'No hay usuarios disponibles' }}
+          </h2>
+          <p>
+            {{
+              datos().length
+                ? 'Prueba con otro criterio o cambia el filtro de estado.'
+                : 'Las cuentas registradas aparecerán aquí.'
+            }}
+          </p>
+        </div>
+      }
+      <footer class="pagination user-pagination">
+        <div class="pagination-info" aria-live="polite">
+          <span
+            >Mostrando <strong>{{ desde() }}–{{ hasta() }}</strong> de
+            <strong>{{ filtrados().length }}</strong> usuarios</span
+          ><label class="page-size"
+            >Filas:<select
+              #size
+              [value]="tamanio()"
+              (change)="cambiarTamanio(size.value)"
+              [disabled]="ocupado()"
+              aria-label="Usuarios por página"
+            >
+              @for (cantidad of [5, 10, 20, 50, 100]; track cantidad) {
+                <option [value]="cantidad">{{ cantidad }} por página</option>
+              }
+            </select></label
+          >
+        </div>
+        <nav class="page-buttons" aria-label="Páginas de usuarios">
+          <button
+            type="button"
+            [disabled]="pagina() === 0 || ocupado()"
+            (click)="pagina.set(pagina() - 1)"
+          >
+            ‹ Anterior
+          </button>
+          @for (numero of numerosPagina(); track numero) {
+            <button
+              type="button"
+              [class.current]="numero === pagina()"
+              [attr.aria-current]="numero === pagina() ? 'page' : null"
+              [attr.aria-label]="'Página ' + (numero + 1)"
+              [disabled]="ocupado()"
+              (click)="pagina.set(numero)"
+            >
+              {{ numero + 1 }}
+            </button>
+          }
+          <button
+            type="button"
+            [disabled]="pagina() + 1 >= paginas() || ocupado()"
+            (click)="pagina.set(pagina() + 1)"
+          >
+            Siguiente ›
+          </button>
+        </nav>
+      </footer>
+    }
+  </section>
+  <p>Las cuentas se desactivan; sus registros se conservan.</p>
+</div>
+@if (editandoRoles(); as usuario) {
+  <app-roles-dialog
+    [usuario]="usuario"
+    [roles]="roles()"
+    [guardando]="ocupado()"
+    [error]="errorRoles()"
+    (guardar)="guardarRoles($event)"
+    (cancelar)="editandoRoles.set(null)"
+  />
+}

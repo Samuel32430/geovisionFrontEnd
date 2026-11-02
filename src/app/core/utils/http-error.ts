@@ -11,7 +11,7 @@ export function mensajeErrorHttp(error: unknown): string {
   if (error.status === 401)
     return 'Inicia sesión nuevamente para continuar. Tu sesión no está disponible o ha expirado.';
   if (error.status === 403)
-    return 'No tienes autorización para esta operación. Se requiere una sesión con los permisos de pacientes.';
+    return 'No tienes autorización para esta operación. Se requiere una sesión con los permisos correspondientes.';
   const cuerpo: unknown = error.error;
   if (
     cuerpo &&

@@ -1,3 +1,4 @@
+import { AvisoCerrable } from '../../../../shared/aviso-cerrable';
 import { Component } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -7,7 +8,7 @@ import { RegistroClinicoBase } from '../registro-clinico-base';
 
 @Component({
   selector: 'app-receta-externa',
-  imports: [CabeceraPagina, MedidasForm, ReactiveFormsModule, DatePipe],
+  imports: [AvisoCerrable, CabeceraPagina, MedidasForm, ReactiveFormsModule, DatePipe],
   templateUrl: './receta-externa.html',
   styleUrl: '../../styles/registro-clinico.css',
 })
