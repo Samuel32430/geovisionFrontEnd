@@ -1,0 +1,62 @@
+<dialog
+  #dialogo
+  aria-labelledby="aviso-titulo"
+  aria-describedby="aviso-mensaje"
+  (cancel)="cancelar($event)"
+>
+  @if (contenido(); as aviso) {
+    <div class="modal-body" [class]="'modal-body ' + (aviso.tipo ?? 'informacion')">
+      <button
+        type="button"
+        class="close-icon"
+        aria-label="Cerrar diálogo"
+        (click)="avisos.cerrar()"
+      >
+        ×
+      </button>
+      <span class="modal-icon"
+        ><app-icono [nombre]="aviso.tipo === 'exito' ? 'check' : 'warning'"
+      /></span>
+      <h2 id="aviso-titulo">{{ aviso.titulo }}</h2>
+      <p id="aviso-mensaje">{{ aviso.mensaje }}</p>
+      @if (aviso.advertencia; as advertencia) {
+        <div class="warning-box">
+          <app-icono nombre="warning" />
+          <div>
+            <strong>{{ advertencia.titulo }}</strong>
+            <p>{{ advertencia.mensaje }}</p>
+          </div>
+        </div>
+      }
+      @if (aviso.contenido; as contenido) {
+        <div class="custom-content"><ng-container [ngTemplateOutlet]="contenido" /></div>
+      }
+      <div class="actions" [class.confirm-actions]="aviso.tipo === 'confirmacion'">
+        @if (aviso.tipo === 'confirmacion') {
+          <button class="secondary" type="button" autofocus (click)="avisos.cerrar()">
+            {{ aviso.textoCerrar ?? 'Cancelar' }}
+          </button>
+        }
+        @for (accion of aviso.acciones ?? []; track $index) {
+          <button
+            type="button"
+            [class]="accion.estilo ?? 'principal'"
+            (click)="avisos.ejecutar(accion)"
+          >
+            {{ accion.etiqueta }}
+          </button>
+        }
+        @if (aviso.tipo !== 'confirmacion' && !aviso.acciones?.length) {
+          <button type="button" class="principal" autofocus (click)="avisos.cerrar()">
+            {{ aviso.textoCerrar ?? 'Entendido' }}
+          </button>
+        }
+      </div>
+      @if (aviso.tipo !== 'confirmacion' && aviso.acciones?.length) {
+        <button type="button" class="close-text" (click)="avisos.cerrar()">
+          {{ aviso.textoCerrar ?? 'Cerrar' }}
+        </button>
+      }
+    </div>
+  }
+</dialog>

@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AvisoService } from '../../../../shared/aviso-service';
 import { Icono } from '../../../../shared/components/icono/icono';
 
 @Component({
@@ -8,6 +9,7 @@ import { Icono } from '../../../../shared/components/icono/icono';
   styleUrl: './dashboard.css',
 })
 export class Dashboard {
+  protected readonly avisos = inject(AvisoService);
   protected readonly fecha = new Intl.DateTimeFormat('es-PE', {
     weekday: 'long',
     day: 'numeric',

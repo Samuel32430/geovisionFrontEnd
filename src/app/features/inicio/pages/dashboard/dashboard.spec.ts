@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Dashboard } from './dashboard';
+import { AvisoService } from '../../../../shared/aviso-service';
 
 describe('Dashboard', () => {
   it('should show zero indicators and empty sections without sample patient data', async () => {
@@ -14,8 +15,15 @@ describe('Dashboard', () => {
     expect(element.textContent).toContain('Aún no hay ventas ni pedidos');
     expect(element.textContent).toContain('No hay consultas registradas');
     expect(element.textContent).toContain('Sin alertas para mostrar');
-    expect(Array.from(element.querySelectorAll('button')).every((button) => button.disabled)).toBe(
-      true,
-    );
+    expect(
+      Array.from(element.querySelectorAll('.pagination button')).every(
+        (button) => (button as HTMLButtonElement).disabled,
+      ),
+    ).toBe(true);
+    const venta = Array.from(element.querySelectorAll('button')).find((button) =>
+      button.textContent?.includes('Nueva Venta'),
+    )!;
+    venta.click();
+    expect(TestBed.inject(AvisoService).actual()?.titulo).toBe('Nueva venta no disponible');
   });
 });

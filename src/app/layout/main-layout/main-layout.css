@@ -225,3 +225,43 @@ main {
     z-index: 20;
   }
 }
+nav a,
+nav button {
+  transition:
+    background-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease;
+}
+nav a:active {
+  background-color: #dff5f1;
+}
+nav a.active:hover,
+nav a.active:active {
+  background-color: #078b81;
+}
+nav button:hover {
+  background-color: #eefaf8;
+}
+@media (max-width: 760px) {
+  .sidebar {
+    transition: transform var(--motion-modal) var(--ease-out);
+  }
+  .backdrop {
+    animation: backdrop-enter var(--motion-modal) var(--ease-out);
+  }
+}
+@keyframes backdrop-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.profile > div {
+  min-width: 0;
+}
+.profile strong,
+.profile small {
+  overflow-wrap: anywhere;
+}
