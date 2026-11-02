@@ -23,4 +23,10 @@ export const ATENCION_PACIENTE_CONSULTA_ROUTES: Routes = [
     canDeactivate: [cambiosPacienteGuard],
     loadComponent: () => import('./pages/paciente-form/paciente-form').then((m) => m.PacienteForm),
   },
+  {
+    path: 'pacientes/:id',
+    title: 'Perfil del paciente | Geo Vision',
+    loadComponent: () =>
+      import('./pages/paciente-perfil/paciente-perfil').then((m) => m.PacientePerfil),
+  },
 ];

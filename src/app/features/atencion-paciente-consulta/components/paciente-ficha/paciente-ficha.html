@@ -1,0 +1,87 @@
+@let datos = paciente();
+<section class="patient-card" aria-labelledby="patient-title">
+  <div class="patient-identity">
+    <span class="avatar">{{ iniciales() }}<i [class.offline]="datos.estado === 0"></i></span>
+    <div>
+      <span class="eyebrow">DATOS DEL PACIENTE</span>
+      <h2 id="patient-title">{{ nombre() }}</h2>
+      <p>Información personal y de contacto</p>
+    </div>
+  </div>
+  <dl class="patient-fields">
+    <div>
+      <dt>Tipo y número de documento</dt>
+      <dd>
+        {{
+          datos.persona.tipoDocumento === 'CARNET_EXTRANJERIA' ? 'CE' : datos.persona.tipoDocumento
+        }}
+        · {{ datos.persona.numeroDocumento }}
+      </dd>
+    </div>
+    <div>
+      <dt>Teléfono móvil</dt>
+      <dd class="phone">{{ datos.persona.telefono || 'Sin registrar' }}</dd>
+    </div>
+    <div>
+      <dt>Fecha de nacimiento</dt>
+      <dd>
+        @if (datos.persona.fechaNacimiento) {
+          {{ datos.persona.fechaNacimiento | date: 'dd/MM/yyyy' }}
+        } @else {
+          Sin registrar
+        }
+      </dd>
+      @if (edad() !== null) {
+        <small>{{ edad() }} años</small>
+      }
+    </div>
+    <div>
+      <dt>Sexo registrado</dt>
+      <dd>
+        {{
+          datos.persona.sexoDescripcion ||
+            (datos.persona.sexo === 'MASCULINO'
+              ? 'Masculino'
+              : datos.persona.sexo === 'FEMENINO'
+                ? 'Femenino'
+                : 'Sin especificar')
+        }}
+      </dd>
+    </div>
+    <div class="full">
+      <dt>Dirección de residencia</dt>
+      <dd>{{ datos.persona.direccion || 'Sin registrar' }}</dd>
+    </div>
+    <div class="full">
+      <dt>Fecha de registro en Geo Vision</dt>
+      <dd>{{ datos.fechaRegistro | date: 'dd/MM/yyyy, HH:mm' }}</dd>
+    </div>
+  </dl>
+  <footer class="latest">
+    <app-icono nombre="calendar" />
+    <div>
+      <strong>ÚLTIMA RECETA REGISTRADA</strong>
+      @if (ultimaReceta(); as ultima) {
+        <p>{{ ultima.fechaRegistro | date: 'dd/MM/yyyy' }} · Receta #{{ ultima.idReceta }}</p>
+      } @else {
+        <p>
+          {{
+            cargandoRecetas()
+              ? 'Consultando recetas…'
+              : errorRecetas()
+                ? 'Información no disponible'
+                : 'Aún no hay recetas registradas'
+          }}
+        </p>
+      }
+    </div>
+    <button
+      type="button"
+      class="text-button"
+      (click)="avisos.pendiente('Historial clínico')"
+      aria-label="Ver historial del paciente"
+    >
+      Ver historial ↗
+    </button>
+  </footer>
+</section>

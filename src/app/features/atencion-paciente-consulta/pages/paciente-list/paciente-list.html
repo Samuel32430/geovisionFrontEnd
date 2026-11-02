@@ -180,7 +180,7 @@
                       <button
                         type="button"
                         class="profile"
-                        (click)="avisos.pendiente('Perfil del paciente (P03)')"
+                        [routerLink]="['/atencion-paciente-consulta/pacientes', paciente.idPersona]"
                         [attr.aria-label]="'Ver perfil de ' + paciente.persona.nombreCompleto"
                       >
                         <app-icono nombre="eye" />Ver perfil</button

@@ -1,0 +1,145 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.patient-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+}
+.patient-identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+}
+.avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: #117f77;
+  color: white;
+  font-size: 22px;
+  font-weight: 600;
+  box-shadow: 0 3px 5px #17363420;
+}
+.avatar i {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 19px;
+  height: 19px;
+  border: 3px solid white;
+  border-radius: 50%;
+  background: #10b78a;
+}
+.avatar .offline {
+  background: #a1afc1;
+}
+.eyebrow {
+  display: inline-block;
+  color: #00887a;
+  background: #edf9f6;
+  padding: 3px 7px;
+  font-size: 9px;
+  letter-spacing: 0.5px;
+}
+.patient-identity h2 {
+  font-size: 17px;
+  margin: 7px 0 5px;
+  letter-spacing: -0.3px;
+}
+.patient-identity p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+}
+.patient-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 24px 24px;
+  margin: 0;
+}
+.patient-fields > div {
+  padding: 13px;
+  background: #fafcfe;
+  border-radius: 12px;
+  min-width: 0;
+}
+.patient-fields .full {
+  grid-column: 1/-1;
+}
+dt {
+  font-size: 11px;
+  color: #8b9fba;
+  margin-bottom: 6px;
+}
+dd {
+  font-size: 12px;
+  color: #2e415d;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.phone {
+  color: #008b80;
+  font-weight: 600;
+}
+.patient-fields small {
+  display: block;
+  font-size: 10px;
+  color: #8095af;
+  margin-top: 4px;
+}
+.latest {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #effbf8;
+  padding: 17px 24px;
+  color: #07776e;
+  font-size: 11px;
+}
+.latest > app-icono {
+  width: 18px;
+  height: 18px;
+}
+.latest strong {
+  font-size: 9px;
+  letter-spacing: 0.4px;
+}
+.latest p {
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+.text-button {
+  margin-left: auto;
+  color: #00897e;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 0;
+}
+@media (max-width: 760px) {
+  .patient-identity {
+    padding: 20px;
+  }
+  .patient-fields {
+    padding: 0 20px 20px;
+    gap: 12px;
+  }
+  .latest {
+    padding: 16px 20px;
+    flex-wrap: wrap;
+  }
+  .patient-identity h2 {
+    font-size: 16px;
+  }
+}

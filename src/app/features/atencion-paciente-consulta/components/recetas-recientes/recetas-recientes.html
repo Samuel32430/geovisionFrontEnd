@@ -1,0 +1,91 @@
+<section class="recipes" aria-labelledby="recetas-title" [attr.aria-busy]="cargando()">
+  <header>
+    <div>
+      <h2 id="recetas-title">Recetas recientes</h2>
+      <p>Últimas recetas registradas en el historial del paciente</p>
+    </div>
+    <button type="button" class="text-button" (click)="avisos.pendiente('Historial clínico')">
+      Ver historial
+      @if (resultado(); as datos) {
+        <span>({{ datos.totalElements }})</span>
+      }
+    </button>
+  </header>
+  @if (cargando()) {
+    <div class="feedback" role="status">
+      <app-icono nombre="document" />
+      <h3>Cargando recetas…</h3>
+      <p>Consultando los registros más recientes.</p>
+    </div>
+  } @else if (error(); as mensaje) {
+    <div class="feedback error" role="alert">
+      <app-icono nombre="warning" />
+      <h3>No se pudieron cargar las recetas</h3>
+      <p>{{ mensaje }}</p>
+      <button type="button" class="retry" (click)="recargar.emit()">Reintentar</button>
+    </div>
+  } @else if (resultado(); as datos) {
+    @if (datos.content.length) {
+      <div class="table-scroll">
+        <table>
+          <caption class="sr-only">
+            Las tres recetas más recientes, ordenadas por fecha de registro
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">ID RECETA</th>
+              <th scope="col">FECHA</th>
+              <th scope="col">ORIGEN</th>
+              <th scope="col">RESPONSABLE DEL REGISTRO</th>
+              <th scope="col">ACCIÓN</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (receta of datos.content; track receta.idReceta) {
+              <tr>
+                <td>
+                  <strong>#{{ receta.idReceta }}</strong>
+                </td>
+                <td>{{ receta.fechaRegistro | date: 'dd/MM/yyyy' }}</td>
+                <td>
+                  <span
+                    class="origin"
+                    [class.external]="receta.esExterno === 1 || receta.esRecetaExterna"
+                    ><i></i
+                    >{{
+                      receta.esExterno === 1 || receta.esRecetaExterna ? 'Externa' : 'Interna'
+                    }}</span
+                  >
+                </td>
+                <td>{{ receta.nombreCompletoEmpleado || 'Sin información' }}</td>
+                <td>
+                  <button
+                    type="button"
+                    class="text-button detail"
+                    (click)="avisos.pendiente('Detalle de receta')"
+                    [attr.aria-label]="'Ver detalle de receta ' + receta.idReceta"
+                  >
+                    <app-icono nombre="eye" />Ver detalle
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        Mostrando {{ datos.content.length }} de {{ datos.totalElements }} recetas · Más recientes
+        primero
+      </p>
+    } @else {
+      <div class="feedback" role="status">
+        <app-icono nombre="document" />
+        <h3>Aún no hay recetas registradas</h3>
+        <p>Los exámenes visuales y las recetas externas aparecerán aquí después de registrarse.</p>
+      </div>
+    }
+  }
+  <footer>
+    <app-icono nombre="shield" /><span>El historial del paciente se conserva al desactivarlo.</span>
+  </footer>
+</section>

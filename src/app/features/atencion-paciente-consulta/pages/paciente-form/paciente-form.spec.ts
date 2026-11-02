@@ -94,7 +94,7 @@ describe('PacienteForm', () => {
     req.flush({ ...paciente, estado: 1 });
     fixture.detectChanges();
     expect(TestBed.inject(AvisoService).actual()?.tipo).toBe('exito');
-    expect(navegar).toHaveBeenCalledWith(['/atencion-paciente-consulta/pacientes'], { queryParams: { estado: 1 } });
+    expect(navegar).toHaveBeenCalledWith(['/atencion-paciente-consulta/pacientes', 7]);
     expect(fixture.componentInstance.puedeSalir()).toBe(true);
   });
 

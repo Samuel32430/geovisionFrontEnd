@@ -229,7 +229,7 @@ export class PacienteForm implements OnInit {
               : 'Paciente registrado correctamente',
             mensaje: `Se guardaron los datos de ${paciente.persona.nombreCompleto || paciente.persona.nombres + ' ' + paciente.persona.apellidos}.`,
           });
-          void this.router.navigate(['/atencion-paciente-consulta/pacientes'], { queryParams: { estado: paciente.estado } });
+          void this.router.navigate(['/atencion-paciente-consulta/pacientes', paciente.idPersona]);
         },
         error: (error: unknown) => {
           this.error.set(mensajeErrorHttp(error));
@@ -268,7 +268,7 @@ export class PacienteForm implements OnInit {
       )
       .subscribe({
         next: (paciente) => {
-          void this.router.navigate(['/atencion-paciente-consulta/pacientes'], { queryParams: { buscar: paciente.persona.numeroDocumento, estado: paciente.estado } });
+          void this.router.navigate(['/atencion-paciente-consulta/pacientes', paciente.idPersona]);
         },
         error: (error: unknown) =>
           this.avisos.abrir({
