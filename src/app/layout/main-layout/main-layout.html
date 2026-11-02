@@ -51,15 +51,15 @@
   </nav>
   <div class="sidebar-footer">
     <div class="profile">
-      <span class="avatar">GV</span>
+      <span class="avatar">{{ sesion.iniciales() }}</span>
       <div>
-        <strong>Usuario</strong
-        ><small>Sesión sin configurar</small
-        ><span class="location">● Sede por configurar</span>
+        <strong>{{ sesion.nombre() }}</strong
+        ><small>{{ sesion.actual()?.roles?.join(' · ') || 'Sin rol asignado' }}</small
+        ><span class="location">● Sesión activa</span>
       </div>
     </div>
-    <button class="logout" type="button" (click)="avisos.pendiente('Cerrar sesión')">
-      <app-icono nombre="logout" />Cerrar sesión
+    <button class="logout" type="button" [disabled]="cerrando()" (click)="cerrarSesion()">
+      <app-icono nombre="logout" />{{ cerrando() ? 'Cerrando sesión…' : 'Cerrar sesión' }}
     </button>
   </div>
 </aside>
