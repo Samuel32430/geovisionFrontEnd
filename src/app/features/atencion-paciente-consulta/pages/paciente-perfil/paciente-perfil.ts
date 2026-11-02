@@ -1,5 +1,6 @@
+import { CabeceraPagina } from '../../../../shared/components/cabecera-pagina/cabecera-pagina';
 import { Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
   BehaviorSubject,
@@ -24,7 +25,7 @@ import { PacienteFicha } from '../../components/paciente-ficha/paciente-ficha';
 
 @Component({
   selector: 'app-paciente-perfil',
-  imports: [RouterLink, Icono, RecetasRecientes, PacienteFicha],
+  imports: [CabeceraPagina, RouterLink, Icono, RecetasRecientes, PacienteFicha],
   templateUrl: './paciente-perfil.html',
   styleUrl: './paciente-perfil.css',
 })
@@ -144,7 +145,18 @@ export class PacientePerfil implements OnInit {
       });
   }
 
+  private readonly router = inject(Router);
+  protected abrirHistorial(receta?: number): void {
+    this.router.navigate(['/atencion-paciente-consulta/pacientes', this.id(), 'historial'], {
+      queryParams: receta ? { receta } : {},
+    });
+  }
   protected accionClinica(funcion: string): void {
-    if (this.paciente()?.estado === 1 && !this.guardando()) this.avisos.pendiente(funcion);
+    if (this.paciente()?.estado !== 1 || this.guardando()) return;
+    if (funcion === 'Nuevo examen visual') {
+      this.router.navigate(['/atencion-paciente-consulta/pacientes', this.id(), 'examen-visual']);
+    } else if (funcion === 'Registro de receta externa') {
+      this.router.navigate(['/atencion-paciente-consulta/pacientes', this.id(), 'receta-externa']);
+    } else this.avisos.pendiente(funcion);
   }
 }

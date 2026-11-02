@@ -4,7 +4,7 @@
       <h2 id="recetas-title">Recetas recientes</h2>
       <p>Últimas recetas registradas en el historial del paciente</p>
     </div>
-    <button type="button" class="text-button" (click)="avisos.pendiente('Historial clínico')">
+    <button type="button" class="text-button" (click)="verHistorial.emit()">
       Ver historial
       @if (resultado(); as datos) {
         <span>({{ datos.totalElements }})</span>
@@ -62,7 +62,7 @@
                   <button
                     type="button"
                     class="text-button detail"
-                    (click)="avisos.pendiente('Detalle de receta')"
+                    (click)="verDetalle.emit(receta.idReceta)"
                     [attr.aria-label]="'Ver detalle de receta ' + receta.idReceta"
                   >
                     <app-icono nombre="eye" />Ver detalle

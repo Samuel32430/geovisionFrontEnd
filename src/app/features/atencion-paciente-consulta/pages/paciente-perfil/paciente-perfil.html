@@ -1,8 +1,10 @@
 <div class="profile-page">
-  <nav class="breadcrumbs" aria-label="Ruta de navegación">
-    <a routerLink="/atencion-paciente-consulta/pacientes"><app-icono nombre="users" />Pacientes</a
-    ><span>/</span><strong>Perfil del paciente</strong>
-  </nav>
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Pacientes', ruta: '/atencion-paciente-consulta/pacientes' },
+      { texto: 'Perfil del paciente' },
+    ]"
+  />
   @if (cargando()) {
     <div class="page-state" role="status">
       <app-icono nombre="user" />
@@ -116,7 +118,7 @@
         <button
           type="button"
           class="clinical-card"
-          (click)="avisos.pendiente('Historial clínico')"
+          (click)="abrirHistorial()"
           aria-label="Ver historial clínico"
         >
           <span class="action-icon neutral-icon"><app-icono nombre="document" /></span
@@ -130,12 +132,15 @@
     <div class="detail-grid">
       <app-paciente-ficha
         [paciente]="datos"
+        (verHistorial)="abrirHistorial()"
         [ultimaReceta]="ultimaReceta()"
         [cargandoRecetas]="cargandoRecetas()"
         [errorRecetas]="errorRecetas()"
       />
       <app-recetas-recientes
         [resultado]="historial()"
+        (verHistorial)="abrirHistorial()"
+        (verDetalle)="abrirHistorial($event)"
         [cargando]="cargandoRecetas()"
         [error]="errorRecetas()"
         (recargar)="reintentar()"
