@@ -96,7 +96,8 @@ describe('ConfigurarLentes', () => {
     f.detectChanges();
     expect(form.querySelector('select').disabled).toBe(true);
     expect(f.componentInstance.puedeSalir()).toBe(true);
-    expect(f.nativeElement.textContent).toContain('Lente #90');
+    expect(f.nativeElement.querySelector('.card.saved').textContent).toContain('Lente registrado');
+    expect(f.nativeElement.textContent).not.toContain('Lente #90');
   });
   it('conserva el primer lente registrado cuando falla el segundo', () => {
     const f = abrir();
@@ -117,7 +118,8 @@ describe('ConfigurarLentes', () => {
         { status: 400, statusText: 'Bad Request' },
       );
     f.detectChanges();
-    expect(f.nativeElement.textContent).toContain('Lente #90');
+    expect(f.nativeElement.querySelector('.card.saved').textContent).toContain('Lente registrado');
+    expect(f.nativeElement.textContent).not.toContain('Lente #90');
     expect(f.nativeElement.textContent).toContain('La receta ya está vinculada a una venta');
     expect(form.querySelector('input[type=number]').value).toBe('180');
     expect(form.querySelector('select').disabled).toBe(false);

@@ -31,7 +31,7 @@
       <div>
         <h2>{{ p.persona.nombreCompleto || p.persona.nombres + ' ' + p.persona.apellidos }}</h2>
         <p>
-          {{ p.persona.numeroDocumento }} · Paciente #{{ p.idPersona }} ·
+          {{ p.persona.numeroDocumento }} ·
           {{ p.estado === 1 ? 'Activo' : 'Inactivo' }}
         </p>
         <span class="badge">Examen interno</span>
@@ -59,7 +59,7 @@
       </div>
       @if (guardado()) {
         <div class="success" role="status">
-          Examen registrado en la receta #{{ guardado() }}.
+          Examen visual registrado.
           <button type="button" class="button" (click)="configurarLentes()">
             Configurar lentes →
           </button>

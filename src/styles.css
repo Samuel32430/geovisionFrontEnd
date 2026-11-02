@@ -1,3 +1,4 @@
+@import './app/features/atencion-paciente-consulta/pages/configurar-lentes/configurar-lentes.content.css';
 @import './app/shared/styles/forms.css';
 @import './app/features/atencion-paciente-consulta/pages/paciente-list/paciente-list.content.css';
 @media (prefers-reduced-motion: reduce) {

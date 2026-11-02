@@ -82,7 +82,7 @@ describe('ExamenVisual', () => {
     });
     req.flush({ idReceta: 42 });
     f.detectChanges();
-    expect(f.nativeElement.textContent).toContain('Examen registrado en la receta #42');
+    expect(f.nativeElement.textContent).toContain('Examen visual registrado.');
     expect(f.componentInstance.puedeSalir()).toBe(true);
   });
   it('conserva los valores y permite reintentar si el servidor rechaza el examen', () => {

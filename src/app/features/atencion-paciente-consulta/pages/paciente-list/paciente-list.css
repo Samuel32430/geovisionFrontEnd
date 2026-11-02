@@ -10,23 +10,11 @@
   align-items: center;
   gap: 20px;
 }
-.breadcrumb {
-  font-size: 11px;
-  color: #879bb6;
-  letter-spacing: 0.5px;
-  margin: 0 0 10px;
-}
-.breadcrumb span {
-  margin: 0 10px;
-}
-.breadcrumb strong {
-  color: #07877e;
-  font-weight: 600;
-}
 .heading {
   display: flex;
-  align-items: center;
-  gap: 15px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
   flex-wrap: wrap;
 }
 h1 {
@@ -94,8 +82,8 @@ h1 {
   border: 1px solid #dbe4ef;
   border-radius: 10px;
   background: #f8fafc;
-  padding: 11px 13px;
-  color: #8ba0bc;
+  padding: 6px 7px 6px 13px;
+  color: #627895;
 }
 .search-box input {
   border: 0;
@@ -111,7 +99,7 @@ h1 {
   outline-offset: 2px;
 }
 .search-box input::placeholder {
-  color: #8ba0bc;
+  color: #627895;
 }
 .search-box button,
 .clear {
@@ -119,6 +107,12 @@ h1 {
   background: transparent;
   color: #008b81;
   font-size: 12px;
+}
+.search-box button {
+  background: #087f77;
+  color: white;
+  padding: 7px 12px;
+  border-radius: 7px;
 }
 .tabs {
   display: flex;
@@ -146,12 +140,12 @@ h1 {
   justify-content: space-between;
   align-items: center;
   gap: 10px;
-  background: #fafbfd;
-  padding: 13px;
+  border-top: 1px solid #edf2f7;
+  padding: 12px 0 0;
   margin-top: 16px;
   border-radius: 9px;
   font-size: 11px;
-  color: #8095af;
+  color: #566d89;
 }
 .dot {
   display: inline-block;
@@ -289,7 +283,13 @@ h1 {
     min-width: 0;
     flex-basis: 100%;
   }
-  .tabs {
+  .search-box button {
+  background: #087f77;
+  color: white;
+  padding: 7px 12px;
+  border-radius: 7px;
+}
+.tabs {
     width: 100%;
   }
   .tabs button {

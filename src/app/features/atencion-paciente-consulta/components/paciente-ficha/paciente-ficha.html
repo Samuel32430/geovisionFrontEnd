@@ -62,7 +62,7 @@
     <div>
       <strong>ÚLTIMA RECETA REGISTRADA</strong>
       @if (ultimaReceta(); as ultima) {
-        <p>{{ ultima.fechaRegistro | date: 'dd/MM/yyyy' }} · Receta #{{ ultima.idReceta }}</p>
+        <p>{{ ultima.fechaRegistro | date: 'dd/MM/yyyy' }}</p>
       } @else {
         <p>
           {{

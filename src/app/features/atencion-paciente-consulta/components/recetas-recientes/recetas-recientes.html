@@ -33,7 +33,6 @@
           </caption>
           <thead>
             <tr>
-              <th scope="col">ID RECETA</th>
               <th scope="col">FECHA</th>
               <th scope="col">ORIGEN</th>
               <th scope="col">RESPONSABLE DEL REGISTRO</th>
@@ -43,9 +42,6 @@
           <tbody>
             @for (receta of datos.content; track receta.idReceta) {
               <tr>
-                <td>
-                  <strong>#{{ receta.idReceta }}</strong>
-                </td>
                 <td>{{ receta.fechaRegistro | date: 'dd/MM/yyyy' }}</td>
                 <td>
                   <span
@@ -63,7 +59,7 @@
                     type="button"
                     class="text-button detail"
                     (click)="verDetalle.emit(receta.idReceta)"
-                    [attr.aria-label]="'Ver detalle de receta ' + receta.idReceta"
+                    [attr.aria-label]="'Ver receta registrada el ' + (receta.fechaRegistro | date: 'dd/MM/yyyy HH:mm')"
                   >
                     <app-icono nombre="eye" />Ver detalle
                   </button>

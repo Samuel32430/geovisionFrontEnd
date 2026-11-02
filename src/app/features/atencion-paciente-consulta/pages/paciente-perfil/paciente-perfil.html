@@ -38,13 +38,14 @@
               ? 'CE'
               : datos.persona.tipoDocumento
           }}: <strong>{{ datos.persona.numeroDocumento }}</strong
-          ><span>·</span>Paciente #{{ datos.idPersona }}
+          >
         </p>
       </div>
       <div class="header-actions">
         <button
           type="button"
-          class="button neutral"
+          class="button"
+          [class.danger]="datos.estado === 1"
           [disabled]="guardando()"
           (click)="cambiarEstado()"
         >

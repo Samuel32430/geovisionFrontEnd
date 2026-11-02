@@ -16,7 +16,7 @@ app-paciente-list th {
   line-height: 1.6;
 }
 app-paciente-list td {
-  padding: 22px 20px;
+  padding: 18px 20px;
   border-top: 1px solid #edf2f7;
 }
 app-paciente-list tbody tr:hover {
@@ -61,7 +61,7 @@ app-paciente-list .person small,
 app-paciente-list td > small {
   display: block;
   font-size: 10px;
-  color: #8a9fbb;
+  color: #607590;
   margin-top: 5px;
 }
 app-paciente-list .phone,
@@ -104,10 +104,10 @@ app-paciente-list .row-actions app-icono {
   height: 16px;
 }
 app-paciente-list .row-actions .icon-button {
-  color: #8a9db8;
+  color: #617591;
 }
 app-paciente-list .row-actions .deactivate {
-  color: #dc8b06;
+  color: var(--ink);
 }
 app-paciente-list .actions-heading {
   text-align: center;
@@ -143,8 +143,8 @@ app-paciente-list .pagination {
   align-items: center;
 }
 app-paciente-list .pagination button {
-  border: 0;
-  background: none;
+  border: 1px solid var(--border);
+  background: white;
   border-radius: 8px;
   padding: 8px 11px;
   color: #5d7492;
@@ -169,7 +169,8 @@ app-paciente-list .summaries article {
   border: 1px solid var(--border);
   border-radius: 17px;
   background: white;
-  padding: 23px;
+  padding: 24px;
+  box-shadow: 0 3px 12px #14243c04;
 }
 app-paciente-list .summaries p {
   font-size: 11px;
@@ -178,13 +179,13 @@ app-paciente-list .summaries p {
   margin: 2px 0 12px;
 }
 app-paciente-list .summaries strong {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 650;
 }
 app-paciente-list .summaries small {
   display: block;
   font-size: 11px;
-  color: #869ab5;
+  color: #607590;
   margin-top: 8px;
 }
 app-paciente-list .summaries .state-label {
@@ -215,17 +216,21 @@ app-paciente-list .metric-line {
 }
 app-paciente-list .metric-line > span {
   font-size: 11px;
-  color: #8298b3;
+  color: #087f77;
+  background: #effcf9;
+  border: 1px solid #c3eee7;
+  border-radius: 20px;
+  padding: 3px 8px;
 }
 app-paciente-list .active-summary strong {
-  color: #00a77f;
+  color: var(--ink);
 }
 app-paciente-list .inactive-summary strong {
-  color: #dc8b06;
+  color: var(--ink);
 }
 app-paciente-list .metric-track {
-  height: 5px;
-  background: #eaf6f2;
+  height: 7px;
+  background: #eef2f7;
   border-radius: 8px;
   overflow: hidden;
   margin-top: 18px;
@@ -253,3 +258,15 @@ app-paciente-list .summaries p {
   min-height: 32px;
   line-height: 1.5;
 }
+
+/* Stable patient colors and document categories. */
+app-paciente-list .avatar { border: 1px solid #a2e9df; background: #defaf5; color: #076c65; }
+app-paciente-list .avatar[data-color="1"] { border-color: #b4dfff; background: #e5f4ff; color: #125d94; }
+app-paciente-list .avatar[data-color="2"] { border-color: #d0c9ff; background: #eeebff; color: #5142b5; }
+app-paciente-list .avatar[data-color="3"] { border-color: #abe8cd; background: #e1faef; color: #146947; }
+app-paciente-list .avatar[data-color="4"] { border-color: #e0ceff; background: #f4edff; color: #7542a9; }
+app-paciente-list .avatar[data-color="5"] { border-color: #f4d57c; background: #fff5d6; color: #885407; }
+app-paciente-list .doc-type { border: 1px solid #dfe6ef; color: #34465f; }
+app-paciente-list .doc-type[data-documento="CARNET_EXTRANJERIA"] { border-color: #cbdfff; background: #eff6ff; color: #235cba; }
+app-paciente-list .doc-type[data-documento="PASAPORTE"] { border-color: #e5d5ff; background: #f8f2ff; color: #7834b3; }
+app-paciente-list .doc-type[data-documento="RUC"] { border-color: #aee5d4; background: #eefbf5; color: #176649; }

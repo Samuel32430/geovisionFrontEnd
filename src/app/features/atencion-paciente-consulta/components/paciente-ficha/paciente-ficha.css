@@ -7,6 +7,8 @@
   border: 1px solid var(--border);
   border-radius: 18px;
   overflow: hidden;
+  height: 100%;
+  box-shadow: 0 1px 3px #14243c08;
 }
 .patient-identity {
   display: flex;
@@ -19,8 +21,8 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 56px;
+  height: 56px;
   border-radius: 16px;
   background: #117f77;
   color: white;
@@ -29,6 +31,7 @@
   box-shadow: 0 3px 5px #17363420;
 }
 .avatar i {
+  display: none;
   position: absolute;
   bottom: -4px;
   right: -4px;
@@ -46,8 +49,10 @@
   color: #00887a;
   background: #edf9f6;
   padding: 3px 7px;
-  font-size: 9px;
-  letter-spacing: 0.5px;
+  font-size: 10px;
+  border: 1px solid #c5eee8;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
 }
 .patient-identity h2 {
   font-size: 17px;
@@ -55,8 +60,8 @@
   letter-spacing: -0.3px;
 }
 .patient-identity p {
-  font-size: 11px;
-  color: var(--muted);
+  font-size: 12px;
+  color: #596f8c;
   margin: 0;
 }
 .patient-fields {
@@ -68,7 +73,8 @@
 }
 .patient-fields > div {
   padding: 13px;
-  background: #fafcfe;
+  border: 1px solid #edf2f7;
+  background: #f8fafd;
   border-radius: 12px;
   min-width: 0;
 }
@@ -77,7 +83,7 @@
 }
 dt {
   font-size: 11px;
-  color: #8b9fba;
+  color: #596f8c;
   margin-bottom: 6px;
 }
 dd {
@@ -94,15 +100,18 @@ dd {
 .patient-fields small {
   display: block;
   font-size: 10px;
-  color: #8095af;
+  color: #596f8c;
   margin-top: 4px;
 }
 .latest {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: #effbf8;
-  padding: 17px 24px;
+  background: #f2fcfa;
+  border: 1px solid #c5eee8;
+  border-radius: 12px;
+  margin: 0 24px 24px;
+  padding: 14px;
   color: #07776e;
   font-size: 11px;
 }
@@ -111,8 +120,8 @@ dd {
   height: 18px;
 }
 .latest strong {
-  font-size: 9px;
-  letter-spacing: 0.4px;
+  font-size: 10px;
+  letter-spacing: 0.2px;
 }
 .latest p {
   margin: 4px 0 0;
