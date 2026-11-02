@@ -1,3 +1,4 @@
+import { AvisoCerrable } from '../../../../shared/aviso-cerrable';
 import {
   Component,
   computed,
@@ -55,7 +56,7 @@ interface Tarjeta {
 }
 @Component({
   selector: 'app-configurar-lentes',
-  imports: [CabeceraPagina, ReactiveFormsModule, DecimalPipe, MonturaSelector],
+  imports: [AvisoCerrable, CabeceraPagina, ReactiveFormsModule, DecimalPipe, MonturaSelector],
   templateUrl: './configurar-lentes.html',
   styleUrl: './configurar-lentes.css',
 })

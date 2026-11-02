@@ -1,0 +1,256 @@
+<div class="security-page user-edit-page">
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Gestión de Usuarios', ruta: '/seguridad/usuarios' },
+      { texto: 'Nuevo usuario' },
+    ]"
+  />
+  <header class="heading">
+    <div>
+      <h1>Nuevo usuario</h1>
+      <p>Crea una cuenta para un empleado activo o registra un nuevo empleado.</p>
+    </div>
+    <button class="btn" type="button" routerLink="/seguridad/usuarios" [disabled]="guardando()">
+      ← Volver al listado
+    </button>
+  </header>
+  @if (!persona() && !nuevaPersona()) {
+    <app-persona-selector (seleccionar)="elegir($event)" (nueva)="nueva()" />
+  } @else {
+    <form
+      class="panel user-edit-panel"
+      [formGroup]="cuenta"
+      (ngSubmit)="guardar()"
+      [attr.aria-busy]="guardando()"
+    >
+      <div class="form-content">
+        <div class="associated">
+          <div>
+            <span class="eyebrow">{{
+              nuevaPersona() ? 'NUEVO EMPLEADO' : 'EMPLEADO ASOCIADO'
+            }}</span>
+            <h2>{{ persona()?.nombreCompleto || 'Registrar nuevo empleado' }}</h2>
+            @if (persona(); as p) {
+              <p>
+                {{ p.tipoDocumento === 'CARNET_EXTRANJERIA' ? 'CE' : p.tipoDocumento }} ·
+                {{ p.numeroDocumento }}
+              </p>
+            }
+          </div>
+          <button class="btn" type="button" [disabled]="guardando()" (click)="cambiarPersona()">
+            Cambiar empleado
+          </button>
+        </div>
+        @if (nuevaPersona()) {
+          <section [formGroup]="datosPersona">
+            <h2 class="section-title">Datos personales</h2>
+            <div class="fields">
+              <label class="field"
+                >Tipo de documento *<select formControlName="tipoDocumento">
+                  @for (tipo of tiposDocumento; track tipo) {
+                    <option [value]="tipo">
+                      {{ tipo === 'CARNET_EXTRANJERIA' ? 'Carné de extranjería' : tipo }}
+                    </option>
+                  }
+                </select></label
+              >
+              <label class="field"
+                >Número de documento *<input formControlName="numeroDocumento" maxlength="50" />
+                @if (
+                  datosPersona.controls.numeroDocumento.touched &&
+                  datosPersona.controls.numeroDocumento.invalid
+                ) {
+                  <small class="error">Ingresa un documento de hasta 50 caracteres.</small>
+                }
+              </label>
+              <label class="field"
+                >Nombres *<input
+                  formControlName="nombres"
+                  maxlength="150"
+                  autocomplete="given-name"
+                />
+                @if (
+                  datosPersona.controls.nombres.touched && datosPersona.controls.nombres.invalid
+                ) {
+                  <small class="error">Ingresa los nombres, hasta 150 caracteres.</small>
+                }
+              </label>
+              <label class="field"
+                >Apellidos *<input
+                  formControlName="apellidos"
+                  maxlength="150"
+                  autocomplete="family-name"
+                />
+                @if (
+                  datosPersona.controls.apellidos.touched && datosPersona.controls.apellidos.invalid
+                ) {
+                  <small class="error">Ingresa los apellidos, hasta 150 caracteres.</small>
+                }
+              </label>
+              <label class="field"
+                >Fecha de nacimiento<input
+                  formControlName="fechaNacimiento"
+                  type="date"
+                  [max]="maxFecha"
+                />
+                @if (
+                  datosPersona.controls.fechaNacimiento.touched &&
+                  datosPersona.controls.fechaNacimiento.invalid
+                ) {
+                  <small class="error">Ingresa una fecha válida que no sea futura.</small>
+                }
+              </label>
+              <label class="field"
+                >Sexo registrado<select formControlName="sexo">
+                  <option value="">Sin especificar</option>
+                  <option value="MASCULINO">Masculino</option>
+                  <option value="FEMENINO">Femenino</option>
+                </select></label
+              >
+              <label class="field"
+                >Teléfono<input
+                  formControlName="telefono"
+                  maxlength="50"
+                  type="tel"
+                  autocomplete="tel"
+              /></label>
+              <label class="field"
+                >Dirección<input
+                  formControlName="direccion"
+                  maxlength="200"
+                  autocomplete="street-address"
+              /></label>
+            </div>
+          </section>
+        }
+        <h2 class="section-title">Datos de acceso</h2>
+        <div class="fields">
+          <label class="field"
+            >Nombre de usuario *<input
+              formControlName="nombre"
+              maxlength="100"
+              autocomplete="off"
+            />
+            @if (cuenta.controls.nombre.touched && cuenta.controls.nombre.invalid) {
+              <small class="error">Ingresa entre 3 y 100 caracteres.</small>
+            }
+          </label>
+          <label class="field"
+            >Correo electrónico *<input
+              formControlName="correo"
+              maxlength="100"
+              type="email"
+              autocomplete="off"
+            />
+            @if (cuenta.controls.correo.touched && cuenta.controls.correo.invalid) {
+              <small class="error">Ingresa un correo válido de hasta 100 caracteres.</small>
+            }
+          </label>
+          <label class="field"
+            >Contraseña *
+            <div class="password">
+              <input
+                formControlName="password"
+                [type]="mostrarPassword() ? 'text' : 'password'"
+                autocomplete="new-password"
+                maxlength="100"
+              /><button
+                class="btn"
+                type="button"
+                [disabled]="guardando()"
+                [attr.aria-pressed]="mostrarPassword()"
+                (click)="mostrarPassword.set(!mostrarPassword())"
+              >
+                {{ mostrarPassword() ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            @if (cuenta.controls.password.touched && cuenta.controls.password.invalid) {
+              <small class="error"
+                >Usa al menos 6 caracteres y no más de 72 bytes; algunos caracteres ocupan más de un
+                byte.</small
+              >
+            }
+          </label>
+          <label class="field"
+            >Confirmar contraseña *<input
+              formControlName="confirmacion"
+              [type]="mostrarPassword() ? 'text' : 'password'"
+              autocomplete="new-password"
+              maxlength="100"
+            />
+            @if (
+              cuenta.controls.confirmacion.touched &&
+              (cuenta.controls.confirmacion.invalid || cuenta.hasError('confirmacion'))
+            ) {
+              <small class="error">Confirma la contraseña; ambas deben coincidir.</small>
+            }
+          </label>
+        </div>
+        <h2 class="section-title">Roles de la cuenta</h2>
+        @if (cargandoRoles()) {
+          <p role="status">Cargando roles disponibles…</p>
+        } @else if (errorRoles()) {
+          <p class="error" role="alert">{{ errorRoles() }}</p>
+          <button type="button" class="btn" (click)="cargarRoles()">Reintentar roles</button>
+        } @else {
+          <fieldset class="new-user-roles" [disabled]="guardando()">
+            <legend class="sr-only">Roles disponibles</legend>
+            @for (r of roles(); track r.idRol) {
+              <label class="choice"
+                ><input
+                  type="checkbox"
+                  [checked]="cuenta.controls.roles.value.includes(r.idRol)"
+                  (change)="alternarRol(r.idRol)"
+                />{{ r.nombre }}</label
+              >
+            } @empty {
+              <p>No hay roles disponibles en el catálogo.</p>
+            }
+          </fieldset>
+          @if (!cuenta.controls.roles.value.length) {
+            <p class="notice" appAvisoCerrable>
+              La cuenta se creará sin roles asignados. Podrás asignarlos después desde el listado.
+            </p>
+          }
+        }
+        <h2 class="section-title">Datos del empleado</h2>
+        @if (nuevaPersona()) {
+          <p>Se registrarán la persona, el empleado activo y su cuenta en una sola operación.</p>
+          <label class="field contract-date"
+            >Fecha de contrato *<input type="date" [formControl]="fechaContrato" />
+            @if (fechaContrato.touched && fechaContrato.invalid) {
+              <small class="error">Indica una fecha de contrato válida.</small>
+            }
+          </label>
+        } @else {
+          <p class="employee-info">
+            La cuenta se vinculará al empleado activo seleccionado, sin cambiar su fecha de
+            contrato.
+          </p>
+        }
+        <p class="field-help">
+          <app-icono nombre="info" />Para registrar exámenes o recetas se requiere un empleado
+          activo y los permisos correspondientes.
+        </p>
+        @if (error()) {
+          <p class="error" role="alert">{{ error() }}</p>
+        }
+      </div>
+      <footer class="form-footer">
+        <span>Los campos con * son obligatorios. La cuenta se registrará activa.</span>
+        <div class="actions">
+          <button
+            class="btn"
+            type="button"
+            routerLink="/seguridad/usuarios"
+            [disabled]="guardando()"
+          >
+            Cancelar</button
+          ><button class="btn primary" type="submit" [disabled]="guardando() || !rolesListos()">
+            <app-icono nombre="check" />{{ guardando() ? 'Registrando…' : 'Registrar usuario' }}
+          </button>
+        </div>
+      </footer>
+    </form>
+  }
+</div>

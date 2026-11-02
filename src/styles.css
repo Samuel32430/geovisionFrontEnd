@@ -1,3 +1,4 @@
+@import './app/features/seguridad/seguridad.css';
 @import './app/features/atencion-paciente-consulta/pages/configurar-lentes/configurar-lentes.content.css';
 @import './app/shared/styles/forms.css';
 @import './app/features/atencion-paciente-consulta/pages/paciente-list/paciente-list.content.css';
@@ -358,4 +359,23 @@ button:is(.text-button, .close-text, .search-submit):not(:disabled):hover {
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-thickness: 1px;
+}
+
+.aviso-cerrar {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+}
+.aviso-cerrar:hover {
+  background: #8152220d;
 }

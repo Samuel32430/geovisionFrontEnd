@@ -52,10 +52,50 @@ app-configurar-lentes .total strong {
 app-configurar-lentes .summary .primary {
   width: 100%;
 }
-app-configurar-lentes .measure-grid h3 { margin: 0 0 10px; font-size: 12px; }
-app-configurar-lentes .measure-grid article p:not(:first-of-type) { background: white; border: 1px solid #edf2f7; border-radius: 6px; padding: 7px; color: #344b66; }
-app-configurar-lentes .patient-avatar { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; background: #ffffff18; font-size: 20px; font-weight: 600; }
-app-configurar-lentes .patient p { color: #d4efeb; margin-bottom: 0; }
-app-configurar-lentes .patient .origin { margin-left: auto; background: #ffffff18; padding: 6px 10px; border-radius: 20px; font-size: 12px; }
-app-configurar-lentes .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 24px; padding-top: 18px; border-top: 1px solid #edf2f7; }
-app-configurar-lentes .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+app-configurar-lentes .measure-grid h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+app-configurar-lentes .measure-grid article p:not(:first-of-type) {
+  background: white;
+  border: 1px solid #edf2f7;
+  border-radius: 6px;
+  padding: 7px;
+  color: #344b66;
+}
+app-configurar-lentes .patient-avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #ffffff18;
+  font-size: 20px;
+  font-weight: 600;
+}
+app-configurar-lentes .patient p {
+  color: #d4efeb;
+  margin-bottom: 0;
+}
+app-configurar-lentes .patient .origin {
+  margin-left: auto;
+  background: #ffffff18;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+app-configurar-lentes .card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid #edf2f7;
+}
+app-configurar-lentes .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}

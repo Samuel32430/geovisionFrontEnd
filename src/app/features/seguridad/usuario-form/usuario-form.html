@@ -1,0 +1,150 @@
+<div class="security-page user-edit-page">
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Gestión de Usuarios', ruta: '/seguridad/usuarios' },
+      { texto: nuevo ? 'Nuevo usuario' : 'Editar usuario' },
+    ]"
+  />
+  <header class="heading">
+    <div>
+      <h1>{{ nuevo ? 'Nuevo usuario' : 'Editar usuario' }}</h1>
+      <p>
+        {{
+          nuevo
+            ? 'Crea una cuenta asociada a una persona del sistema.'
+            : 'Actualiza los datos de acceso de la cuenta.'
+        }}
+      </p>
+    </div>
+    <button type="button" class="btn" routerLink="/seguridad/usuarios" [disabled]="guardando()">
+      ← Volver al listado
+    </button>
+  </header>
+  @if (nuevo) {
+    <section class="panel state">
+      <h2>Registro pendiente de habilitar</h2>
+      <p>
+        Para registrar una cuenta hay que seleccionar una persona existente que todavía no tenga
+        usuario.
+      </p>
+      <div class="notice" appAvisoCerrable>
+        El servicio para consultar las personas disponibles aún no está expuesto por el backend. El
+        registro se habilitará cuando esté disponible ese selector.
+      </div>
+      <a class="btn" routerLink="/seguridad/usuarios">Volver a Gestión de Usuarios</a>
+    </section>
+  } @else if (cargando()) {
+    <div class="panel state" role="status">Cargando cuenta…</div>
+  } @else if (error()) {
+    <div class="panel state" role="alert">
+      <h2>No se pudo abrir la cuenta</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="btn" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (usuario(); as u) {
+    <form
+      class="panel user-edit-panel"
+      [formGroup]="form"
+      (ngSubmit)="guardar()"
+      [attr.aria-busy]="guardando()"
+    >
+      <div class="form-content">
+        <div class="associated">
+          <div>
+            <span class="eyebrow">PERSONA ASOCIADA</span>
+            <h2>{{ u.nombreCompletoPersona || 'Sin información' }}</h2>
+            <p>Los roles y el estado se administran desde el listado.</p>
+          </div>
+          <span class="badge account-state" [class.inactive]="u.estado === 0"
+            ><i aria-hidden="true"></i
+            >{{ u.estado === 1 ? 'Cuenta activa' : 'Cuenta inactiva' }}</span
+          >
+        </div>
+        <h2 class="section-title">Datos de acceso</h2>
+        <div class="fields">
+          <label class="field"
+            >Nombre de usuario *<input
+              formControlName="nombre"
+              autocomplete="off"
+              maxlength="100"
+              [attr.aria-invalid]="form.controls.nombre.touched && form.controls.nombre.invalid"
+            />
+            @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+              <small class="error">Ingresa entre 3 y 100 caracteres y evita un nombre vacío.</small>
+            }
+          </label>
+          <label class="field"
+            >Correo electrónico *<input
+              formControlName="correo"
+              type="email"
+              autocomplete="off"
+              maxlength="100"
+              [attr.aria-invalid]="form.controls.correo.touched && form.controls.correo.invalid"
+            />
+            @if (form.controls.correo.touched && form.controls.correo.invalid) {
+              <small class="error">Ingresa un correo válido de hasta 100 caracteres.</small>
+            }
+          </label>
+          <label class="field"
+            >Nueva contraseña
+            <div class="password">
+              <input
+                formControlName="password"
+                [type]="mostrarPassword() ? 'text' : 'password'"
+                autocomplete="new-password"
+                maxlength="100"
+              /><button
+                type="button"
+                class="btn"
+                [disabled]="guardando()"
+                [attr.aria-pressed]="mostrarPassword()"
+                (click)="mostrarPassword.set(!mostrarPassword())"
+              >
+                {{ mostrarPassword() ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            <small class="field-help"
+              ><app-icono nombre="info" />Opcional. Déjala vacía para conservar la contraseña
+              actual.</small
+            >
+            @if (form.controls.password.touched && form.controls.password.invalid) {
+              <small class="error"
+                >Usa de 6 a 100 caracteres, sin superar 72 bytes (los caracteres especiales pueden
+                ocupar más de un byte).</small
+              >
+            }
+          </label>
+          <label class="field"
+            >Confirmar nueva contraseña<input
+              formControlName="confirmacion"
+              [type]="mostrarPassword() ? 'text' : 'password'"
+              autocomplete="new-password"
+              maxlength="100"
+            />
+            @if (form.controls.confirmacion.touched && form.hasError('confirmacion')) {
+              <small class="error">Las contraseñas deben coincidir.</small>
+            }
+          </label>
+        </div>
+        @if (errorGuardar()) {
+          <p class="error" role="alert">{{ errorGuardar() }}</p>
+        }
+      </div>
+      <footer class="form-footer">
+        <span>Los campos con * son obligatorios.</span>
+        <div class="actions">
+          <button
+            type="button"
+            class="btn"
+            routerLink="/seguridad/usuarios"
+            [disabled]="guardando()"
+          >
+            Cancelar</button
+          ><button type="submit" class="btn primary" [disabled]="guardando() || !form.dirty">
+            <app-icono nombre="check" />{{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </footer>
+    </form>
+  }
+</div>

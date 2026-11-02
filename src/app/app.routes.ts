@@ -21,6 +21,11 @@ export const routes: Routes = [
         title: 'Inicio | Geo Vision',
       },
       {
+        path: 'seguridad',
+        loadChildren: () =>
+          import('./features/seguridad/seguridad.routes').then((m) => m.SEGURIDAD_ROUTES),
+      },
+      {
         path: 'atencion-paciente-consulta',
         title: 'Atención al Paciente | Geo Vision',
         loadChildren: () =>

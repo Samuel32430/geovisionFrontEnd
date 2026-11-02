@@ -20,6 +20,7 @@ import { Component, input } from '@angular/core';
 export class Icono {
   readonly nombre = input('grid');
   protected readonly paths: Record<string, string> = {
+    info: 'M22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0 M12 11v6 M12 7h.01',
     download: 'M12 3v12 M8 11l4 4 4-4 M4 17v4h16v-4',
     edit: 'M15 4l5 5 M4 16L17 3l4 4L8 20H4z',
     'user-plus': 'M13 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0 M3 21v-3a6 6 0 0 1 12 0 M19 10v8 M15 14h8',

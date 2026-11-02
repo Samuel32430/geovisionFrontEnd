@@ -42,7 +42,7 @@
       </div>
     </section>
     @if (!habilitado()) {
-      <div class="notice" role="alert">
+      <div class="notice" appAvisoCerrable role="alert">
         {{
           p.estado !== 1
             ? 'El paciente está inactivo. Puedes consultar su historial, pero no registrar nuevos exámenes.'
@@ -50,7 +50,7 @@
         }}
       </div>
     } @else {
-      <div class="notice">
+      <div class="notice" appAvisoCerrable>
         <strong>Validación de datos</strong>
         <p>
           Esfera, cilindro y adición: múltiplos de 0.25. Eje: entero de 0° a 180°. Distancia pupilar
