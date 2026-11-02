@@ -1,0 +1,281 @@
+:host {
+  display: block;
+  color: #172139;
+  background: #f6f8fb;
+  min-height: 100dvh;
+}
+
+a {
+  color: #00877f;
+  text-decoration: none;
+}
+.badge {
+  display: inline-block;
+  background: #edf9f6;
+  color: #007f75;
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.page {
+  padding: 30px 32px;
+  max-width: 1600px;
+  margin: auto;
+}
+.heading,
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+h1 {
+  font-size: 26px;
+  margin: 0 0 8px;
+  letter-spacing: -0.6px;
+}
+h2 {
+  font-size: 18px;
+  margin: 0;
+}
+h3 {
+  font-size: 15px;
+  margin: 26px 0 12px;
+}
+h4 {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+p {
+  font-size: 13px;
+  color: #657b9a;
+  line-height: 1.6;
+  margin: 6px 0;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  border: 1px solid #dce6f2;
+  background: #fff;
+  color: #40536e;
+  border-radius: 9px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.button:hover:not(:disabled) {
+  background: #edf9f6;
+  color: #007f75;
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.primary {
+  background: #00998d;
+  color: white;
+  border-color: #00998d;
+}
+.patient {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  border: 1px solid #e0e8f2;
+  padding: 22px;
+  border-radius: 16px;
+  margin-bottom: 26px;
+}
+.patient > .badge {
+  margin-left: auto;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  background: #00998d;
+  color: white;
+  border-radius: 16px;
+  font-size: 20px;
+  font-weight: 700;
+}
+.history-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+  gap: 24px;
+}
+.label {
+  font-size: 11px;
+  letter-spacing: 0.6px;
+  margin-bottom: 12px;
+}
+.recipe {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid #e0e8f2;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 12px;
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+.recipe.selected {
+  border-color: #00998d;
+  box-shadow: 0 0 0 1px #00998d;
+}
+.recipe:hover {
+  background: #f1fcfa;
+}
+.recipe > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+}
+.origin {
+  font-size: 11px;
+  color: #007f75;
+  background: #e9faf5;
+  padding: 4px 8px;
+  border-radius: 14px;
+}
+.external {
+  color: #8038ce;
+  background: #f5edff;
+}
+.link {
+  display: block;
+  margin-top: 14px;
+  font-size: 12px;
+  color: #00877f;
+  font-weight: 600;
+}
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.detail {
+  min-width: 0;
+  background: white;
+  border: 1px solid #e0e8f2;
+  border-radius: 18px;
+  overflow: hidden;
+  align-self: start;
+}
+.detail-heading {
+  padding: 24px;
+  border-bottom: 1px solid #e8eef6;
+}
+.detail-heading .button {
+  margin-top: 12px;
+}
+.detail-body {
+  padding: 0 24px 24px;
+}
+.measure,
+.lens {
+  border: 1px solid #e5edf5;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.table-scroll {
+  overflow: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+}
+th,
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e5edf5;
+}
+thead {
+  background: #f4f7fb;
+  color: #657b9a;
+}
+.metrics {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin: 16px 0;
+  color: #657b9a;
+}
+.observations {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f6f8fb;
+  padding: 12px;
+  border-radius: 8px;
+}
+.state {
+  text-align: center;
+  background: #fff;
+  padding: 48px 24px;
+  border-radius: 16px;
+  border: 1px solid #e0e8f2;
+}
+.state .button {
+  margin-top: 16px;
+}
+.treatments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #00b9a7;
+  outline-offset: 3px;
+}
+@media (max-width: 1050px) {
+  .history-grid {
+    grid-template-columns: 1fr;
+  }
+  .page {
+    padding: 24px;
+  }
+  .history-grid aside {
+    max-width: none;
+  }
+}
+@media (max-width: 600px) {
+  .page {
+    padding: 20px 16px;
+  }
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .patient {
+    flex-wrap: wrap;
+  }
+  .patient > .badge {
+    margin-left: 0;
+  }
+  .detail-body,
+  .detail-heading {
+    padding: 18px;
+  }
+  .measure {
+    padding: 12px;
+  }
+}

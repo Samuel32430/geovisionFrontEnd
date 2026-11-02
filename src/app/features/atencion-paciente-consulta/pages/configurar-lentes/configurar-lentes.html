@@ -1,0 +1,289 @@
+<div class="page">
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Pacientes', ruta: '/atencion-paciente-consulta/pacientes' },
+      { texto: 'Perfil del paciente', ruta: '/atencion-paciente-consulta/pacientes/' + pacienteId },
+      { texto: 'Configurar lentes' },
+    ]"
+  />
+  <header class="heading">
+    <div>
+      <h1>Configurar lentes y tratamientos</h1>
+      <p>Asigna medidas, material, tratamientos y montura a cada lente.</p>
+    </div>
+    <button class="button" [disabled]="guardando() !== null" (click)="verHistorial()">
+      ← Consultar medidas
+    </button>
+  </header>
+  @if (cargando()) {
+    <div class="state" role="status">Cargando receta y catálogos…</div>
+  } @else if (error()) {
+    <div class="state" role="alert">
+      <h2>No se pudo abrir la configuración</h2>
+      <p>{{ error() }}</p>
+      <button class="button" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (receta(); as r) {
+    <section class="patient">
+      <div>
+        <h2>{{ r.nombreCompletoPaciente }}</h2>
+        <p>Documento: {{ r.numeroDocumentoPaciente }} · Receta #{{ r.idReceta }}</p>
+      </div>
+      <span class="origin">{{
+        r.esExterno === 1 || r.esRecetaExterna ? 'Receta externa' : 'Examen interno'
+      }}</span>
+    </section>
+    <section class="measures">
+      <h2>Medidas disponibles</h2>
+      <div class="measure-grid">
+        @for (m of r.medidas; track m.idMedida) {
+          <article>
+            <h3>
+              #{{ m.idMedida }} ·
+              {{
+                m.tipoMedida === 'LEJOS'
+                  ? 'Lejos'
+                  : m.tipoMedida === 'CERCA'
+                    ? 'Cerca'
+                    : 'Intermedia'
+              }}
+            </h3>
+            <p>Distancia pupilar: {{ m.distanciaPupilar }} mm · Prisma: {{ m.prisma ?? '—' }}</p>
+            <p>
+              <strong>OD:</strong> ESF {{ m.ojoDerecho?.esfera ?? '—' }} · CIL
+              {{ m.ojoDerecho?.cilindro ?? '—' }} · EJE {{ m.ojoDerecho?.eje ?? '—' }} · ADD
+              {{ m.ojoDerecho?.adicion ?? '—' }} · AV {{ m.ojoDerecho?.agudezaVisual || '—' }}
+            </p>
+            <p>
+              <strong>OI:</strong> ESF {{ m.ojoIzquierdo?.esfera ?? '—' }} · CIL
+              {{ m.ojoIzquierdo?.cilindro ?? '—' }} · EJE {{ m.ojoIzquierdo?.eje ?? '—' }} · ADD
+              {{ m.ojoIzquierdo?.adicion ?? '—' }} · AV {{ m.ojoIzquierdo?.agudezaVisual || '—' }}
+            </p>
+          </article>
+        } @empty {
+          <p>No hay medidas disponibles. No se pueden configurar lentes.</p>
+        }
+      </div>
+    </section>
+    @if (!permiso()) {
+      <div class="notice" role="alert">
+        Tu sesión necesita el permiso RECETAS_REGISTRAR para guardar configuraciones.
+      </div>
+    }
+    <div class="layout">
+      <div>
+        @for (l of r.lentes; track l.idLente) {
+          <section class="card saved">
+            <header>
+              <h2>Lente #{{ l.idLente }}</h2>
+              <span class="badge">Registrado · Solo consulta</span>
+            </header>
+            <div class="body">
+              <p><strong>Material:</strong> {{ l.nombreMaterialCristal || 'Sin información' }}</p>
+              <p><strong>Montura:</strong> {{ l.nombreMontura || 'Sin montura de inventario' }}</p>
+              <div class="tags">
+                @for (t of l.tratamientos; track $index) {
+                  <span class="badge">{{ t.nombre }}</span>
+                }
+              </div>
+              <p><strong>Subtotal registrado:</strong> S/ {{ l.subTotal | number: '1.2-2' }}</p>
+            </div>
+          </section>
+        }
+        @for (t of tarjetas(); track t.clave; let i = $index) {
+          <section class="card">
+            <header>
+              <div>
+                <h2>
+                  {{ t.registrado ? 'Lente #' + t.registrado : 'Nueva configuración ' + (i + 1) }}
+                </h2>
+                <p>{{ t.registrado ? 'Registrado · Solo consulta' : 'Pendiente de guardar' }}</p>
+              </div>
+              @if (!t.registrado) {
+                <div class="tools">
+                  <button
+                    type="button"
+                    class="text-button"
+                    [disabled]="guardando() !== null"
+                    (click)="duplicar(t)"
+                  >
+                    Duplicar</button
+                  ><button
+                    type="button"
+                    class="text-button danger"
+                    [disabled]="guardando() !== null"
+                    (click)="quitar(t)"
+                  >
+                    Descartar
+                  </button>
+                </div>
+              }
+            </header>
+            <form [formGroup]="t.form" (ngSubmit)="guardar(t)" class="body">
+              <fieldset
+                [disabled]="
+                  t.registrado !== null ||
+                  guardando() === t.clave ||
+                  !permiso() ||
+                  !r.medidas.length
+                "
+              >
+                <legend>Medidas asociadas *</legend>
+                <div class="options">
+                  @for (m of r.medidas; track m.idMedida) {
+                    <label class="choice"
+                      ><input
+                        type="checkbox"
+                        [checked]="t.form.controls.medidas.value.includes(m.idMedida)"
+                        (change)="alternar(t, 'medidas', m.idMedida)"
+                      />#{{ m.idMedida }} ·
+                      {{
+                        m.tipoMedida === 'LEJOS'
+                          ? 'Lejos'
+                          : m.tipoMedida === 'CERCA'
+                            ? 'Cerca'
+                            : 'Intermedia'
+                      }}</label
+                    >
+                  }
+                </div>
+                @if (t.form.controls.medidas.touched && t.form.controls.medidas.invalid) {
+                  <p class="error">Selecciona al menos una medida.</p>
+                }
+                <div class="fields">
+                  <label
+                    >Material del cristal *<select formControlName="material">
+                      <option [ngValue]="null">Selecciona material</option>
+                      @for (m of materiales(); track m.idMaterialCristal) {
+                        <option [ngValue]="m.idMaterialCristal">{{ m.nombre }}</option>
+                      }
+                    </select>
+                    @if (!materiales().length) {
+                      <small>No hay materiales en el catálogo.</small>
+                    }</label
+                  ><label
+                    >Subtotal cotizado (S/) *<input
+                      type="number"
+                      formControlName="subtotal"
+                      min="0"
+                      max="9999999999.99"
+                      step="0.01"
+                      placeholder="Ej. 250.00"
+                    />
+                    @if (t.form.controls.subtotal.touched && t.form.controls.subtotal.invalid) {
+                      <small class="error">Ingresa cero o más, con máximo dos decimales.</small>
+                    }
+                  </label>
+                </div>
+                <h3>Tratamientos adicionales</h3>
+                <div class="options">
+                  @for (tr of tratamientos(); track tr.idTratamientoCristal) {
+                    <label class="choice"
+                      ><input
+                        type="checkbox"
+                        [checked]="
+                          t.form.controls.tratamientos.value.includes(tr.idTratamientoCristal)
+                        "
+                        (change)="alternar(t, 'tratamientos', tr.idTratamientoCristal)"
+                      />{{ tr.nombre }}</label
+                    >
+                  } @empty {
+                    <p>No hay tratamientos disponibles.</p>
+                  }
+                </div>
+                <h3>Montura</h3>
+                <div class="frame">
+                  <strong>{{ nombreMontura(t) }}</strong>
+                  <div>
+                    <button type="button" class="button" (click)="abrirMonturas(t)">
+                      Seleccionar montura</button
+                    ><button type="button" class="text-button" (click)="sinMontura(t)">
+                      Sin montura de inventario
+                    </button>
+                  </div>
+                  <p>
+                    El subtotal se ingresa manualmente. La selección no reserva ni descuenta stock.
+                  </p>
+                </div>
+              </fieldset>
+              @if (t.error) {
+                <p class="error" role="alert">{{ t.error }}</p>
+              }
+              @if (!t.registrado) {
+                <div class="card-footer">
+                  <small>Se guardará solo este lente.</small
+                  ><button
+                    class="button primary"
+                    type="submit"
+                    [disabled]="!permiso() || guardando() !== null || !r.medidas.length"
+                  >
+                    {{ guardando() === t.clave ? 'Guardando…' : 'Guardar lente' }}
+                  </button>
+                </div>
+              }
+            </form>
+          </section>
+        }
+        @if (permiso() && r.medidas.length) {
+          <button type="button" class="add" [disabled]="guardando() !== null" (click)="agregar()">
+            ＋ Agregar otra configuración de lente
+          </button>
+        }
+      </div>
+      <aside class="summary">
+        <h2>Resumen de cotización</h2>
+        <div class="summary-body">
+          @for (l of r.lentes; track l.idLente) {
+            <p>
+              <span>Lente #{{ l.idLente }} · Registrado</span
+              ><strong>S/ {{ l.subTotal | number: '1.2-2' }}</strong>
+            </p>
+          }
+          @for (t of tarjetas(); track t.clave; let i = $index) {
+            <p>
+              <span
+                >{{ t.registrado ? 'Lente #' + t.registrado : 'Configuración ' + (i + 1) }} ·
+                {{ t.registrado ? 'Registrado' : 'Pendiente' }}</span
+              ><strong>{{
+                t.form.controls.subtotal.valid
+                  ? 'S/ ' + (t.form.controls.subtotal.value | number: '1.2-2')
+                  : 'Sin subtotal'
+              }}</strong>
+            </p>
+          }
+          <div class="total">
+            <small>TOTAL REGISTRADO</small
+            ><strong>S/ {{ totalRegistrado() | number: '1.2-2' }}</strong>
+          </div>
+          <p>
+            <span>Subtotales pendientes de guardar</span
+            ><strong>S/ {{ totalPendiente() | number: '1.2-2' }}</strong>
+          </p>
+          <div class="notice">
+            Los importes se ingresan manualmente por lente. Las configuraciones pendientes no se
+            guardan automáticamente.
+          </div>
+          <button class="button primary" [disabled]="guardando() !== null" (click)="verHistorial()">
+            Ver receta en el historial →
+          </button>
+        </div>
+      </aside>
+    </div>
+  }
+</div>
+<footer>
+  <span>Los lentes se registran individualmente.</span
+  ><button type="button" class="button" [disabled]="guardando() !== null" (click)="verHistorial()">
+    Volver al historial
+  </button>
+</footer>
+@if (selector()) {
+  <app-montura-selector
+    [pagina]="monturas()"
+    [cargando]="cargandoMonturas()"
+    [error]="errorMonturas()"
+    (cerrar)="selector.set(null)"
+    (paginar)="paginaMonturas($event)"
+    (elegir)="elegir($event)"
+  />
+}

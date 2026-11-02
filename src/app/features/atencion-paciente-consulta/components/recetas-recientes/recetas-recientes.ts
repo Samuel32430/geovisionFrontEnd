@@ -15,6 +15,8 @@ export class RecetasRecientes {
   readonly resultado = input<PaginaResponse<RecetaResumen> | null>(null);
   readonly cargando = input(false);
   readonly error = input<string | null>(null);
+  readonly verHistorial = output<void>();
+  readonly verDetalle = output<number>();
   readonly recargar = output<void>();
   protected readonly avisos = inject(AvisoService);
 }

@@ -6,29 +6,6 @@
   max-width: 1600px;
   margin: auto;
 }
-.breadcrumbs {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 12px;
-  margin-bottom: 14px;
-  color: #8d9eb6;
-}
-.breadcrumbs a {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  text-decoration: none;
-  color: #657c99;
-}
-.breadcrumbs app-icono {
-  width: 14px;
-  height: 14px;
-}
-.breadcrumbs strong {
-  color: #26374f;
-  font-weight: 500;
-}
 .profile-heading {
   display: flex;
   justify-content: space-between;

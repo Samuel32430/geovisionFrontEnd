@@ -1,0 +1,219 @@
+<div class="page">
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Pacientes', ruta: '/atencion-paciente-consulta/pacientes' },
+      {
+        texto: 'Perfil del paciente',
+        ruta: '/atencion-paciente-consulta/pacientes/' + pacienteId(),
+      },
+      { texto: 'Historial clínico' },
+    ]"
+  />
+  <div class="heading">
+    <div>
+      <h1>Historial clínico</h1>
+      <p>Recetas y medidas ópticas registradas del paciente.</p>
+    </div>
+    <a class="button" [routerLink]="['/atencion-paciente-consulta/pacientes', pacienteId()]"
+      >← Volver al perfil</a
+    >
+  </div>
+  @if (paciente(); as p) {
+    <section class="patient">
+      <span class="avatar"
+        >{{ p.persona.nombres.slice(0, 1) }}{{ p.persona.apellidos.slice(0, 1) }}</span
+      >
+      <div>
+        <h2>{{ p.persona.nombreCompleto || p.persona.nombres + ' ' + p.persona.apellidos }}</h2>
+        <p>
+          Documento: {{ p.persona.numeroDocumento }} ·
+          <span>{{ p.estado === 1 ? 'Activo' : 'Inactivo' }}</span>
+        </p>
+      </div>
+      <span class="badge">Solo consulta</span>
+    </section>
+  }
+  @if (cargando()) {
+    <div class="state" role="status">Cargando historial clínico…</div>
+  } @else if (error()) {
+    <div class="state" role="alert">
+      <h2>No se pudo cargar el historial</h2>
+      <p>{{ error() }}</p>
+      <button class="button" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (resultado(); as datos) {
+    <div class="section-heading">
+      <h2>Historial de recetas</h2>
+      <span class="badge">Total: {{ datos.totalElements }}</span>
+    </div>
+    @if (!datos.content.length) {
+      <div class="state">
+        <h2>Aún no hay recetas registradas</h2>
+        <p>Los exámenes visuales y recetas externas aparecerán aquí después de registrarse.</p>
+      </div>
+    } @else {
+      <div class="history-grid">
+        <aside aria-label="Recetas del paciente">
+          <p class="label">MÁS RECIENTES PRIMERO</p>
+          @for (r of datos.content; track r.idReceta) {
+            <button
+              class="recipe"
+              [class.selected]="seleccionado() === r.idReceta"
+              [attr.aria-pressed]="seleccionado() === r.idReceta"
+              (click)="seleccionar(r.idReceta)"
+            >
+              <div>
+                <strong>Receta #{{ r.idReceta }}</strong
+                ><span class="origin" [class.external]="r.esRecetaExterna || r.esExterno === 1">{{
+                  r.esRecetaExterna || r.esExterno === 1 ? 'Externa' : 'Interna'
+                }}</span>
+              </div>
+              <p>{{ r.fechaRegistro | date: 'dd/MM/yyyy · HH:mm' }}</p>
+              <p>{{ r.nombreCompletoEmpleado || 'Responsable sin información' }}</p>
+              <span class="link">{{
+                seleccionado() === r.idReceta ? 'Consultando detalle' : 'Ver detalle →'
+              }}</span>
+            </button>
+          }
+          <div class="pagination">
+            <button
+              class="button"
+              [disabled]="datos.first || datos.number === 0"
+              (click)="cargar(datos.number - 1)"
+            >
+              Anterior</button
+            ><span>{{ datos.number + 1 }} / {{ datos.totalPages }}</span
+            ><button
+              class="button"
+              [disabled]="datos.last || datos.number + 1 >= datos.totalPages"
+              (click)="cargar(datos.number + 1)"
+            >
+              Siguiente
+            </button>
+          </div>
+        </aside>
+        <section class="detail" aria-label="Detalle de receta" [attr.aria-busy]="cargandoDetalle()">
+          @if (cargandoDetalle()) {
+            <div class="state" role="status">Cargando detalle…</div>
+          } @else if (errorDetalle()) {
+            <div class="state" role="alert">
+              <h2>No se pudo abrir la receta</h2>
+              <p>{{ errorDetalle() }}</p>
+              <button class="button" (click)="seleccionar(seleccionado()!)">Reintentar</button>
+            </div>
+          } @else if (detalle(); as r) {
+            <header class="detail-heading">
+              <h2>Receta #{{ r.idReceta }}</h2>
+              <p>Registrada el {{ r.fechaRegistro | date: 'dd/MM/yyyy · HH:mm' }}</p>
+              <button class="button primary" [disabled]="descargando()" (click)="descargar()">
+                {{ descargando() ? 'Descargando…' : 'Descargar PDF' }}
+              </button>
+            </header>
+            <div class="detail-body">
+              <a
+                class="button"
+                [routerLink]="[
+                  '/atencion-paciente-consulta/pacientes',
+                  pacienteId(),
+                  'recetas',
+                  r.idReceta,
+                  'lentes',
+                ]"
+                >Configurar lentes →</a
+              >
+              <h3>Responsable del registro</h3>
+              <p>{{ r.nombreCompletoEmpleado || 'Sin información' }}</p>
+              <h3>Refracción óptica y medidas</h3>
+              @for (m of r.medidas; track m.idMedida) {
+                <section class="measure">
+                  <h4>
+                    Visión
+                    {{
+                      m.tipoMedida === 'LEJOS'
+                        ? 'de lejos'
+                        : m.tipoMedida === 'CERCA'
+                          ? 'de cerca'
+                          : 'intermedia'
+                    }}
+                  </h4>
+                  <div class="table-scroll">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Ojo</th>
+                          <th>Esfera</th>
+                          <th>Cilindro</th>
+                          <th>Eje</th>
+                          <th>Adición</th>
+                          <th>Agudeza visual</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (
+                          fila of [
+                            { nombre: 'OD', ojo: m.ojoDerecho },
+                            { nombre: 'OI', ojo: m.ojoIzquierdo },
+                          ];
+                          track fila.nombre
+                        ) {
+                          <tr>
+                            <th>{{ fila.nombre }}</th>
+                            <td>{{ fila.ojo?.esfera ?? '—' }}</td>
+                            <td>{{ fila.ojo?.cilindro ?? '—' }}</td>
+                            <td>{{ fila.ojo?.eje ?? '—' }}</td>
+                            <td>{{ fila.ojo?.adicion ?? '—' }}</td>
+                            <td>{{ fila.ojo?.agudezaVisual || '—' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="metrics">
+                    <span
+                      >Distancia pupilar: <strong>{{ m.distanciaPupilar }} mm</strong></span
+                    ><span
+                      >Prisma: <strong>{{ m.prisma ?? '—' }}</strong></span
+                    >
+                  </div>
+                  @if (m.observaciones) {
+                    <h4>Observaciones</h4>
+                    <p class="observations">{{ m.observaciones }}</p>
+                  }
+                </section>
+              } @empty {
+                <p>No hay medidas disponibles para esta receta.</p>
+              }
+              <h3>Lentes configurados</h3>
+              @for (l of r.lentes; track l.idLente) {
+                <section class="lens">
+                  <p>
+                    <strong>Material:</strong> {{ l.nombreMaterialCristal || 'Sin información' }}
+                  </p>
+                  <p>
+                    <strong>Montura:</strong> {{ l.nombreMontura || 'Sin montura' }}
+                    {{ l.codigoMontura || '' }}
+                  </p>
+                  <div class="treatments">
+                    @for (t of l.tratamientos; track $index) {
+                      <span class="badge">{{ t.nombre }}</span>
+                    }
+                  </div>
+                  <p>
+                    <strong>Subtotal registrado:</strong>
+                    {{
+                      l.subTotal === null
+                        ? 'Sin información'
+                        : 'S/ ' + (l.subTotal | number: '1.2-2')
+                    }}
+                  </p>
+                </section>
+              } @empty {
+                <p>Aún no hay lentes configurados para esta receta.</p>
+              }
+            </div>
+          }
+        </section>
+      </div>
+    }
+  }
+</div>

@@ -1,4 +1,4 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Paciente } from '../../models/paciente.model';
 import { RecetaResumen } from '../../models/receta.model';
@@ -12,6 +12,7 @@ import { AvisoService } from '../../../../shared/aviso-service';
   styleUrl: './paciente-ficha.css',
 })
 export class PacienteFicha {
+  readonly verHistorial = output<void>();
   readonly paciente = input.required<Paciente>();
   readonly ultimaReceta = input<RecetaResumen | null>(null);
   readonly cargandoRecetas = input(false);
