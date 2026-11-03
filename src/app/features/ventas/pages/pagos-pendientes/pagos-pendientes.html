@@ -1,0 +1,134 @@
+<div class="pagos-container">
+  <header class="page-header">
+    <div>
+      <span class="breadcrumb">Ventas / Cobranzas</span>
+      <h1>Gestión de Pagos Pendientes</h1>
+      <p>Consulte las ventas y órdenes con saldo por regularizar y registre las amortizaciones o cancelaciones directas.</p>
+    </div>
+
+    <!-- Indicadores Métricos de Cabecera -->
+    <div class="metricas-cabecera">
+      <div class="indicador-pill">
+        <span class="dot-amarillo"></span>
+        <span class="txt">Por cobrar:</span>
+        <strong>{{ totalOrdenes() }} órdenes</strong>
+      </div>
+      <div class="indicador-pill alerta">
+        <span class="txt">Total pendiente:</span>
+        <strong class="total-monto">S/ {{ totalDeuda() | number: '1.2-2' }}</strong>
+      </div>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="error-banner">
+      <app-icono nombre="warning" />
+      <span>{{ error() }}</span>
+      <button type="button" class="btn-close-error" (click)="error.set(null)">✕</button>
+    </div>
+  }
+
+  <!-- BARRA DE BÚSQUEDA Y FILTRO -->
+  <section class="filtro-card">
+    <div class="input-search">
+      <app-icono nombre="search" />
+      <input
+        type="text"
+        placeholder="Buscar por cliente, DNI o código de venta..."
+        [ngModel]="termino()"
+        (ngModelChange)="termino.set($event)"
+        (keyup.enter)="cargarCuentas()"
+      />
+    </div>
+    <button type="button" class="btn btn-secondary" (click)="cargarCuentas()">
+      Buscar
+    </button>
+    <button type="button" class="btn btn-ghost" (click)="limpiarFiltro()">
+      Limpiar
+    </button>
+  </section>
+
+  <!-- TABLA DE VENTAS CON SALDO PENDIENTE -->
+  <section class="tabla-card">
+    <div class="table-responsive">
+      <table class="pagos-tabla">
+        <thead>
+          <tr>
+            <th>CÓDIGO</th>
+            <th>FECHA VENTA</th>
+            <th>CLIENTE</th>
+            <th class="text-right">TOTAL</th>
+            <th class="text-right">ADELANTO</th>
+            <th class="text-right">SALDO PENDIENTE</th>
+            <th class="text-center">ACCIÓN</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (cargando()) {
+            <tr>
+              <td colspan="7" class="loading-cell">
+                Consultando saldos pendientes...
+              </td>
+            </tr>
+          } @else if (cuentas().length === 0) {
+            <tr>
+              <td colspan="7" class="empty-cell">
+                <app-icono nombre="check" />
+                <p>¡Excelente! No hay cuentas pendientes de pago ni saldos por regularizar.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (c of cuentas(); track c.idVenta) {
+              <tr>
+                <td>
+                  <span class="dot-pendiente">●</span>
+                  <strong>{{ c.numeroComprobante || ('VN-' + c.idVenta) }}</strong>
+                </td>
+                <td>
+                  <span>{{ c.fechaVenta | date: 'dd/MM/yyyy' }}</span>
+                  <small class="hora">{{ c.fechaVenta | date: 'HH:mm' }}</small>
+                </td>
+                <td>
+                  <div class="cliente-info">
+                    <span class="avatar-mini">{{ iniciales(c.pacienteNombre) }}</span>
+                    <div>
+                      <strong>{{ c.pacienteNombre }}</strong>
+                      <small>{{ c.pacienteDocumento ? 'DNI: ' + c.pacienteDocumento : 'Sin DNI' }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td class="text-right">
+                  <span>S/ {{ c.totalVenta | number: '1.2-2' }}</span>
+                </td>
+                <td class="text-right adelanto-txt">
+                  <span>S/ {{ c.totalPagado | number: '1.2-2' }}</span>
+                </td>
+                <td class="text-right saldo-destacado">
+                  <strong>S/ {{ c.saldoPendiente | number: '1.2-2' }}</strong>
+                </td>
+                <td class="text-center">
+                  <button
+                    type="button"
+                    class="btn-cobrar-saldo"
+                    (click)="iniciarCobro(c)"
+                  >
+                    <app-icono nombre="credit-card" /> Cobrar Saldo
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<!-- MODAL REGISTRAR ABONO / SALDO -->
+@if (cuentaSeleccionada(); as sel) {
+  <app-registrar-abono-modal
+    [cuenta]="sel"
+    (cerrar)="cuentaSeleccionada.set(null)"
+    (confirmar)="procesarAbono($event)"
+  />
+}
