@@ -1,3 +1,4 @@
+@import './app/features/ventas/ventas.content.css';
 @import './app/features/seguridad/seguridad.css';
 @import './app/features/atencion-paciente-consulta/pages/configurar-lentes/configurar-lentes.content.css';
 @import './app/shared/styles/forms.css';
