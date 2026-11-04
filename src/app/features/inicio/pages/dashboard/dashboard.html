@@ -23,14 +23,14 @@
       <app-icono nombre="bell" /></button
     ><button class="btn btn-light" type="button" (click)="avisos.pendiente('Nueva consulta')">
       <app-icono nombre="document" />+ Nueva Consulta</button
-    ><button class="btn btn-primary" type="button" (click)="avisos.pendiente('Nueva venta')">
+    ><a class="btn btn-primary" routerLink="/ventas/nueva">
       <app-icono nombre="plus" />Nueva Venta
-    </button>
+    </a>
   </div>
 </header>
 <div class="dashboard">
   <section class="stats" aria-label="Resumen del día">
-    @for (item of indicadores; track item.titulo) {
+    @for (item of indicadores(); track item.titulo) {
       <article class="stat" [class]="'stat ' + item.tono">
         <div class="stat-top">
           <span class="icon-tile"><app-icono [nombre]="item.icono" /></span
@@ -50,25 +50,12 @@
           <p>Órdenes generadas en punto de venta y laboratorio</p>
         </div>
         <div class="table-actions">
-          <button
-            type="button"
+          <a
+            routerLink="/ventas"
             class="btn btn-neutral"
-            (click)="avisos.pendiente('Filtro por estado')"
           >
-            Filtrar por estado</button
-          ><button
-            type="button"
-            class="btn btn-light"
-            (click)="
-              avisos.abrir({
-                titulo: 'No se pudo exportar la lista',
-                mensaje: 'No hay ventas ni pedidos para exportar.',
-                tipo: 'informacion',
-              })
-            "
-          >
-            Exportar lista
-          </button>
+            Ver historial de ventas
+          </a>
         </div>
       </div>
       <div class="table-scroll">
@@ -87,21 +74,69 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td colspan="6">
-                <div class="empty sales-empty">
-                  <span class="empty-icon"><app-icono nombre="bag" /></span>
-                  <h3>Aún no hay ventas ni pedidos</h3>
-                  <p>Las órdenes del turno aparecerán aquí.</p>
-                  <span class="empty-note">Sin registros para mostrar</span>
-                </div>
-              </td>
-            </tr>
+            @if (cargandoVentas()) {
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 30px; color: var(--muted);">
+                  Cargando ventas recientes...
+                </td>
+              </tr>
+            } @else if (ventasRecientes().length === 0) {
+              <tr>
+                <td colspan="6">
+                  <div class="empty sales-empty">
+                    <span class="empty-icon"><app-icono nombre="bag" /></span>
+                    <h3>Aún no hay ventas ni pedidos</h3>
+                    <p>Las órdenes del turno aparecerán aquí.</p>
+                    <span class="empty-note">Sin registros para mostrar</span>
+                  </div>
+                </td>
+              </tr>
+            } @else {
+              @for (venta of ventasRecientes(); track venta.idVenta) {
+                <tr>
+                  <td>
+                    <strong>{{ venta.numeroComprobante || ('VN-' + venta.idVenta) }}</strong>
+                    <br />
+                    <small class="tipo-comprobante-sub">{{ venta.tipoComprobanteDescripcion || venta.tipoComprobante }}</small>
+                  </td>
+                  <td>
+                    <div class="cliente-cell">
+                      <span>{{ venta.clienteNombre || 'Público General' }}</span>
+                      @if (venta.clienteDocumento) {
+                        <small>Doc: {{ venta.clienteDocumento }}</small>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="tag-tipo" [class.con-receta]="venta.tieneReceta">
+                      {{ venta.tieneReceta ? 'Con Receta' : 'Directa' }}
+                    </span>
+                  </td>
+                  <td>
+                    <strong>S/ {{ venta.total | number: '1.2-2' }}</strong>
+                  </td>
+                  <td>
+                    <span
+                      class="status-badge"
+                      [class.pagada]="venta.estado === 'PAGADA'"
+                      [class.pendiente]="venta.estado === 'PENDIENTE'"
+                    >
+                      {{ venta.estadoDescripcion || venta.estado }}
+                    </span>
+                  </td>
+                  <td>
+                    <a routerLink="/ventas" class="btn-action">
+                      Ver detalle
+                    </a>
+                  </td>
+                </tr>
+              }
+            }
           </tbody>
         </table>
       </div>
       <footer class="table-footer">
-        <span>Mostrando 0 de 0 órdenes del turno</span>
+        <span>Mostrando {{ ventasRecientes().length }} órdenes recientes</span>
         <div class="pagination">
           <button type="button" disabled>Anterior</button
           ><button class="current" type="button" disabled aria-current="page" aria-label="Página 1">
