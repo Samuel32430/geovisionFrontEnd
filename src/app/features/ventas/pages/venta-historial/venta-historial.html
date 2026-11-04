@@ -1,17 +1,18 @@
-<div class="historial-container">
-  <header class="page-header">
-    <div>
-      <span class="breadcrumb">Ventas / Historial</span>
+<header class="page-header">
+  <div>
+    <div class="heading">
       <h1>Gestión e Historial de Ventas</h1>
       <p>Consulte las transacciones comerciales, verifique comprobantes emitidos y revise el estado de cada venta.</p>
     </div>
-    <div class="header-actions">
-      <a routerLink="/ventas/nueva" class="btn btn-primary">
-        <app-icono nombre="plus" /> Registrar Nueva Venta
-      </a>
-    </div>
-  </header>
+  </div>
+  <div class="header-buttons">
+    <a routerLink="/ventas/nueva" class="button primary">
+      <app-icono nombre="plus" /> Registrar Nueva Venta
+    </a>
+  </div>
+</header>
 
+<div class="page-body">
   @if (error()) {
     <div class="error-banner">
       <app-icono nombre="warning" />
@@ -21,56 +22,62 @@
   }
 
   <!-- BARRA DE FILTROS -->
-  <section class="filtros-card">
-    <div class="input-search">
-      <app-icono nombre="search" />
-      <input
-        type="text"
-        placeholder="Buscar por comprobante, cliente o DNI..."
-        [ngModel]="termino()"
-        (ngModelChange)="termino.set($event)"
-        (keyup.enter)="pagina.set(0); cargarVentas()"
-      />
+  <section class="filters" aria-label="Filtros de ventas">
+    <div class="filter-row">
+      <form class="search-box" (submit)="$event.preventDefault(); pagina.set(0); cargarVentas()">
+        <app-icono nombre="search" />
+        <input
+          type="text"
+          placeholder="Buscar por comprobante, cliente o DNI…"
+          [ngModel]="termino()"
+          (ngModelChange)="termino.set($event)"
+          name="termino"
+        />
+        <button type="submit" aria-label="Ejecutar búsqueda">Buscar</button>
+      </form>
+
+      <div class="select-filtro">
+        <select
+          [ngModel]="estadoFiltro()"
+          (ngModelChange)="estadoFiltro.set($event); pagina.set(0); cargarVentas()"
+        >
+          <option [value]="-1">Cualquier estado</option>
+          <option [value]="1">Pago Pendiente / Con Saldo</option>
+          <option [value]="2">Pagada Totalmente</option>
+          <option [value]="3">Anulada</option>
+        </select>
+      </div>
+
+      <div class="fechas-filtro">
+        <input
+          type="date"
+          aria-label="Fecha inicio"
+          [ngModel]="fechaInicio()"
+          (ngModelChange)="fechaInicio.set($event); pagina.set(0); cargarVentas()"
+        />
+        <span>a</span>
+        <input
+          type="date"
+          aria-label="Fecha fin"
+          [ngModel]="fechaFin()"
+          (ngModelChange)="fechaFin.set($event); pagina.set(0); cargarVentas()"
+        />
+      </div>
     </div>
 
-    <div class="select-filtro">
-      <select
-        [ngModel]="estadoFiltro()"
-        (ngModelChange)="estadoFiltro.set($event); pagina.set(0); cargarVentas()"
-      >
-        <option [value]="-1">Cualquier estado</option>
-        <option [value]="1">Pago Pendiente / Con Saldo</option>
-        <option [value]="2">Pagada Totalmente</option>
-        <option [value]="3">Anulada</option>
-      </select>
+    <div class="filter-foot">
+      <span>
+        <i class="dot"></i>
+        Ventas y comprobantes registrados en el sistema
+      </span>
+      <button type="button" class="clear" (click)="limpiarFiltros()">
+        Limpiar búsqueda
+      </button>
     </div>
-
-    <div class="fechas-filtro">
-      <input
-        type="date"
-        aria-label="Fecha inicio"
-        [ngModel]="fechaInicio()"
-        (ngModelChange)="fechaInicio.set($event); pagina.set(0); cargarVentas()"
-      />
-      <span>a</span>
-      <input
-        type="date"
-        aria-label="Fecha fin"
-        [ngModel]="fechaFin()"
-        (ngModelChange)="fechaFin.set($event); pagina.set(0); cargarVentas()"
-      />
-    </div>
-
-    <button type="button" class="btn btn-secondary" (click)="pagina.set(0); cargarVentas()">
-      Buscar
-    </button>
-    <button type="button" class="btn btn-ghost" (click)="limpiarFiltros()">
-      Limpiar
-    </button>
   </section>
 
   <!-- TABLA DE VENTAS -->
-  <section class="tabla-card">
+  <section class="directory">
     <div class="table-responsive">
       <table class="ventas-tabla">
         <thead>

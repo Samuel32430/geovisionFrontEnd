@@ -727,81 +727,157 @@ app-nueva-venta .btn-cancelar {
 
 
 /* Reglas de venta-historial */
-app-venta-historial .historial-container {
-  padding: 24px;
-  max-width: 1440px;
-  margin: 0 auto;
+app-venta-historial .page-header {
+  padding: 24px 32px;
+  background: white;
+  border-bottom: 1px solid var(--border, #dbe4ef);
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   gap: 20px;
 }
 
-app-venta-historial .page-header {
+app-venta-historial .heading {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
+  gap: 7px;
   flex-wrap: wrap;
-  gap: 12px;
 }
 
-app-venta-historial .breadcrumb {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--muted, #647b9b);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-app-venta-historial .page-header h1 {
-  font-size: 22px;
-  font-weight: 750;
+app-venta-historial .heading h1 {
+  font-size: 26px;
+  letter-spacing: -1px;
+  margin: 0;
   color: var(--ink, #121c30);
-  margin: 4px 0 2px;
+  font-weight: 750;
 }
 
-app-venta-historial .page-header p {
-  font-size: 13px;
+app-venta-historial .heading p {
   color: var(--muted, #647b9b);
+  font-size: 13px;
   margin: 0;
 }
 
-app-venta-historial .filtros-card {
-  background: #ffffff;
-  border: 1px solid var(--border, #e5ecf5);
-  border-radius: 12px;
-  padding: 16px;
+app-venta-historial .header-buttons {
   display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+app-venta-historial .button {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--border, #dbe4ef);
+  border-radius: 9px;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  background: white;
+  color: #41536d;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+app-venta-historial .button app-icono {
+  width: 16px;
+  height: 16px;
+}
+
+app-venta-historial .button.primary {
+  background: var(--teal, #087f77);
+  border-color: var(--teal, #087f77);
+  color: white;
+}
+
+app-venta-historial .button.primary:hover {
+  background: #066962;
+  border-color: #066962;
+}
+
+app-venta-historial .page-body {
+  padding: 30px 32px;
+  max-width: 1600px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Filtros */
+app-venta-historial .filters {
+  background: white;
+  border: 1px solid var(--border, #dbe4ef);
+  border-radius: 17px;
+  padding: 20px;
+}
+
+app-venta-historial .filter-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-app-venta-historial .input-search {
+app-venta-historial .search-box {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--border, #e5ecf5);
-  border-radius: 8px;
-  padding: 8px 12px;
   flex: 1;
-  min-width: 240px;
-  background: #fdfefe;
+  min-width: 280px;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dbe4ef;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 6px 7px 6px 13px;
+  color: #627895;
 }
 
-app-venta-historial .input-search input {
-  border: none;
-  outline: none;
-  width: 100%;
-  font-size: 13px;
+app-venta-historial .search-box input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+  color: var(--ink, #121c30);
+}
+
+app-venta-historial .search-box input::placeholder {
+  color: #627895;
+}
+
+app-venta-historial .search-box:focus-within {
+  outline: 2px solid #25b9ac;
+  outline-offset: 2px;
+}
+
+app-venta-historial .search-box button {
+  background: #087f77;
+  color: white;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 0;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+app-venta-historial .search-box button:hover {
+  background: #066962;
 }
 
 app-venta-historial .select-filtro select,
 app-venta-historial .fechas-filtro input {
   padding: 8px 12px;
-  border: 1px solid var(--border, #e5ecf5);
-  border-radius: 8px;
+  border: 1px solid #dbe4ef;
+  border-radius: 9px;
   font-size: 12px;
-  background: #fdfefe;
+  background: #f8fafc;
+  color: #41536d;
 }
 
 app-venta-historial .fechas-filtro {
@@ -812,10 +888,45 @@ app-venta-historial .fechas-filtro {
   color: var(--muted, #647b9b);
 }
 
-app-venta-historial .tabla-card {
+app-venta-historial .filter-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid #edf2f7;
+  padding: 12px 0 0;
+  margin-top: 16px;
+  border-radius: 9px;
+  font-size: 11px;
+  color: #566d89;
+}
+
+app-venta-historial .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #087f77;
+  margin-right: 6px;
+}
+
+app-venta-historial .clear {
+  border: 0;
+  background: transparent;
+  color: #008b81;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+app-venta-historial .clear:hover {
+  text-decoration: underline;
+}
+
+app-venta-historial .directory {
   background: #ffffff;
-  border: 1px solid var(--border, #e5ecf5);
-  border-radius: 14px;
+  border: 1px solid var(--border, #dbe4ef);
+  border-radius: 17px;
   overflow: hidden;
 }
 
