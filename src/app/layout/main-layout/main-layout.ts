@@ -23,7 +23,6 @@ export class MainLayout {
   protected readonly cerrando = signal(false);
   protected readonly menuAbierto = signal(false);
   protected readonly pendientes = [
-    { etiqueta: 'Venta de productos y servicios', icono: 'cart' },
     { etiqueta: 'Elaboración de orden de trabajo', icono: 'lab' },
     { etiqueta: 'Control de inventario', icono: 'box' },
   ];

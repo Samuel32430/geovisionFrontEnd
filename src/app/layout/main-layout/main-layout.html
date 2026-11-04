@@ -37,6 +37,30 @@
       (click)="menuAbierto.set(false)"
       ><app-icono nombre="user" />Atención de pacientes en consulta</a
     >
+
+    <p class="nav-label">VENTAS & CAJA</p>
+    <a
+      routerLink="/ventas/nueva"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+      ><app-icono nombre="cart" />Registrar Nueva Venta</a
+    >
+    <a
+      routerLink="/ventas/historial"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+      ><app-icono nombre="clipboard" />Historial de Ventas</a
+    >
+    <a
+      routerLink="/ventas/pagos-pendientes"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+      ><app-icono nombre="credit-card" />Pagos Pendientes</a
+    >
+
     @for (item of pendientes; track item.etiqueta) {
       <button type="button" (click)="avisos.pendiente(item.etiqueta)">
         <app-icono [nombre]="item.icono" />{{ item.etiqueta }}

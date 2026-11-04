@@ -21,6 +21,12 @@ export const routes: Routes = [
         title: 'Inicio | Geo Vision',
       },
       {
+        path: 'ventas',
+        title: 'Ventas | Geo Vision',
+        loadChildren: () =>
+          import('./features/ventas/ventas.routes').then((m) => m.VENTAS_ROUTES),
+      },
+      {
         path: 'seguridad',
         loadChildren: () =>
           import('./features/seguridad/seguridad.routes').then((m) => m.SEGURIDAD_ROUTES),

@@ -1,0 +1,205 @@
+<div class="historial-container">
+  <header class="page-header">
+    <div>
+      <span class="breadcrumb">Ventas / Historial</span>
+      <h1>Gestión e Historial de Ventas</h1>
+      <p>Consulte las transacciones comerciales, verifique comprobantes emitidos y revise el estado de cada venta.</p>
+    </div>
+    <div class="header-actions">
+      <a routerLink="/ventas/nueva" class="btn btn-primary">
+        <app-icono nombre="plus" /> Registrar Nueva Venta
+      </a>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="error-banner">
+      <app-icono nombre="warning" />
+      <span>{{ error() }}</span>
+      <button type="button" class="btn-close-error" (click)="error.set(null)">✕</button>
+    </div>
+  }
+
+  <!-- BARRA DE FILTROS -->
+  <section class="filtros-card">
+    <div class="input-search">
+      <app-icono nombre="search" />
+      <input
+        type="text"
+        placeholder="Buscar por comprobante, cliente o DNI..."
+        [ngModel]="termino()"
+        (ngModelChange)="termino.set($event)"
+        (keyup.enter)="pagina.set(0); cargarVentas()"
+      />
+    </div>
+
+    <div class="select-filtro">
+      <select
+        [ngModel]="estadoFiltro()"
+        (ngModelChange)="estadoFiltro.set($event); pagina.set(0); cargarVentas()"
+      >
+        <option [value]="-1">Cualquier estado</option>
+        <option [value]="1">Pago Pendiente / Con Saldo</option>
+        <option [value]="2">Pagada Totalmente</option>
+        <option [value]="3">Anulada</option>
+      </select>
+    </div>
+
+    <div class="fechas-filtro">
+      <input
+        type="date"
+        aria-label="Fecha inicio"
+        [ngModel]="fechaInicio()"
+        (ngModelChange)="fechaInicio.set($event); pagina.set(0); cargarVentas()"
+      />
+      <span>a</span>
+      <input
+        type="date"
+        aria-label="Fecha fin"
+        [ngModel]="fechaFin()"
+        (ngModelChange)="fechaFin.set($event); pagina.set(0); cargarVentas()"
+      />
+    </div>
+
+    <button type="button" class="btn btn-secondary" (click)="pagina.set(0); cargarVentas()">
+      Buscar
+    </button>
+    <button type="button" class="btn btn-ghost" (click)="limpiarFiltros()">
+      Limpiar
+    </button>
+  </section>
+
+  <!-- TABLA DE VENTAS -->
+  <section class="tabla-card">
+    <div class="table-responsive">
+      <table class="ventas-tabla">
+        <thead>
+          <tr>
+            <th>COMPROBANTE</th>
+            <th>FECHA</th>
+            <th>CLIENTE</th>
+            <th>TIPO</th>
+            <th class="text-right">TOTAL</th>
+            <th>ESTADO</th>
+            <th class="text-center">ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (cargando()) {
+            <tr>
+              <td colspan="7" class="loading-cell">
+                Cargando historial de ventas...
+              </td>
+            </tr>
+          } @else if (ventas().length === 0) {
+            <tr>
+              <td colspan="7" class="empty-cell">
+                <app-icono nombre="clipboard" />
+                <p>No se encontraron registros de ventas con los filtros indicados.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (v of ventas(); track v.idVenta) {
+              <tr>
+                <td>
+                  <strong>{{ v.numeroComprobante || ('VN-' + v.idVenta) }}</strong>
+                  <small class="tipo-comprobante">{{ v.tipoComprobanteDescripcion }}</small>
+                </td>
+                <td>
+                  <span>{{ v.fechaRegistro | date: 'dd/MM/yyyy' }}</span>
+                  <small class="hora">{{ v.fechaRegistro | date: 'HH:mm' }}</small>
+                </td>
+                <td>
+                  <div class="cliente-info">
+                    <span class="avatar-mini">{{ iniciales(v.clienteNombre) }}</span>
+                    <div>
+                      <strong>{{ v.clienteNombre || 'Público General' }}</strong>
+                      <small>{{ v.clienteDocumento ? 'DNI: ' + v.clienteDocumento : 'Sin DNI' }}</small>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  @if (v.tieneReceta) {
+                    <span class="tipo-badge receta">● Con Receta</span>
+                  } @else {
+                    <span class="tipo-badge directa">Directa</span>
+                  }
+                </td>
+                <td class="text-right">
+                  <strong>S/ {{ v.total | number: '1.2-2' }}</strong>
+                  @if (v.saldoPendiente > 0) {
+                    <small class="saldo-warn">Debe: S/ {{ v.saldoPendiente | number: '1.2-2' }}</small>
+                  }
+                </td>
+                <td>
+                  <span
+                    class="badge-estado"
+                    [class.pagada]="v.estado === 'PAGADA'"
+                    [class.pendiente]="v.estado === 'PENDIENTE'"
+                    [class.anulada]="v.estado === 'ANULADA'"
+                  >
+                    {{ v.estadoDescripcion }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <button
+                    type="button"
+                    class="btn-ver-detalle"
+                    (click)="abrirDetalle(v.idVenta)"
+                  >
+                    <app-icono nombre="eye" /> Ver detalle
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    @if (totalPaginas() > 1) {
+      <div class="paginacion-footer">
+        <span class="mostrando-texto">
+          Mostrando página {{ pagina() + 1 }} de {{ totalPaginas() }} ({{ totalElementos() }} ventas registradas)
+        </span>
+        <div class="paginador-controles">
+          <button
+            type="button"
+            class="pag-btn"
+            [disabled]="pagina() === 0"
+            (click)="cambiarPagina(pagina() - 1)"
+          >
+            ‹
+          </button>
+          @for (num of numerosPagina(); track num) {
+            <button
+              type="button"
+              class="pag-btn"
+              [class.active]="num === pagina()"
+              (click)="cambiarPagina(num)"
+            >
+              {{ num + 1 }}
+            </button>
+          }
+          <button
+            type="button"
+            class="pag-btn"
+            [disabled]="pagina() >= totalPaginas() - 1"
+            (click)="cambiarPagina(pagina() + 1)"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+    }
+  </section>
+</div>
+
+<!-- MODAL DETALLE DE VENTA -->
+@if (ventaSeleccionada(); as sel) {
+  <app-venta-detalle-modal
+    [venta]="sel"
+    (cerrar)="ventaSeleccionada.set(null)"
+  />
+}

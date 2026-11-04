@@ -47,6 +47,10 @@ export class Icono {
     bag: 'M5 8h14l1 13H4z M9 8V6a3 3 0 0 1 6 0v2',
     warning: 'M12 3L2 21h20z M12 9v5 M12 17v1',
     calendar: 'M4 5h16v16H4z M8 2v6 M16 2v6 M4 11h16 M8 15h3',
+    clipboard:
+      'M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2 M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z',
+    'credit-card':
+      'M2 5h20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z M2 10h20',
     chevron: 'M9 5l7 7-7 7',
     menu: 'M3 6h18 M3 12h18 M3 18h18',
   };

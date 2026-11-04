@@ -1,0 +1,444 @@
+<div class="pos-layout">
+  <div class="pos-main">
+    <header class="pos-header">
+      <div>
+        <span class="breadcrumb">Ventas / Registrar Nueva Venta</span>
+        <h1>Registrar Venta</h1>
+        <p>Ingrese la información del cliente, asocie recetas ópticas si aplica y seleccione los productos o servicios.</p>
+      </div>
+      <div class="header-status">
+        <span class="status-dot"></span> Sistema en Línea
+      </div>
+    </header>
+
+    @if (error()) {
+      <div class="error-banner">
+        <app-icono nombre="warning" />
+        <span>{{ error() }}</span>
+        <button type="button" class="btn-close-error" (click)="error.set(null)">✕</button>
+      </div>
+    }
+
+    <!-- SECCIÓN 1: DATOS DEL PACIENTE / CLIENTE -->
+    <section class="pos-card">
+      <div class="card-header">
+        <div class="step-num">1</div>
+        <h2>Datos del Cliente / Paciente</h2>
+        <div class="card-actions">
+          <button
+            type="button"
+            class="pill-btn"
+            [class.active]="modoCliente() === 'PUBLICO_GENERAL'"
+            (click)="seleccionarPublicoGeneral()"
+          >
+            <app-icono nombre="user" /> Público General / Cliente Varios
+          </button>
+          <button
+            type="button"
+            class="pill-btn"
+            [class.active]="modoCliente() === 'PACIENTE'"
+            (click)="activarBusquedaPaciente()"
+          >
+            <app-icono nombre="users" /> Buscar Paciente Registrado
+          </button>
+          @if (recetaDetalle()) {
+            <button
+              type="button"
+              class="pill-btn pill-teal"
+              (click)="modalRecetaAbierto.set(true)"
+            >
+              <app-icono nombre="eye" /> Ver Receta Oftalmológica (#{{ recetaDetalle()?.idReceta }})
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="card-body">
+        @if (modoCliente() === 'PUBLICO_GENERAL') {
+          <div class="publico-general-aviso">
+            <app-icono nombre="info" />
+            <div>
+              <strong>Venta Rápida de Mostrador:</strong> Comprobante emitido a cliente general sin historial clínico. Para asociar lunas formuladas o recetas, seleccione un paciente registrado.
+            </div>
+          </div>
+        } @else {
+          @if (!pacienteSeleccionado()) {
+            <div class="busqueda-paciente-box">
+              <div class="input-with-icon">
+                <app-icono nombre="search" />
+                <input
+                  type="text"
+                  placeholder="Buscar paciente por DNI o nombres..."
+                  [ngModel]="busquedaPaciente()"
+                  (ngModelChange)="buscarPaciente($event)"
+                />
+              </div>
+
+              @if (buscandoPacientes()) {
+                <div class="dropdown-status">Buscando en la base de pacientes...</div>
+              }
+
+              @if (pacientesEncontrados().length > 0) {
+                <ul class="dropdown-resultados">
+                  @for (p of pacientesEncontrados(); track p.idPersona) {
+                    <li (click)="elegirPaciente(p)">
+                      <strong>{{ p.persona.nombreCompleto }}</strong>
+                      <span>DNI: {{ p.persona.numeroDocumento }} • Tel: {{ p.persona.telefono || 'Sin teléfono' }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          } @else {
+            <div class="paciente-seleccionado-card">
+              <div class="paciente-avatar">
+                {{ pacienteSeleccionado()?.persona?.nombres?.charAt(0) || 'P' }}
+              </div>
+              <div class="paciente-info">
+                <h3>{{ pacienteSeleccionado()?.persona?.nombreCompleto }}</h3>
+                <p>
+                  <span>DNI: {{ pacienteSeleccionado()?.persona?.numeroDocumento }}</span>
+                  <span>Tel: {{ pacienteSeleccionado()?.persona?.telefono || 'No registrado' }}</span>
+                </p>
+                @if (recetaDetalle()) {
+                  <span class="badge-receta">● Receta óptica vinculada (#{{ recetaDetalle()?.idReceta }})</span>
+                }
+              </div>
+              <div class="paciente-acciones">
+                <button type="button" class="btn btn-sm btn-outline" (click)="deseleccionarPaciente()">
+                  Cambiar
+                </button>
+                @if (recetaDetalle()) {
+                  <button type="button" class="btn btn-sm btn-danger-outline" (click)="desvincularReceta()">
+                    Desvincular Receta
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: PRODUCTOS Y SERVICIOS ÓPTICOS -->
+    <section class="pos-card">
+      <div class="card-header">
+        <div class="step-num">2</div>
+        <h2>Productos y Servicios Ópticos</h2>
+        <span class="items-count-badge">{{ carrito().length }} ítems en el carrito</span>
+      </div>
+
+      <div class="card-body">
+        <div class="catalogo-rapido">
+          <span class="catalogo-label">Monturas disponibles en stock:</span>
+          <div class="catalogo-chips">
+            @for (m of monturasCatalogo().slice(0, 5); track m.idProducto) {
+              <button type="button" class="chip-item" (click)="agregarMonturaAlCarrito(m)">
+                + {{ m.codigo }} (S/ {{ m.precio | number: '1.2-2' }})
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="carrito-tabla-wrapper">
+          <table class="carrito-tabla">
+            <thead>
+              <tr>
+                <th>DESCRIPCIÓN</th>
+                <th>TIPO</th>
+                <th class="text-center">CANT.</th>
+                <th class="text-right">PRECIO UNIT.</th>
+                <th class="text-right">SUBTOTAL</th>
+                <th class="text-center">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (carrito().length === 0) {
+                <tr>
+                  <td colspan="6" class="carrito-vacio">
+                    <app-icono nombre="cart" />
+                    <p>El carrito de venta está vacío. Seleccione monturas del catálogo o agregue accesorios.</p>
+                  </td>
+                </tr>
+              } @else {
+                @for (item of carrito(); track $index) {
+                  <tr>
+                    <td>
+                      <strong>{{ item.nombre }}</strong>
+                      @if (item.asociadoReceta) {
+                        <span class="tag-receta">Asociado a Receta</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="tipo-tag">{{ item.tipo }}</span>
+                    </td>
+                    <td class="text-center">
+                      <div class="cantidad-control">
+                        <button type="button" (click)="cambiarCantidad($index, -1)">-</button>
+                        <span>{{ item.cantidad }}</span>
+                        <button type="button" (click)="cambiarCantidad($index, 1)">+</button>
+                      </div>
+                    </td>
+                    <td class="text-right">S/ {{ item.precioUnit | number: '1.2-2' }}</td>
+                    <td class="text-right subtotal-bold">
+                      S/ {{ (item.cantidad * item.precioUnit) | number: '1.2-2' }}
+                    </td>
+                    <td class="text-center">
+                      <button
+                        type="button"
+                        class="btn-delete"
+                        aria-label="Eliminar ítem"
+                        (click)="eliminarItem($index)"
+                      >
+                        ✕
+                      </button>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="agregar-personalizado-bar">
+          <button type="button" class="link-btn" (click)="agregarItemPersonalizado()">
+            <app-icono nombre="plus" /> Agregar accesorio óptico (Kit / Estuche)
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- PANEL LATERAL DERECHO: RESUMEN DE VENTA Y PAGO -->
+  <aside class="pos-sidebar">
+    <div class="sidebar-card">
+      <div class="sidebar-header">
+        <app-icono nombre="document" />
+        <h3>Resumen de Venta</h3>
+      </div>
+
+      <!-- Tipo de Comprobante -->
+      <div class="resumen-seccion">
+        <label class="seccion-label">COMPROBANTE DE PAGO</label>
+        <div class="comprobante-toggle">
+          <button
+            type="button"
+            [class.active]="tipoComprobante() === 'BOLETA'"
+            (click)="tipoComprobante.set('BOLETA')"
+          >
+            Boleta de Venta
+          </button>
+          <button
+            type="button"
+            [class.active]="tipoComprobante() === 'FACTURA'"
+            (click)="tipoComprobante.set('FACTURA')"
+          >
+            Factura
+          </button>
+          <button
+            type="button"
+            [class.active]="tipoComprobante() === 'NOTA_VENTA'"
+            (click)="tipoComprobante.set('NOTA_VENTA')"
+          >
+            Nota de Venta
+          </button>
+        </div>
+
+        @if (tipoComprobante() === 'FACTURA') {
+          <div class="factura-campos">
+            <input
+              type="text"
+              placeholder="Número de RUC (11 dígitos)"
+              maxlength="11"
+              [ngModel]="ruc()"
+              (ngModelChange)="ruc.set($event)"
+            />
+            <input
+              type="text"
+              placeholder="Razón Social de la Empresa"
+              [ngModel]="razonSocial()"
+              (ngModelChange)="razonSocial.set($event)"
+            />
+          </div>
+        }
+      </div>
+
+      <!-- Importes Totales -->
+      <div class="resumen-seccion montos-caja">
+        <div class="linea-monto">
+          <span>Subtotal</span>
+          <span>S/ {{ total() | number: '1.2-2' }}</span>
+        </div>
+        <div class="linea-monto total-destacado">
+          <div>
+            <strong>TOTAL A PAGAR</strong>
+            <small>Importe neto a cobrar</small>
+          </div>
+          <strong class="total-cifra">S/ {{ total() | number: '1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <!-- Modalidad de Pago -->
+      <div class="resumen-seccion">
+        <label class="seccion-label">MODALIDAD DE PAGO</label>
+        <div class="modalidad-radios">
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="modalidad"
+              value="COMPLETO"
+              [checked]="modalidadPago() === 'COMPLETO'"
+              (change)="seleccionarModalidad('COMPLETO')"
+            />
+            <span>Pago Completo (100%)</span>
+          </label>
+          <label class="radio-label" [class.disabled]="!recetaDetalle()">
+            <input
+              type="radio"
+              name="modalidad"
+              value="ADELANTO"
+              [checked]="modalidadPago() === 'ADELANTO'"
+              [disabled]="!recetaDetalle()"
+              (change)="seleccionarModalidad('ADELANTO')"
+            />
+            <span>Adelanto / Señal</span>
+          </label>
+        </div>
+
+        @if (!recetaDetalle()) {
+          <small class="nota-regla">
+            * Las ventas sin receta médica exigen pago al 100% (RN-VE06).
+          </small>
+        }
+
+        @if (modalidadPago() === 'ADELANTO') {
+          <div class="adelanto-detalle">
+            <div class="input-adelanto-row">
+              <label for="montoAdelanto">Monto de Adelanto (Mín. 25%):</label>
+              <div class="monto-input-wrap">
+                <span>S/</span>
+                <input
+                  id="montoAdelanto"
+                  type="number"
+                  step="0.10"
+                  [ngModel]="montoAdelanto()"
+                  (ngModelChange)="montoAdelanto.set($event)"
+                />
+              </div>
+            </div>
+
+            <div class="saldo-alerta">
+              <span>Saldo pendiente de entrega:</span>
+              <strong>S/ {{ saldoPendiente() | number: '1.2-2' }}</strong>
+            </div>
+
+            <div class="fecha-entrega-box">
+              <label for="fechaEntrega">Fecha Prometida de Entrega:</label>
+              <input
+                id="fechaEntrega"
+                type="date"
+                [ngModel]="fechaEntrega()"
+                (ngModelChange)="fechaEntrega.set($event)"
+              />
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Medio de Pago -->
+      <div class="resumen-seccion">
+        <label class="seccion-label">MEDIO DE PAGO</label>
+        <div class="medios-grid">
+          <button
+            type="button"
+            class="medio-btn"
+            [class.active]="medioPago() === 'EFECTIVO'"
+            (click)="seleccionarMedioPago('EFECTIVO')"
+          >
+            <app-icono nombre="money" /> Efectivo
+          </button>
+          <button
+            type="button"
+            class="medio-btn"
+            [class.active]="medioPago() === 'TARJETA_DEBITO'"
+            (click)="seleccionarMedioPago('TARJETA_DEBITO')"
+          >
+            <app-icono nombre="credit-card" /> Tarjeta POS
+          </button>
+          <button
+            type="button"
+            class="medio-btn"
+            [class.active]="medioPago() === 'TRANSFERENCIA'"
+            (click)="seleccionarMedioPago('TRANSFERENCIA')"
+          >
+            <app-icono nombre="clipboard" /> Transferencia
+          </button>
+          <button
+            type="button"
+            class="medio-btn"
+            [class.active]="medioPago() === 'QR_YAPE_PLIN'"
+            (click)="seleccionarMedioPago('QR_YAPE_PLIN')"
+          >
+            <app-icono nombre="money" /> QR (Yape / Plin)
+          </button>
+        </div>
+
+        @if (medioPago() === 'TARJETA_DEBITO' || medioPago() === 'TARJETA_CREDITO' || medioPago() === 'TRANSFERENCIA' || medioPago() === 'QR_YAPE_PLIN') {
+          <div class="operacion-input-box">
+            <label for="numOp">N° de Operación / Voucher {{ medioPago() !== 'QR_YAPE_PLIN' ? '*' : '(opcional)' }}:</label>
+            <input
+              id="numOp"
+              type="text"
+              placeholder="Ej: 9812401"
+              [ngModel]="numeroOperacion()"
+              (ngModelChange)="numeroOperacion.set($event)"
+            />
+          </div>
+        }
+      </div>
+
+      <!-- Botón de Confirmación Principal -->
+      <div class="resumen-footer">
+        <button
+          type="button"
+          class="btn-confirmar-venta"
+          [disabled]="guardando() || carrito().length === 0"
+          (click)="registrarVenta()"
+        >
+          <app-icono nombre="check" />
+          {{ guardando() ? 'Procesando Venta...' : 'Confirmar y Generar Comprobante' }}
+        </button>
+        <button type="button" class="btn-cancelar" (click)="reiniciarFormulario()">
+          Cancelar Operación
+        </button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- MODAL RECETA ASOCIADA -->
+@if (modalRecetaAbierto() && recetaDetalle()) {
+  <app-receta-asociada-modal
+    [receta]="recetaDetalle()"
+    (cerrar)="modalRecetaAbierto.set(false)"
+    (usarReceta)="aplicarRecetaAlCarrito($event)"
+  />
+}
+
+<!-- MODAL QR DE PAGO -->
+@if (modalQrAbierto()) {
+  <app-qr-pago-modal
+    [monto]="modalidadPago() === 'ADELANTO' ? (montoAdelanto() || adelantoMinimo()) : total()"
+    (cerrar)="modalQrAbierto.set(false)"
+    (confirmar)="confirmarQr($event)"
+  />
+}
+
+<!-- MODAL VENTA EXITOSA -->
+@if (ventaExitosa(); as ve) {
+  <app-venta-exitosa-modal
+    [venta]="ve"
+    (cerrar)="reiniciarFormulario()"
+    (nuevaVenta)="reiniciarFormulario()"
+  />
+}

@@ -1,0 +1,102 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card print-target" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-header no-print">
+      <div class="success-icon">
+        <app-icono nombre="check" />
+      </div>
+      <div>
+        <h3>¡Venta Registrada con Éxito!</h3>
+        <p>Comprobante emitido correctamente en el sistema</p>
+      </div>
+      <button class="btn-close" type="button" aria-label="Cerrar modal" (click)="cerrar.emit()">✕</button>
+    </div>
+
+    @if (venta(); as v) {
+      <div class="comprobante-papel">
+        <div class="empresa-encabezado">
+          <h2>GEO VISION ÓPTICA & CONSULTORIO</h2>
+          <p>RUC: 20601234567 • Av. Principal 450, Miraflores, Lima</p>
+          <div class="tipo-badge">
+            {{ v.tipoComprobanteDescripcion || v.tipoComprobante }} • {{ v.numeroComprobante }}
+          </div>
+        </div>
+
+        <div class="datos-grid">
+          <div>
+            <span class="label">CLIENTE:</span>
+            <strong>{{ v.nombreCompletoPaciente || 'Público General / Cliente Varios' }}</strong>
+          </div>
+          <div>
+            <span class="label">FECHA & HORA:</span>
+            <span>{{ v.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div>
+            <span class="label">ATENDIDO POR:</span>
+            <span>{{ v.nombreCompletoEmpleado }}</span>
+          </div>
+          <div>
+            <span class="label">ESTADO:</span>
+            <span class="estado-tag" [class.pagada]="v.estado === 'PAGADA'" [class.pendiente]="v.estado === 'PENDIENTE'">
+              {{ v.estadoDescripcion }}
+            </span>
+          </div>
+        </div>
+
+        <table class="items-tabla">
+          <thead>
+            <tr>
+              <th>Descripción</th>
+              <th class="text-center">Cant.</th>
+              <th class="text-right">P. Unit</th>
+              <th class="text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of v.productos; track p.idProducto) {
+              <tr>
+                <td>{{ p.nombreProducto || 'Producto óptico' }}</td>
+                <td class="text-center">{{ p.cantidad }}</td>
+                <td class="text-right">S/ {{ p.precioUnit | number: '1.2-2' }}</td>
+                <td class="text-right">S/ {{ p.subTotal | number: '1.2-2' }}</td>
+              </tr>
+            }
+            @for (s of v.servicios; track s.idServicio) {
+              <tr>
+                <td>{{ s.nombreServicio || 'Servicio óptico' }}</td>
+                <td class="text-center">1</td>
+                <td class="text-right">S/ {{ s.precio | number: '1.2-2' }}</td>
+                <td class="text-right">S/ {{ s.precio | number: '1.2-2' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="totales-caja">
+          <div class="linea-total">
+            <span>Importe Total Venta:</span>
+            <strong>S/ {{ v.total | number: '1.2-2' }}</strong>
+          </div>
+          <div class="linea-total pagado">
+            <span>Total Cobrado:</span>
+            <span>S/ {{ v.totalPagado | number: '1.2-2' }}</span>
+          </div>
+          @if (v.saldoPendiente > 0) {
+            <div class="linea-total saldo">
+              <span>SALDO PENDIENTE AL RECOJO:</span>
+              <strong>S/ {{ v.saldoPendiente | number: '1.2-2' }}</strong>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="modal-footer no-print">
+      <button class="btn btn-secondary" type="button" (click)="imprimir()">
+        <app-icono nombre="download" /> Imprimir Comprobante
+      </button>
+      <button class="btn btn-primary" type="button" (click)="nuevaVenta.emit()">
+        <app-icono nombre="plus" /> Nueva Venta
+      </button>
+    </div>
+  </div>
+</div>

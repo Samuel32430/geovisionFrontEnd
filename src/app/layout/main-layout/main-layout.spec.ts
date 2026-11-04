@@ -12,7 +12,7 @@ describe('MainLayout', () => {
     }).compileComponents();
   });
 
-  it('should link to the dashboard and patient module', () => {
+  it('should link to the dashboard, patient module and ventas section', () => {
     const fixture = TestBed.createComponent(MainLayout);
     fixture.detectChanges();
     const links = Array.from(
@@ -21,6 +21,9 @@ describe('MainLayout', () => {
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/inicio',
       '/atencion-paciente-consulta',
+      '/ventas/nueva',
+      '/ventas/historial',
+      '/ventas/pagos-pendientes',
     ]);
   });
 
