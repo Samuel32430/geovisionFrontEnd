@@ -1,0 +1,243 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+.error-header {
+  padding: 22px 32px;
+  background: white;
+  border-bottom: 1px solid var(--border);
+}
+nav {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12px;
+  color: #607591;
+}
+nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+nav app-icono {
+  width: 16px;
+  height: 16px;
+}
+.error-tag {
+  color: #af3153;
+  background: #fff0f3;
+  border: 1px solid #ffe0e8;
+  border-radius: 6px;
+  padding: 4px 9px;
+}
+.error-page {
+  max-width: 1040px;
+  margin: auto;
+  padding: 48px 32px;
+}
+.message {
+  text-align: center;
+  padding: 12px 0 36px;
+}
+.optical-art {
+  max-width: 400px;
+  margin: 0 auto 26px;
+  padding: 30px 22px 22px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: white;
+  box-shadow: 0 14px 50px #09998e0c;
+}
+.lenses {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+.lens {
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 82px;
+  height: 98px;
+  flex-shrink: 0;
+  border: 4px solid #28364c;
+  border-radius: 48%;
+  background: #f8fafd;
+  color: #172139;
+  font-size: 50px;
+  font-weight: 600;
+}
+.lens.central {
+  border-color: #087f77;
+  background: #f2fcfa;
+  color: #087f77;
+}
+.central app-icono {
+  width: 40px;
+  height: 40px;
+}
+.bridge {
+  width: 20px;
+  height: 6px;
+  border-radius: 5px;
+  background: #34465f;
+  flex-shrink: 0;
+}
+.question {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  color: white;
+  background: #b87905;
+  font-size: 13px;
+}
+.art-caption {
+  display: block;
+  margin-top: 20px;
+  font-size: 11px;
+  color: #566d89;
+  letter-spacing: 0.3px;
+}
+.error-code {
+  color: #08776f;
+  font-size: 12px;
+  font-weight: 600;
+}
+h1 {
+  font-size: clamp(26px, 3vw, 36px);
+  letter-spacing: -0.8px;
+  line-height: 1.2;
+  margin: 12px 0;
+}
+.message > p {
+  max-width: 610px;
+  margin: 0 auto;
+  color: #566d89;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.main-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid #dce5ef;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  background: white;
+  color: #34465f;
+  text-decoration: none;
+}
+.button app-icono {
+  width: 17px;
+  height: 17px;
+}
+.primary {
+  background: #087f77;
+  border-color: #087f77;
+  color: white;
+}
+.shortcuts {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+}
+.shortcuts header {
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 18px;
+  margin-bottom: 18px;
+}
+h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+.shortcuts p {
+  color: #566d89;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 0;
+}
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.shortcut {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border: 1px solid #e5edf5;
+  border-radius: 12px;
+  padding: 18px;
+  text-decoration: none;
+}
+.shortcut-icon {
+  display: grid;
+  place-items: center;
+  background: #eefaf7;
+  color: #087f77;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+.shortcut strong {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.shortcut-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: #087f77;
+  margin-top: auto;
+  padding-top: 12px;
+}
+.shortcut:hover {
+  border-color: #86cfc1;
+  background: #f8fdfb;
+}
+@media (max-width: 760px) {
+  .error-header {
+    padding-left: 66px;
+    min-height: 72px;
+  }
+  .error-page {
+    padding: 28px 16px;
+  }
+  .shortcuts {
+    padding: 18px;
+  }
+}
+@media (max-width: 400px) {
+  .lenses {
+    gap: 7px;
+  }
+  .lens {
+    width: 62px;
+    height: 78px;
+    font-size: 40px;
+  }
+  .bridge {
+    width: 14px;
+  }
+  .main-actions .button {
+    width: 100%;
+  }
+}

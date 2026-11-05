@@ -33,6 +33,12 @@ export const routes: Routes = [
             (m) => m.ATENCION_PACIENTE_CONSULTA_ROUTES,
           ),
       },
+      {
+        path: '**',
+        title: 'Página no encontrada | Geo Vision',
+        loadComponent: () =>
+          import('./features/errores/no-encontrado/no-encontrado').then((m) => m.NoEncontrado),
+      },
     ],
   },
 ];

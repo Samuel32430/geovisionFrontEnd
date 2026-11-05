@@ -1,0 +1,34 @@
+<header class="error-header">
+  <nav aria-label="Ruta de navegación">
+    <a routerLink="/inicio"><app-icono nombre="grid" />Inicio</a><span aria-hidden="true">/</span
+    ><span class="error-tag" aria-current="page">Error 404</span>
+  </nav>
+</header>
+<div class="error-page">
+  <section class="message" aria-labelledby="error-title">
+    <div class="optical-art" aria-hidden="true">
+      <div class="lenses">
+        <span class="lens">4</span><span class="bridge"></span
+        ><span class="lens central"><app-icono nombre="eye" /><span class="question">?</span></span
+        ><span class="bridge"></span><span class="lens">4</span>
+      </div>
+      <span class="art-caption">Geo Vision · Una nueva perspectiva</span>
+    </div>
+    <span class="error-code">404 · Ruta no disponible</span>
+    <h1 id="error-title">Esta página está fuera de foco</h1>
+    <p>
+      La dirección que intentas abrir no corresponde a una página disponible. Comprueba el enlace o
+      utiliza uno de estos accesos para continuar.
+    </p>
+    <div class="main-actions">
+      <a class="button primary" routerLink="/inicio"
+        ><app-icono nombre="grid" />Ir al Inicio / Dashboard</a
+      >
+      @if (pacientes()) {
+        <a class="button" routerLink="/atencion-paciente-consulta/pacientes"
+          ><app-icono nombre="search" />Buscar pacientes</a
+        >
+      }
+    </div>
+  </section>
+</div>
