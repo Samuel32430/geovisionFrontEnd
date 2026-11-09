@@ -23,4 +23,10 @@ export const VENTAS_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/pagos-pendientes/pagos-pendientes').then((m) => m.PagosPendientes),
   },
+  {
+    path: 'reportes',
+    title: 'Reportes de Ventas | Geo Vision',
+    loadComponent: () =>
+      import('./pages/reporte-ventas/reporte-ventas').then((m) => m.ReporteVentas),
+  },
 ];

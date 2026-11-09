@@ -1,0 +1,742 @@
+<div class="reportes-container">
+  <!-- ENCABEZADO DE LA PÁGINA -->
+  <header class="page-header">
+    <div class="heading-group">
+      <span class="breadcrumb">Reportes / Gestión Comercial</span>
+      <h1>Reportes Analíticos de Ventas</h1>
+      <p>Consulte las métricas comerciales, recaudación de caja, ranking de ventas y saldos pendientes.</p>
+    </div>
+
+    <div class="header-actions">
+      @if (pestanaActiva() === 'periodo') {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="descargandoPdf() || cargando()"
+          (click)="exportarPdfPeriodo()"
+        >
+          @if (descargandoPdf()) {
+            <span class="spinner-sm"></span> Generando PDF...
+          } @else {
+            <app-icono nombre="download" /> Exportar PDF de Ventas
+          }
+        </button>
+      } @else if (pestanaActiva() === 'ranking') {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="descargandoPdf() || cargando()"
+          (click)="exportarPdfRanking()"
+        >
+          @if (descargandoPdf()) {
+            <span class="spinner-sm"></span> Generando PDF...
+          } @else {
+            <app-icono nombre="download" /> Exportar PDF de Ranking
+          }
+        </button>
+      } @else if (pestanaActiva() === 'saldos') {
+        <a routerLink="/ventas/pagos-pendientes" class="btn btn-secondary">
+          <app-icono nombre="credit-card" /> Ir a Cobranzas y Caja
+        </a>
+      }
+    </div>
+  </header>
+
+  <!-- PESTAÑAS DE NAVEGACIÓN -->
+  <nav class="reportes-tabs" aria-label="Secciones de Reportes">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="pestanaActiva() === 'periodo'"
+      (click)="cambiarPestana('periodo')"
+    >
+      <app-icono nombre="calendar" />
+      <span>Ventas por Periodo & Recaudación</span>
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="pestanaActiva() === 'ranking'"
+      (click)="cambiarPestana('ranking')"
+    >
+      <app-icono nombre="cart" />
+      <span>Ranking Comercial (Top Ventas)</span>
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="pestanaActiva() === 'saldos'"
+      (click)="cambiarPestana('saldos')"
+    >
+      <app-icono nombre="credit-card" />
+      <span>Saldos y Cobranzas</span>
+    </button>
+  </nav>
+
+  @if (error()) {
+    <div class="error-banner">
+      <app-icono nombre="warning" />
+      <span>{{ error() }}</span>
+      <button type="button" class="btn-close-error" (click)="error.set(null)">✕</button>
+    </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- TAB 1: REPORTE DE VENTAS POR PERIODO       -->
+  <!-- ========================================== -->
+  @if (pestanaActiva() === 'periodo') {
+    <!-- BARRA DE FILTROS -->
+    <section class="filtro-card" aria-label="Filtros del reporte">
+      <div class="filtro-grid">
+        <div class="filtro-field">
+          <label for="fechaInicio">Fecha Desde</label>
+          <div class="input-icon-wrap">
+            <input
+              id="fechaInicio"
+              type="date"
+              [ngModel]="fechaInicio()"
+              (ngModelChange)="fechaInicio.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="filtro-field">
+          <label for="fechaFin">Fecha Hasta</label>
+          <div class="input-icon-wrap">
+            <input
+              id="fechaFin"
+              type="date"
+              [ngModel]="fechaFin()"
+              (ngModelChange)="fechaFin.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="filtro-field">
+          <label for="tipoComprobante">Comprobante</label>
+          <select
+            id="tipoComprobante"
+            [ngModel]="tipoComprobante()"
+            (ngModelChange)="tipoComprobante.set($event)"
+          >
+            <option value="TODOS">Todos los comprobantes</option>
+            <option value="BOLETA">Boleta de Venta</option>
+            <option value="FACTURA">Factura Comercial</option>
+            <option value="NOTA_VENTA">Nota de Venta</option>
+          </select>
+        </div>
+
+        <div class="filtro-field">
+          <label for="estadoFiltro">Estado</label>
+          <select
+            id="estadoFiltro"
+            [ngModel]="estadoFiltro()"
+            (ngModelChange)="estadoFiltro.set($event)"
+          >
+            <option value="TODOS">Todos los estados</option>
+            <option value="PAGADA">Pagadas totalmente</option>
+            <option value="PENDIENTE">Con saldo pendiente</option>
+            <option value="ANULADA">Anuladas</option>
+          </select>
+        </div>
+
+        <div class="filtro-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="cargando()"
+            (click)="cargarReportePeriodo()"
+          >
+            <app-icono nombre="search" /> Filtrar
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost"
+            [disabled]="cargando()"
+            (click)="limpiarFiltros()"
+          >
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARJETAS DE KPIS PRINCIPALES -->
+    @if (reportePeriodo(); as rep) {
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon teal">
+            <app-icono nombre="money" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Total Facturado</span>
+            <strong class="kpi-valor">S/ {{ rep.totalVendido | number: '1.2-2' }}</strong>
+            <span class="kpi-sub">Venta total bruta acumulada</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon green">
+            <app-icono nombre="check" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Total Recaudado</span>
+            <strong class="kpi-valor verde">S/ {{ rep.totalCobrado | number: '1.2-2' }}</strong>
+            <span class="kpi-sub">Cobranza líquida en caja</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon orange">
+            <app-icono nombre="warning" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Saldo por Cobrar</span>
+            <strong class="kpi-valor naranja">S/ {{ rep.totalSaldoPendiente | number: '1.2-2' }}</strong>
+            <span class="kpi-sub">Cartera pendiente / crédito</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon blue">
+            <app-icono nombre="document" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Comprobantes</span>
+            <strong class="kpi-valor">{{ rep.totalVentas }}</strong>
+            <span class="kpi-sub">Transacciones emitidas</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon purple">
+            <app-icono nombre="cart" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Ticket Promedio</span>
+            <strong class="kpi-valor">S/ {{ rep.ticketPromedio | number: '1.2-2' }}</strong>
+            <span class="kpi-sub">Promedio por venta</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- DESGLOSE POR MÉTODO DE PAGO -->
+      @if (metodosPago().length > 0) {
+        <section class="metodos-section">
+          <h2 class="section-title">
+            <app-icono nombre="credit-card" /> Recaudación por Métodos de Pago
+          </h2>
+          <div class="metodos-grid">
+            @for (m of metodosPago(); track m.nombre) {
+              <div class="metodo-card">
+                <div class="metodo-head">
+                  <span class="metodo-nombre">{{ m.nombre }}</span>
+                  <span class="metodo-porcentaje">{{ m.porcentaje }}%</span>
+                </div>
+                <div class="metodo-barra-bg">
+                  <div class="metodo-barra-fill" [style.width.%]="m.porcentaje"></div>
+                </div>
+                <div class="metodo-monto">
+                  S/ {{ m.monto | number: '1.2-2' }}
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- TABLA DETALLADA DE VENTAS -->
+      <section class="tabla-seccion">
+        <div class="tabla-header">
+          <div>
+            <h2 class="section-title">Comprobantes y Transacciones Registradas</h2>
+            <p class="section-subtitle">Detalle individual de ventas emitidas en el periodo seleccionado</p>
+          </div>
+          <span class="badge-total">{{ rep.ventas.length }} comprobantes</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="reporte-tabla">
+            <thead>
+              <tr>
+                <th>COMPROBANTE</th>
+                <th>FECHA</th>
+                <th>CLIENTE</th>
+                <th>VENDEDOR</th>
+                <th>CONDICIÓN</th>
+                <th class="text-right">TOTAL</th>
+                <th class="text-right">COBRADO</th>
+                <th class="text-right">SALDO</th>
+                <th>ESTADO</th>
+                <th class="text-center">ACCIÓN</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (cargando()) {
+                <tr>
+                  <td colspan="10" class="loading-cell">
+                    <span class="spinner-sm"></span> Cargando datos del reporte...
+                  </td>
+                </tr>
+              } @else if (rep.ventas.length === 0) {
+                <tr>
+                  <td colspan="10" class="empty-cell">
+                    <app-icono nombre="document" />
+                    <p>No se encontraron comprobantes ni ventas en el rango de fechas seleccionado.</p>
+                  </td>
+                </tr>
+              } @else {
+                @for (v of rep.ventas; track v.idVenta) {
+                  <tr>
+                    <td>
+                      <div class="comprobante-cell">
+                        <span class="tipo-tag" [class]="v.tipoComprobante.toLowerCase()">
+                          {{ v.tipoComprobante }}
+                        </span>
+                        <strong>{{ v.numeroComprobante }}</strong>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="fecha-cell">
+                        {{ v.fechaRegistro | date: 'dd/MM/yyyy' }}
+                        <small>{{ v.fechaRegistro | date: 'HH:mm' }}</small>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="cliente-cell">
+                        <span class="avatar-sm">{{ iniciales(v.nombreCliente) }}</span>
+                        <div class="cliente-info">
+                          <strong>{{ v.nombreCliente || 'Público General' }}</strong>
+                          @if (v.docCliente) {
+                            <small>DOC: {{ v.docCliente }}</small>
+                          }
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="vendedor-txt">{{ v.nombreVendedor || 'Sistema' }}</span>
+                    </td>
+                    <td>
+                      <span class="condicion-tag" [class.credito]="v.condicionPago === 'CREDITO'">
+                        {{ v.condicionPago }}
+                      </span>
+                    </td>
+                    <td class="text-right">
+                      <strong>S/ {{ v.total | number: '1.2-2' }}</strong>
+                    </td>
+                    <td class="text-right">
+                      <span class="monto-cobrado">S/ {{ v.totalPagado | number: '1.2-2' }}</span>
+                    </td>
+                    <td class="text-right">
+                      @if (v.saldoPendiente > 0) {
+                        <span class="monto-saldo">S/ {{ v.saldoPendiente | number: '1.2-2' }}</span>
+                      } @else {
+                        <span class="text-muted">S/ 0.00</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="badge-estado" [class]="v.estado.toLowerCase()">
+                        {{ v.estado }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <button
+                        type="button"
+                        class="btn-accion"
+                        title="Ver detalle del comprobante"
+                        [disabled]="cargandoDetalle()"
+                        (click)="abrirDetalleVenta(v)"
+                      >
+                        <app-icono nombre="eye" />
+                      </button>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else if (cargando()) {
+      <div class="loading-state">
+        <span class="spinner-lg"></span>
+        <p>Cargando información comercial del periodo...</p>
+      </div>
+    }
+  }
+
+  <!-- ========================================== -->
+  <!-- TAB 2: RANKING COMERCIAL DE VENTAS         -->
+  <!-- ========================================== -->
+  @if (pestanaActiva() === 'ranking') {
+    <!-- BARRA DE FILTROS RANKING -->
+    <section class="filtro-card" aria-label="Filtros de ranking comercial">
+      <div class="filtro-grid">
+        <div class="filtro-field">
+          <label for="fechaInicioRanking">Fecha Desde</label>
+          <div class="input-icon-wrap">
+            <input
+              id="fechaInicioRanking"
+              type="date"
+              [ngModel]="fechaInicioRanking()"
+              (ngModelChange)="fechaInicioRanking.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="filtro-field">
+          <label for="fechaFinRanking">Fecha Hasta</label>
+          <div class="input-icon-wrap">
+            <input
+              id="fechaFinRanking"
+              type="date"
+              [ngModel]="fechaFinRanking()"
+              (ngModelChange)="fechaFinRanking.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="filtro-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="cargando()"
+            (click)="cargarReporteRanking()"
+          >
+            <app-icono nombre="search" /> Filtrar Ranking
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost"
+            [disabled]="cargando()"
+            (click)="limpiarFiltrosRanking()"
+          >
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARJETAS DE KPIS RANKING -->
+    @if (reporteRanking(); as rep) {
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon teal">
+            <app-icono nombre="cart" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Unidades Vendidas</span>
+            <strong class="kpi-valor">{{ rep.totalUnidadesVendidas }}</strong>
+            <span class="kpi-sub">Total de artículos despachados</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon green">
+            <app-icono nombre="money" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Recaudación Ranking</span>
+            <strong class="kpi-valor verde">S/ {{ rep.totalRecaudado | number: '1.2-2' }}</strong>
+            <span class="kpi-sub">Ingreso generado por artículos</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon blue">
+            <app-icono nombre="document" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Artículos Clasificados</span>
+            <strong class="kpi-valor">{{ rep.items.length }}</strong>
+            <span class="kpi-sub">Productos y servicios con ventas</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLA RANKING COMERCIAL -->
+      <section class="tabla-seccion">
+        <div class="tabla-header">
+          <div>
+            <h2 class="section-title">Ranking de Artículos más Vendidos</h2>
+            <p class="section-subtitle">Ordenado por mayor recaudación acumulada e impacto en ingresos</p>
+          </div>
+          <span class="badge-total">{{ rep.items.length }} clasificados</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="reporte-tabla">
+            <thead>
+              <tr>
+                <th class="text-center"># RANK</th>
+                <th>TIPO</th>
+                <th>CÓDIGO</th>
+                <th>DESCRIPCIÓN COMERCIAL</th>
+                <th>CATEGORÍA</th>
+                <th class="text-right">PRECIO UNITARIO</th>
+                <th class="text-center">UNIDADES VENDIDAS</th>
+                <th class="text-right">TOTAL RECAUDADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (cargando()) {
+                <tr>
+                  <td colspan="8" class="loading-cell">
+                    <span class="spinner-sm"></span> Calculando ranking comercial...
+                  </td>
+                </tr>
+              } @else if (rep.items.length === 0) {
+                <tr>
+                  <td colspan="8" class="empty-cell">
+                    <app-icono nombre="box" />
+                    <p>No se registraron ventas de productos ni servicios en el rango de fechas seleccionado.</p>
+                  </td>
+                </tr>
+              } @else {
+                @for (item of rep.items; track item.idItem) {
+                  <tr>
+                    <td class="text-center">
+                      @if (item.ranking === 1) {
+                        <span class="rank-badge gold" title="Primer lugar en recaudación">🥇 1</span>
+                      } @else if (item.ranking === 2) {
+                        <span class="rank-badge silver" title="Segundo lugar en recaudación">🥈 2</span>
+                      } @else if (item.ranking === 3) {
+                        <span class="rank-badge bronze" title="Tercer lugar en recaudación">🥉 3</span>
+                      } @else {
+                        <span class="rank-badge default">#{{ item.ranking }}</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="tipo-tag" [class]="item.tipoItem.toLowerCase()">
+                        {{ item.tipoItem }}
+                      </span>
+                    </td>
+                    <td>
+                      <code class="codigo-txt">{{ item.codigo }}</code>
+                    </td>
+                    <td>
+                      <strong class="item-nombre">{{ item.nombre }}</strong>
+                    </td>
+                    <td>
+                      <span class="categoria-txt">{{ item.categoria || 'Sin categoría' }}</span>
+                    </td>
+                    <td class="text-right">
+                      S/ {{ item.precioUnitario | number: '1.2-2' }}
+                    </td>
+                    <td class="text-center">
+                      <span class="unidades-badge">{{ item.unidadesVendidas }}</span>
+                    </td>
+                    <td class="text-right">
+                      <strong class="monto-recaudado">S/ {{ item.totalRecaudado | number: '1.2-2' }}</strong>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else if (cargando()) {
+      <div class="loading-state">
+        <span class="spinner-lg"></span>
+        <p>Generando ranking comercial de productos y servicios...</p>
+      </div>
+    }
+  }
+
+  <!-- ========================================== -->
+  <!-- TAB 3: SALDOS PENDIENTES & COBRANZAS       -->
+  <!-- ========================================== -->
+  @if (pestanaActiva() === 'saldos') {
+    <!-- BARRA DE FILTRO POR TEXTO / CLIENTE -->
+    <section class="filtro-card" aria-label="Búsqueda de saldos pendientes">
+      <div class="filtro-saldos-wrap">
+        <div class="input-icon-wrap grow">
+          <app-icono nombre="search" />
+          <input
+            type="text"
+            placeholder="Buscar por cliente, DNI o número de venta..."
+            [ngModel]="terminoSaldos()"
+            (ngModelChange)="terminoSaldos.set($event)"
+            (keyup.enter)="cargarReporteSaldos()"
+          />
+        </div>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="cargando()"
+          (click)="cargarReporteSaldos()"
+        >
+          <app-icono nombre="search" /> Buscar
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost"
+          [disabled]="cargando()"
+          (click)="limpiarFiltrosSaldos()"
+        >
+          Limpiar
+        </button>
+      </div>
+    </section>
+
+    <!-- TARJETAS DE KPIS SALDOS -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon orange">
+          <app-icono nombre="warning" />
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-title">Cartera por Cobrar</span>
+          <strong class="kpi-valor naranja">S/ {{ totalDeudaSaldos() | number: '1.2-2' }}</strong>
+          <span class="kpi-sub">Total acumulado en saldo pendiente</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon green">
+          <app-icono nombre="check" />
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-title">Anticipos Recibidos</span>
+          <strong class="kpi-valor verde">S/ {{ totalCobradoSaldos() | number: '1.2-2' }}</strong>
+          <span class="kpi-sub">Monto amortizado por clientes</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon blue">
+          <app-icono nombre="document" />
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-title">Ventas con Saldo</span>
+          <strong class="kpi-valor">{{ cuentasSaldos().length }}</strong>
+          <span class="kpi-sub">Órdenes pendientes de liquidación</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLA ANALÍTICA DE SALDOS PENDIENTES -->
+    <section class="tabla-seccion">
+      <div class="tabla-header">
+        <div>
+          <h2 class="section-title">Cartera Deudora y Cuentas por Cobrar</h2>
+          <p class="section-subtitle">Listado de transacciones con saldo pendiente de pago o amortizaciones parciales</p>
+        </div>
+        <span class="badge-total">{{ cuentasSaldos().length }} cuentas pendientes</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="reporte-tabla">
+          <thead>
+            <tr>
+              <th>COMPROBANTE</th>
+              <th>FECHA VENTA</th>
+              <th>CLIENTE & IDENTIFICACIÓN</th>
+              <th class="text-right">TOTAL ORDEN</th>
+              <th class="text-right">ADELANTO PAGADO</th>
+              <th class="text-right">SALDO PENDIENTE</th>
+              <th class="text-center">PROGRESO PAGO</th>
+              <th class="text-center">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (cargando()) {
+              <tr>
+                <td colspan="8" class="loading-cell">
+                  <span class="spinner-sm"></span> Consultando cartera deudora...
+                </td>
+              </tr>
+            } @else if (cuentasSaldos().length === 0) {
+              <tr>
+                <td colspan="8" class="empty-cell">
+                  <app-icono nombre="check" />
+                  <p>¡Excelente! No hay cuentas pendientes de pago ni saldos por regularizar en el sistema.</p>
+                </td>
+              </tr>
+            } @else {
+              @for (c of cuentasSaldos(); track c.idVenta) {
+                <tr>
+                  <td>
+                    <div class="comprobante-cell">
+                      <span class="tipo-tag nota_venta">VENTA #{{ c.idVenta }}</span>
+                      <strong>{{ c.numeroComprobante || ('V-' + c.idVenta) }}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="fecha-cell">
+                      {{ c.fechaVenta | date: 'dd/MM/yyyy' }}
+                      <small>{{ c.fechaVenta | date: 'HH:mm' }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cliente-cell">
+                      <span class="avatar-sm">{{ iniciales(c.pacienteNombre) }}</span>
+                      <div class="cliente-info">
+                        <strong>{{ c.pacienteNombre || 'Cliente sin nombre' }}</strong>
+                        @if (c.pacienteDocumento) {
+                          <small>DNI/DOC: {{ c.pacienteDocumento }}</small>
+                        }
+                        @if (c.pacienteTelefono) {
+                          <small>TEL: {{ c.pacienteTelefono }}</small>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <strong>S/ {{ c.totalVenta | number: '1.2-2' }}</strong>
+                  </td>
+                  <td class="text-right">
+                    <span class="monto-cobrado">S/ {{ c.totalPagado | number: '1.2-2' }}</span>
+                  </td>
+                  <td class="text-right">
+                    <strong class="monto-saldo">S/ {{ c.saldoPendiente | number: '1.2-2' }}</strong>
+                  </td>
+                  <td class="text-center">
+                    <div class="mini-progreso-wrap">
+                      <div class="mini-progreso-bar">
+                        <div
+                          class="mini-progreso-fill"
+                          [style.width.%]="c.totalVenta > 0 ? (c.totalPagado / c.totalVenta) * 100 : 0"
+                        ></div>
+                      </div>
+                      <small>{{ c.totalVenta > 0 ? (c.totalPagado / c.totalVenta * 100 | number: '1.0-0') : 0 }}%</small>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <div class="acciones-btns">
+                      <button
+                        type="button"
+                        class="btn-accion"
+                        title="Ver detalle del comprobante"
+                        [disabled]="cargandoDetalle()"
+                        (click)="abrirDetalleVentaSaldo(c)"
+                      >
+                        <app-icono nombre="eye" />
+                      </button>
+                      <a
+                        routerLink="/ventas/pagos-pendientes"
+                        class="btn-accion cobrar"
+                        title="Ir a registrar abono en pagos pendientes"
+                      >
+                        <app-icono nombre="money" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  <!-- MODAL DE DETALLE DE VENTA REUTILIZADO -->
+  @if (ventaSeleccionada(); as v) {
+    <app-venta-detalle-modal
+      [venta]="v"
+      (cerrar)="cerrarModalDetalle()"
+    />
+  }
+</div>

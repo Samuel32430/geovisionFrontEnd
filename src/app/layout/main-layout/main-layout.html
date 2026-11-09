@@ -66,6 +66,16 @@
         <app-icono [nombre]="item.icono" />{{ item.etiqueta }}
       </button>
     }
+
+    <p class="nav-label">REPORTES</p>
+    <a
+      routerLink="/ventas/reportes"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+      ><app-icono nombre="document" />Reporte de Ventas</a
+    >
+
     <p class="nav-label">SEGURIDAD & SISTEMA</p>
     @for (item of seguridad; track item.etiqueta) {
       <button type="button" (click)="avisos.pendiente(item.etiqueta)">

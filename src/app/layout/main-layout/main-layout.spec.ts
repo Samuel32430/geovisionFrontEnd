@@ -24,6 +24,7 @@ describe('MainLayout', () => {
       '/ventas/nueva',
       '/ventas/historial',
       '/ventas/pagos-pendientes',
+      '/ventas/reportes',
     ]);
   });
 
