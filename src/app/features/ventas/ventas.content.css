@@ -1104,3 +1104,668 @@ app-venta-historial .pag-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+
+/* ==========================================================================
+   MÓDULO DE REPORTES ANALÍTICOS DE VENTAS
+   ========================================================================== */
+app-reporte-ventas .reportes-container {
+  padding: 24px 32px 48px;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+app-reporte-ventas .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+app-reporte-ventas .heading-group .breadcrumb {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted, #647b9b);
+}
+
+app-reporte-ventas .heading-group h1 {
+  font-size: 24px;
+  font-weight: 750;
+  color: var(--ink, #121c30);
+  margin: 4px 0 2px;
+  letter-spacing: -0.3px;
+}
+
+app-reporte-ventas .heading-group p {
+  font-size: 13.5px;
+  color: var(--muted, #647b9b);
+  margin: 0;
+}
+
+app-reporte-ventas .header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+app-reporte-ventas .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+app-reporte-ventas .btn-primary {
+  background: var(--teal, #09998e);
+  color: #ffffff;
+  border-color: var(--teal, #09998e);
+}
+
+app-reporte-ventas .btn-primary:hover:not(:disabled) {
+  background: #087f76;
+  border-color: #087f76;
+}
+
+app-reporte-ventas .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+app-reporte-ventas .btn-secondary {
+  background: #ffffff;
+  color: var(--ink, #121c30);
+  border-color: var(--border, #e5ecf5);
+}
+
+app-reporte-ventas .btn-secondary:hover:not(:disabled) {
+  background: var(--surface, #f7f9fc);
+  border-color: #cbd5e1;
+}
+
+app-reporte-ventas .btn-ghost {
+  background: transparent;
+  color: var(--muted, #647b9b);
+  border-color: transparent;
+}
+
+app-reporte-ventas .btn-ghost:hover:not(:disabled) {
+  background: #f1f5f9;
+  color: var(--ink, #121c30);
+}
+
+app-reporte-ventas .reportes-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid var(--border, #e5ecf5);
+  padding-bottom: 2px;
+  overflow-x: auto;
+}
+
+app-reporte-ventas .tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: var(--muted, #647b9b);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+app-reporte-ventas .tab-btn:hover {
+  color: var(--teal, #09998e);
+  background: rgba(9, 153, 142, 0.04);
+}
+
+app-reporte-ventas .tab-btn.active {
+  color: var(--teal, #09998e);
+  font-weight: 700;
+}
+
+app-reporte-ventas .tab-btn.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 3px;
+  background: var(--teal, #09998e);
+  border-radius: 3px 3px 0 0;
+}
+
+app-reporte-ventas .error-banner {
+  background: #fdf2f2;
+  border: 1px solid #f8b4b4;
+  color: #9b1c1c;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+app-reporte-ventas .btn-close-error {
+  margin-left: auto;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  font-weight: bold;
+}
+
+app-reporte-ventas .filtro-card {
+  background: #ffffff;
+  border: 1px solid var(--border, #e5ecf5);
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+app-reporte-ventas .filtro-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+app-reporte-ventas .filtro-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+app-reporte-ventas .filtro-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted, #647b9b);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+app-reporte-ventas .filtro-field input,
+app-reporte-ventas .filtro-field select {
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #e5ecf5);
+  background: #ffffff;
+  color: var(--ink, #121c30);
+  font-size: 13.5px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+app-reporte-ventas .filtro-field input:focus,
+app-reporte-ventas .filtro-field select:focus {
+  border-color: var(--teal, #09998e);
+  box-shadow: 0 0 0 3px rgba(9, 153, 142, 0.12);
+}
+
+app-reporte-ventas .filtro-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+app-reporte-ventas .kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+app-reporte-ventas .kpi-card {
+  background: #ffffff;
+  border: 1px solid var(--border, #e5ecf5);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 6px rgba(18, 28, 48, 0.02);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+app-reporte-ventas .kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(18, 28, 48, 0.05);
+}
+
+app-reporte-ventas .kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+app-reporte-ventas .kpi-icon.teal {
+  background: #e6f6f5;
+  color: #09998e;
+}
+
+app-reporte-ventas .kpi-icon.green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+app-reporte-ventas .kpi-icon.orange {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+app-reporte-ventas .kpi-icon.blue {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+app-reporte-ventas .kpi-icon.purple {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+app-reporte-ventas .kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+app-reporte-ventas .kpi-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--muted, #647b9b);
+}
+
+app-reporte-ventas .kpi-valor {
+  font-size: 21px;
+  font-weight: 750;
+  color: var(--ink, #121c30);
+  margin: 2px 0;
+}
+
+app-reporte-ventas .kpi-valor.verde {
+  color: #059669;
+}
+
+app-reporte-ventas .kpi-valor.naranja {
+  color: #d97706;
+}
+
+app-reporte-ventas .kpi-sub {
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+app-reporte-ventas .metodos-section {
+  background: #ffffff;
+  border: 1px solid var(--border, #e5ecf5);
+  border-radius: 14px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+app-reporte-ventas .section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink, #121c30);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+app-reporte-ventas .section-subtitle {
+  font-size: 12.5px;
+  color: var(--muted, #647b9b);
+  margin: 2px 0 0;
+}
+
+app-reporte-ventas .metodos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+app-reporte-ventas .metodo-card {
+  background: var(--surface, #f7f9fc);
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+app-reporte-ventas .metodo-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+app-reporte-ventas .metodo-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink, #121c30);
+}
+
+app-reporte-ventas .metodo-porcentaje {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--teal, #09998e);
+}
+
+app-reporte-ventas .metodo-barra-bg {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+app-reporte-ventas .metodo-barra-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #09998e, #14b8a6);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+app-reporte-ventas .metodo-monto {
+  font-size: 14.5px;
+  font-weight: 750;
+  color: var(--ink, #121c30);
+}
+
+app-reporte-ventas .tabla-seccion {
+  background: #ffffff;
+  border: 1px solid var(--border, #e5ecf5);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+app-reporte-ventas .tabla-header {
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border, #e5ecf5);
+}
+
+app-reporte-ventas .badge-total {
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+app-reporte-ventas .table-responsive {
+  overflow-x: auto;
+  width: 100%;
+}
+
+app-reporte-ventas .reporte-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+app-reporte-ventas .reporte-tabla th {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border, #e5ecf5);
+  white-space: nowrap;
+}
+
+app-reporte-ventas .reporte-tabla td {
+  padding: 13px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--ink, #121c30);
+  vertical-align: middle;
+}
+
+app-reporte-ventas .reporte-tabla tr:last-child td {
+  border-bottom: none;
+}
+
+app-reporte-ventas .reporte-tabla tr:hover td {
+  background: #fbfcfe;
+}
+
+app-reporte-ventas .text-right {
+  text-align: right;
+}
+
+app-reporte-ventas .text-center {
+  text-align: center;
+}
+
+app-reporte-ventas .text-muted {
+  color: #94a3b8;
+}
+
+app-reporte-ventas .comprobante-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+app-reporte-ventas .tipo-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+app-reporte-ventas .tipo-tag.boleta {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+app-reporte-ventas .tipo-tag.factura {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+app-reporte-ventas .tipo-tag.nota_venta {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+app-reporte-ventas .fecha-cell {
+  display: flex;
+  flex-direction: column;
+  font-size: 12.5px;
+}
+
+app-reporte-ventas .fecha-cell small {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+app-reporte-ventas .cliente-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+app-reporte-ventas .avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e6f6f5;
+  color: var(--teal, #09998e);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+app-reporte-ventas .cliente-info {
+  display: flex;
+  flex-direction: column;
+}
+
+app-reporte-ventas .cliente-info strong {
+  font-size: 13px;
+  color: var(--ink, #121c30);
+}
+
+app-reporte-ventas .cliente-info small {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+app-reporte-ventas .vendedor-txt {
+  font-size: 12.5px;
+  color: #475569;
+}
+
+app-reporte-ventas .condicion-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+app-reporte-ventas .condicion-tag.credito {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+app-reporte-ventas .monto-cobrado {
+  color: #059669;
+  font-weight: 600;
+}
+
+app-reporte-ventas .monto-saldo {
+  color: #d97706;
+  font-weight: 700;
+}
+
+app-reporte-ventas .badge-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+app-reporte-ventas .badge-estado.pagada {
+  background: #d1fae5;
+  color: #047857;
+}
+
+app-reporte-ventas .badge-estado.pendiente {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+app-reporte-ventas .badge-estado.anulada {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+app-reporte-ventas .btn-accion {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #e5ecf5);
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+app-reporte-ventas .btn-accion:hover {
+  background: var(--surface, #f7f9fc);
+  color: var(--teal, #09998e);
+  border-color: var(--teal, #09998e);
+}
+
+app-reporte-ventas .spinner-sm {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+app-reporte-ventas .spinner-lg {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(9, 153, 142, 0.2);
+  border-top-color: var(--teal, #09998e);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+app-reporte-ventas .loading-cell,
+app-reporte-ventas .empty-cell {
+  text-align: center;
+  padding: 48px 16px !important;
+  color: #94a3b8;
+}
+
+app-reporte-ventas .empty-cell app-icono {
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 10px;
+  color: #cbd5e1;
+}
+
+app-reporte-ventas .loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: #64748b;
+  font-size: 14px;
+}
