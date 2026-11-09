@@ -34,6 +34,10 @@
             <app-icono nombre="download" /> Exportar PDF de Ranking
           }
         </button>
+      } @else if (pestanaActiva() === 'saldos') {
+        <a routerLink="/ventas/pagos-pendientes" class="btn btn-secondary">
+          <app-icono nombre="credit-card" /> Ir a Cobranzas y Caja
+        </a>
       }
     </div>
   </header>
@@ -538,6 +542,194 @@
         <p>Generando ranking comercial de productos y servicios...</p>
       </div>
     }
+  }
+
+  <!-- ========================================== -->
+  <!-- TAB 3: SALDOS PENDIENTES & COBRANZAS       -->
+  <!-- ========================================== -->
+  @if (pestanaActiva() === 'saldos') {
+    <!-- BARRA DE FILTRO POR TEXTO / CLIENTE -->
+    <section class="filtro-card" aria-label="Búsqueda de saldos pendientes">
+      <div class="filtro-saldos-wrap">
+        <div class="input-icon-wrap grow">
+          <app-icono nombre="search" />
+          <input
+            type="text"
+            placeholder="Buscar por cliente, DNI o número de venta..."
+            [ngModel]="terminoSaldos()"
+            (ngModelChange)="terminoSaldos.set($event)"
+            (keyup.enter)="cargarReporteSaldos()"
+          />
+        </div>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          [disabled]="cargando()"
+          (click)="cargarReporteSaldos()"
+        >
+          <app-icono nombre="search" /> Buscar
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost"
+          [disabled]="cargando()"
+          (click)="limpiarFiltrosSaldos()"
+        >
+          Limpiar
+        </button>
+      </div>
+    </section>
+
+    <!-- TARJETAS DE KPIS SALDOS -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon orange">
+          <app-icono nombre="warning" />
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-title">Cartera por Cobrar</span>
+          <strong class="kpi-valor naranja">S/ {{ totalDeudaSaldos() | number: '1.2-2' }}</strong>
+          <span class="kpi-sub">Total acumulado en saldo pendiente</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon green">
+          <app-icono nombre="check" />
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-title">Anticipos Recibidos</span>
+          <strong class="kpi-valor verde">S/ {{ totalCobradoSaldos() | number: '1.2-2' }}</strong>
+          <span class="kpi-sub">Monto amortizado por clientes</span>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon blue">
+          <app-icono nombre="document" />
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-title">Ventas con Saldo</span>
+          <strong class="kpi-valor">{{ cuentasSaldos().length }}</strong>
+          <span class="kpi-sub">Órdenes pendientes de liquidación</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLA ANALÍTICA DE SALDOS PENDIENTES -->
+    <section class="tabla-seccion">
+      <div class="tabla-header">
+        <div>
+          <h2 class="section-title">Cartera Deudora y Cuentas por Cobrar</h2>
+          <p class="section-subtitle">Listado de transacciones con saldo pendiente de pago o amortizaciones parciales</p>
+        </div>
+        <span class="badge-total">{{ cuentasSaldos().length }} cuentas pendientes</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="reporte-tabla">
+          <thead>
+            <tr>
+              <th>COMPROBANTE</th>
+              <th>FECHA VENTA</th>
+              <th>CLIENTE & IDENTIFICACIÓN</th>
+              <th class="text-right">TOTAL ORDEN</th>
+              <th class="text-right">ADELANTO PAGADO</th>
+              <th class="text-right">SALDO PENDIENTE</th>
+              <th class="text-center">PROGRESO PAGO</th>
+              <th class="text-center">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            @if (cargando()) {
+              <tr>
+                <td colspan="8" class="loading-cell">
+                  <span class="spinner-sm"></span> Consultando cartera deudora...
+                </td>
+              </tr>
+            } @else if (cuentasSaldos().length === 0) {
+              <tr>
+                <td colspan="8" class="empty-cell">
+                  <app-icono nombre="check" />
+                  <p>¡Excelente! No hay cuentas pendientes de pago ni saldos por regularizar en el sistema.</p>
+                </td>
+              </tr>
+            } @else {
+              @for (c of cuentasSaldos(); track c.idVenta) {
+                <tr>
+                  <td>
+                    <div class="comprobante-cell">
+                      <span class="tipo-tag nota_venta">VENTA #{{ c.idVenta }}</span>
+                      <strong>{{ c.numeroComprobante || ('V-' + c.idVenta) }}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="fecha-cell">
+                      {{ c.fechaVenta | date: 'dd/MM/yyyy' }}
+                      <small>{{ c.fechaVenta | date: 'HH:mm' }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cliente-cell">
+                      <span class="avatar-sm">{{ iniciales(c.pacienteNombre) }}</span>
+                      <div class="cliente-info">
+                        <strong>{{ c.pacienteNombre || 'Cliente sin nombre' }}</strong>
+                        @if (c.pacienteDocumento) {
+                          <small>DNI/DOC: {{ c.pacienteDocumento }}</small>
+                        }
+                        @if (c.pacienteTelefono) {
+                          <small>TEL: {{ c.pacienteTelefono }}</small>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-right">
+                    <strong>S/ {{ c.totalVenta | number: '1.2-2' }}</strong>
+                  </td>
+                  <td class="text-right">
+                    <span class="monto-cobrado">S/ {{ c.totalPagado | number: '1.2-2' }}</span>
+                  </td>
+                  <td class="text-right">
+                    <strong class="monto-saldo">S/ {{ c.saldoPendiente | number: '1.2-2' }}</strong>
+                  </td>
+                  <td class="text-center">
+                    <div class="mini-progreso-wrap">
+                      <div class="mini-progreso-bar">
+                        <div
+                          class="mini-progreso-fill"
+                          [style.width.%]="c.totalVenta > 0 ? (c.totalPagado / c.totalVenta) * 100 : 0"
+                        ></div>
+                      </div>
+                      <small>{{ c.totalVenta > 0 ? (c.totalPagado / c.totalVenta * 100 | number: '1.0-0') : 0 }}%</small>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <div class="acciones-btns">
+                      <button
+                        type="button"
+                        class="btn-accion"
+                        title="Ver detalle del comprobante"
+                        [disabled]="cargandoDetalle()"
+                        (click)="abrirDetalleVentaSaldo(c)"
+                      >
+                        <app-icono nombre="eye" />
+                      </button>
+                      <a
+                        routerLink="/ventas/pagos-pendientes"
+                        class="btn-accion cobrar"
+                        title="Ir a registrar abono en pagos pendientes"
+                      >
+                        <app-icono nombre="money" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
   }
 
   <!-- MODAL DE DETALLE DE VENTA REUTILIZADO -->

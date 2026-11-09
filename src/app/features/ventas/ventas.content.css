@@ -1853,3 +1853,91 @@ app-reporte-ventas .monto-recaudado {
   font-size: 14px;
   font-weight: 750;
 }
+
+
+/* ESTILOS DE SALDOS Y COBRANZAS */
+app-reporte-ventas .filtro-saldos-wrap {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+app-reporte-ventas .filtro-saldos-wrap .input-icon-wrap.grow {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+app-reporte-ventas .filtro-saldos-wrap .input-icon-wrap.grow app-icono {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+app-reporte-ventas .filtro-saldos-wrap .input-icon-wrap.grow input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px 0 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #e5ecf5);
+  background: #ffffff;
+  color: var(--ink, #121c30);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+app-reporte-ventas .filtro-saldos-wrap .input-icon-wrap.grow input:focus {
+  border-color: var(--teal, #09998e);
+  box-shadow: 0 0 0 3px rgba(9, 153, 142, 0.12);
+}
+
+app-reporte-ventas .mini-progreso-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 80px;
+}
+
+app-reporte-ventas .mini-progreso-bar {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+app-reporte-ventas .mini-progreso-fill {
+  height: 100%;
+  background: var(--teal, #09998e);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+app-reporte-ventas .mini-progreso-wrap small {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+app-reporte-ventas .acciones-btns {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+app-reporte-ventas .btn-accion.cobrar {
+  color: #059669;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+  text-decoration: none;
+}
+
+app-reporte-ventas .btn-accion.cobrar:hover {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+}

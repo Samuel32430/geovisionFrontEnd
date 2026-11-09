@@ -1,6 +1,7 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Icono } from '../../../../shared/components/icono/icono';
 import { AvisoService } from '../../../../shared/aviso-service';
 import { ReporteVentasService } from '../../services/reporte-ventas.service';
@@ -12,6 +13,7 @@ import {
   ReporteRankingComercial,
   ReporteVentasPeriodo,
 } from '../../models/reporte-ventas.model';
+import { PagoPendienteItem } from '../../models/pago-pendiente.model';
 import { VentaResponse } from '../../models/venta.model';
 import { VentaDetalleModal } from '../../components/venta-detalle-modal/venta-detalle-modal';
 
@@ -21,6 +23,7 @@ import { VentaDetalleModal } from '../../components/venta-detalle-modal/venta-de
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     DatePipe,
     DecimalPipe,
     Icono,
@@ -60,6 +63,16 @@ export class ReporteVentas implements OnInit {
   protected readonly fechaInicioRanking = signal(this.calcularPrimerDiaMes());
   protected readonly fechaFinRanking = signal(this.calcularHoy());
 
+  // Datos de Reporte 3: Saldos Pendientes
+  protected readonly cuentasSaldos = signal<PagoPendienteItem[]>([]);
+  protected readonly terminoSaldos = signal<string>('');
+  protected readonly totalDeudaSaldos = computed(() =>
+    this.cuentasSaldos().reduce((acc, c) => acc + (c.saldoPendiente || 0), 0)
+  );
+  protected readonly totalCobradoSaldos = computed(() =>
+    this.cuentasSaldos().reduce((acc, c) => acc + (c.totalPagado || 0), 0)
+  );
+
   // Lista de métodos de pago calculados
   protected readonly metodosPago = computed(() => {
     const rep = this.reportePeriodo();
@@ -85,6 +98,8 @@ export class ReporteVentas implements OnInit {
       if (!this.reportePeriodo()) this.cargarReportePeriodo();
     } else if (pestana === 'ranking') {
       if (!this.reporteRanking()) this.cargarReporteRanking();
+    } else if (pestana === 'saldos') {
+      if (this.cuentasSaldos().length === 0) this.cargarReporteSaldos();
     }
   }
 
@@ -204,6 +219,47 @@ export class ReporteVentas implements OnInit {
     this.fechaInicioRanking.set(this.calcularPrimerDiaMes());
     this.fechaFinRanking.set(this.calcularHoy());
     this.cargarReporteRanking();
+  }
+
+  protected cargarReporteSaldos(): void {
+    this.cargando.set(true);
+    this.error.set(null);
+
+    this.reporteService.obtenerSaldosPendientes(this.terminoSaldos()).subscribe({
+      next: (res) => {
+        this.cuentasSaldos.set(res || []);
+        this.cargando.set(false);
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.error.set(
+          err?.error?.message || 'Ocurrió un error al cargar la cartera de saldos pendientes.'
+        );
+      },
+    });
+  }
+
+  protected limpiarFiltrosSaldos(): void {
+    this.terminoSaldos.set('');
+    this.cargarReporteSaldos();
+  }
+
+  protected abrirDetalleVentaSaldo(c: PagoPendienteItem): void {
+    this.cargandoDetalle.set(true);
+    this.ventaService.detalleHistorial(c.idVenta).subscribe({
+      next: (resp) => {
+        this.ventaSeleccionada.set(resp);
+        this.cargandoDetalle.set(false);
+      },
+      error: () => {
+        this.cargandoDetalle.set(false);
+        this.avisos.abrir({
+          tipo: 'error',
+          titulo: 'Detalle de comprobante',
+          mensaje: 'No se pudo consultar el detalle de la venta solicitada.',
+        });
+      },
+    });
   }
 
   protected abrirDetalleVenta(v: ItemVentaReporte): void {
