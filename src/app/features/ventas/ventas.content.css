@@ -1769,3 +1769,87 @@ app-reporte-ventas .loading-state {
   color: #64748b;
   font-size: 14px;
 }
+
+
+/* ESTILOS DE RANKING COMERCIAL */
+app-reporte-ventas .rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+app-reporte-ventas .rank-badge.gold {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  box-shadow: 0 1px 3px rgba(180, 83, 9, 0.15);
+}
+
+app-reporte-ventas .rank-badge.silver {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+app-reporte-ventas .rank-badge.bronze {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+}
+
+app-reporte-ventas .rank-badge.default {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+app-reporte-ventas .tipo-tag.producto {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+app-reporte-ventas .tipo-tag.servicio {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
+app-reporte-ventas .codigo-txt {
+  font-family: monospace;
+  font-size: 11.5px;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #475569;
+}
+
+app-reporte-ventas .item-nombre {
+  font-size: 13.5px;
+  color: var(--ink, #121c30);
+}
+
+app-reporte-ventas .categoria-txt {
+  font-size: 12.5px;
+  color: var(--muted, #647b9b);
+}
+
+app-reporte-ventas .unidades-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 700;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+app-reporte-ventas .monto-recaudado {
+  color: #059669;
+  font-size: 14px;
+  font-weight: 750;
+}

@@ -7,7 +7,9 @@ import { ReporteVentasService } from '../../services/reporte-ventas.service';
 import { VentaService } from '../../services/venta.service';
 import {
   FiltroReporteVentas,
+  ItemRankingComercial,
   ItemVentaReporte,
+  ReporteRankingComercial,
   ReporteVentasPeriodo,
 } from '../../models/reporte-ventas.model';
 import { VentaResponse } from '../../models/venta.model';
@@ -53,6 +55,11 @@ export class ReporteVentas implements OnInit {
   // Datos de Reporte 1: Ventas por Periodo
   protected readonly reportePeriodo = signal<ReporteVentasPeriodo | null>(null);
 
+  // Datos de Reporte 2: Ranking Comercial
+  protected readonly reporteRanking = signal<ReporteRankingComercial | null>(null);
+  protected readonly fechaInicioRanking = signal(this.calcularPrimerDiaMes());
+  protected readonly fechaFinRanking = signal(this.calcularHoy());
+
   // Lista de métodos de pago calculados
   protected readonly metodosPago = computed(() => {
     const rep = this.reportePeriodo();
@@ -75,7 +82,9 @@ export class ReporteVentas implements OnInit {
     this.pestanaActiva.set(pestana);
     this.error.set(null);
     if (pestana === 'periodo') {
-      this.cargarReportePeriodo();
+      if (!this.reportePeriodo()) this.cargarReportePeriodo();
+    } else if (pestana === 'ranking') {
+      if (!this.reporteRanking()) this.cargarReporteRanking();
     }
   }
 
@@ -141,6 +150,60 @@ export class ReporteVentas implements OnInit {
         });
       },
     });
+  }
+
+  protected cargarReporteRanking(): void {
+    this.cargando.set(true);
+    this.error.set(null);
+
+    const filtro: FiltroReporteVentas = {
+      fechaInicio: this.fechaInicioRanking() || undefined,
+      fechaFin: this.fechaFinRanking() || undefined,
+    };
+
+    this.reporteService.obtenerRankingComercial(filtro).subscribe({
+      next: (res) => {
+        this.reporteRanking.set(res);
+        this.cargando.set(false);
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.error.set(
+          err?.error?.message || 'Ocurrió un error al cargar el ranking comercial.'
+        );
+      },
+    });
+  }
+
+  protected exportarPdfRanking(): void {
+    if (this.descargandoPdf()) return;
+    this.descargandoPdf.set(true);
+
+    const filtro: FiltroReporteVentas = {
+      fechaInicio: this.fechaInicioRanking() || undefined,
+      fechaFin: this.fechaFinRanking() || undefined,
+    };
+
+    this.reporteService.descargarRankingComercialPdf(filtro).subscribe({
+      next: (blob) => {
+        this.reporteService.abrirPdfEnPestana(blob);
+        this.descargandoPdf.set(false);
+      },
+      error: () => {
+        this.descargandoPdf.set(false);
+        this.avisos.abrir({
+          tipo: 'error',
+          titulo: 'Error al exportar PDF',
+          mensaje: 'No se pudo descargar el PDF de ranking comercial. Verifique su conexión.',
+        });
+      },
+    });
+  }
+
+  protected limpiarFiltrosRanking(): void {
+    this.fechaInicioRanking.set(this.calcularPrimerDiaMes());
+    this.fechaFinRanking.set(this.calcularHoy());
+    this.cargarReporteRanking();
   }
 
   protected abrirDetalleVenta(v: ItemVentaReporte): void {

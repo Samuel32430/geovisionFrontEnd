@@ -21,6 +21,19 @@
             <app-icono nombre="download" /> Exportar PDF de Ventas
           }
         </button>
+      } @else if (pestanaActiva() === 'ranking') {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="descargandoPdf() || cargando()"
+          (click)="exportarPdfRanking()"
+        >
+          @if (descargandoPdf()) {
+            <span class="spinner-sm"></span> Generando PDF...
+          } @else {
+            <app-icono nombre="download" /> Exportar PDF de Ranking
+          }
+        </button>
       }
     </div>
   </header>
@@ -344,6 +357,185 @@
       <div class="loading-state">
         <span class="spinner-lg"></span>
         <p>Cargando información comercial del periodo...</p>
+      </div>
+    }
+  }
+
+  <!-- ========================================== -->
+  <!-- TAB 2: RANKING COMERCIAL DE VENTAS         -->
+  <!-- ========================================== -->
+  @if (pestanaActiva() === 'ranking') {
+    <!-- BARRA DE FILTROS RANKING -->
+    <section class="filtro-card" aria-label="Filtros de ranking comercial">
+      <div class="filtro-grid">
+        <div class="filtro-field">
+          <label for="fechaInicioRanking">Fecha Desde</label>
+          <div class="input-icon-wrap">
+            <input
+              id="fechaInicioRanking"
+              type="date"
+              [ngModel]="fechaInicioRanking()"
+              (ngModelChange)="fechaInicioRanking.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="filtro-field">
+          <label for="fechaFinRanking">Fecha Hasta</label>
+          <div class="input-icon-wrap">
+            <input
+              id="fechaFinRanking"
+              type="date"
+              [ngModel]="fechaFinRanking()"
+              (ngModelChange)="fechaFinRanking.set($event)"
+            />
+          </div>
+        </div>
+
+        <div class="filtro-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            [disabled]="cargando()"
+            (click)="cargarReporteRanking()"
+          >
+            <app-icono nombre="search" /> Filtrar Ranking
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost"
+            [disabled]="cargando()"
+            (click)="limpiarFiltrosRanking()"
+          >
+            Limpiar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TARJETAS DE KPIS RANKING -->
+    @if (reporteRanking(); as rep) {
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon teal">
+            <app-icono nombre="cart" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Unidades Vendidas</span>
+            <strong class="kpi-valor">{{ rep.totalUnidadesVendidas }}</strong>
+            <span class="kpi-sub">Total de artículos despachados</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon green">
+            <app-icono nombre="money" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Recaudación Ranking</span>
+            <strong class="kpi-valor verde">S/ {{ rep.totalRecaudado | number: '1.2-2' }}</strong>
+            <span class="kpi-sub">Ingreso generado por artículos</span>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-icon blue">
+            <app-icono nombre="document" />
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-title">Artículos Clasificados</span>
+            <strong class="kpi-valor">{{ rep.items.length }}</strong>
+            <span class="kpi-sub">Productos y servicios con ventas</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLA RANKING COMERCIAL -->
+      <section class="tabla-seccion">
+        <div class="tabla-header">
+          <div>
+            <h2 class="section-title">Ranking de Artículos más Vendidos</h2>
+            <p class="section-subtitle">Ordenado por mayor recaudación acumulada e impacto en ingresos</p>
+          </div>
+          <span class="badge-total">{{ rep.items.length }} clasificados</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="reporte-tabla">
+            <thead>
+              <tr>
+                <th class="text-center"># RANK</th>
+                <th>TIPO</th>
+                <th>CÓDIGO</th>
+                <th>DESCRIPCIÓN COMERCIAL</th>
+                <th>CATEGORÍA</th>
+                <th class="text-right">PRECIO UNITARIO</th>
+                <th class="text-center">UNIDADES VENDIDAS</th>
+                <th class="text-right">TOTAL RECAUDADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (cargando()) {
+                <tr>
+                  <td colspan="8" class="loading-cell">
+                    <span class="spinner-sm"></span> Calculando ranking comercial...
+                  </td>
+                </tr>
+              } @else if (rep.items.length === 0) {
+                <tr>
+                  <td colspan="8" class="empty-cell">
+                    <app-icono nombre="box" />
+                    <p>No se registraron ventas de productos ni servicios en el rango de fechas seleccionado.</p>
+                  </td>
+                </tr>
+              } @else {
+                @for (item of rep.items; track item.idItem) {
+                  <tr>
+                    <td class="text-center">
+                      @if (item.ranking === 1) {
+                        <span class="rank-badge gold" title="Primer lugar en recaudación">🥇 1</span>
+                      } @else if (item.ranking === 2) {
+                        <span class="rank-badge silver" title="Segundo lugar en recaudación">🥈 2</span>
+                      } @else if (item.ranking === 3) {
+                        <span class="rank-badge bronze" title="Tercer lugar en recaudación">🥉 3</span>
+                      } @else {
+                        <span class="rank-badge default">#{{ item.ranking }}</span>
+                      }
+                    </td>
+                    <td>
+                      <span class="tipo-tag" [class]="item.tipoItem.toLowerCase()">
+                        {{ item.tipoItem }}
+                      </span>
+                    </td>
+                    <td>
+                      <code class="codigo-txt">{{ item.codigo }}</code>
+                    </td>
+                    <td>
+                      <strong class="item-nombre">{{ item.nombre }}</strong>
+                    </td>
+                    <td>
+                      <span class="categoria-txt">{{ item.categoria || 'Sin categoría' }}</span>
+                    </td>
+                    <td class="text-right">
+                      S/ {{ item.precioUnitario | number: '1.2-2' }}
+                    </td>
+                    <td class="text-center">
+                      <span class="unidades-badge">{{ item.unidadesVendidas }}</span>
+                    </td>
+                    <td class="text-right">
+                      <strong class="monto-recaudado">S/ {{ item.totalRecaudado | number: '1.2-2' }}</strong>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else if (cargando()) {
+      <div class="loading-state">
+        <span class="spinner-lg"></span>
+        <p>Generando ranking comercial de productos y servicios...</p>
       </div>
     }
   }
