@@ -1,0 +1,117 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="icon-wrap warning">
+        <app-icono nombre="warning" />
+      </div>
+      <div>
+        <h3>Ajustar Stock Manualmente</h3>
+        <p class="sub">Auditoría de correcciones, mermas o inventario físico</p>
+      </div>
+      <button class="btn-close" (click)="cerrar.emit()" type="button" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Ficha de producto -->
+      <div class="producto-banner">
+        <div class="info-line">
+          <span class="label">Código:</span>
+          <span class="badge-code">{{ producto().codigo }}</span>
+        </div>
+        <div class="info-line">
+          <span class="label">Producto:</span>
+          <strong>{{ producto().nombre }}</strong>
+        </div>
+        <div class="stock-pill">
+          Stock actual: <strong>{{ producto().stock }} unidades</strong>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="alert-error">
+          <app-icono nombre="warning" />
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <!-- Selector Tipo de Ajuste -->
+      <div class="form-group">
+        <label>Tipo de Ajuste (*)</label>
+        <div class="tipo-selector">
+          <button
+            type="button"
+            class="tipo-btn decremento"
+            [class.active]="tipoAjuste() === 'DECREMENTO'"
+            (click)="setTipo('DECREMENTO')"
+          >
+            Disminución (Merma / Pérdida / Faltante)
+          </button>
+          <button
+            type="button"
+            class="tipo-btn incremento"
+            [class.active]="tipoAjuste() === 'INCREMENTO'"
+            (click)="setTipo('INCREMENTO')"
+          >
+            Aumento (Sobrante / Regularización)
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cantAjuste">Cantidad a ajustar (*)</label>
+        <div class="input-with-stepper">
+          <button type="button" class="btn-step" (click)="cantidad.set(cantidad() > 1 ? cantidad() - 1 : 1)">-</button>
+          <input
+            id="cantAjuste"
+            type="number"
+            min="1"
+            [ngModel]="cantidad()"
+            (ngModelChange)="cantidad.set($event); error.set(null)"
+          />
+          <button type="button" class="btn-step" (click)="cantidad.set(cantidad() + 1)">+</button>
+        </div>
+        <small class="hint-result" [class.is-negative]="stockResultante() < 0">
+          Stock resultante tras el ajuste: <strong>{{ stockResultante() }} unidades</strong>
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="motivoAjuste">Motivo del ajuste (*)</label>
+        <select
+          id="motivoAjuste"
+          [ngModel]="motivo()"
+          (ngModelChange)="motivo.set(+$event)"
+        >
+          @if (tipoAjuste() === 'DECREMENTO') {
+            <option [value]="2">2 - Daño / Rotura de luna o montura</option>
+            <option [value]="3">3 - Pérdida o robo</option>
+            <option [value]="1">1 - Faltante por conteo físico</option>
+            <option [value]="4">4 - Vencimiento de producto (líquidos/gotas)</option>
+          } @else {
+            <option [value]="1">1 - Sobrante por conteo físico</option>
+            <option [value]="4">4 - Corrección administrativa</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="obsAjuste">Justificación obligatoria (*)</label>
+        <textarea
+          id="obsAjuste"
+          rows="3"
+          placeholder="Explique el motivo detallado del ajuste para fines de auditoría..."
+          [ngModel]="observaciones()"
+          (ngModelChange)="observaciones.set($event); error.set(null)"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" type="button" (click)="cerrar.emit()">Cancelar</button>
+      <button class="btn-primary" type="button" (click)="guardar()">
+        <app-icono nombre="check" />
+        Aplicar Ajuste
+      </button>
+    </div>
+  </div>
+</div>

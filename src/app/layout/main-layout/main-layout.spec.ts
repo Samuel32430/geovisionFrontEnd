@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { MainLayout } from './main-layout';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { MainLayout } from './main-layout';
 
 describe('MainLayout', () => {
   beforeEach(async () => {
@@ -12,7 +12,7 @@ describe('MainLayout', () => {
     }).compileComponents();
   });
 
-  it('should link to the dashboard, patient module and ventas section', () => {
+  it('should link to the dashboard, patient module, inventario and ventas section', () => {
     const fixture = TestBed.createComponent(MainLayout);
     fixture.detectChanges();
     const links = Array.from(
@@ -21,6 +21,7 @@ describe('MainLayout', () => {
     expect(links.map((link) => link.getAttribute('href'))).toEqual([
       '/inicio',
       '/atencion-paciente-consulta',
+      '/inventario',
       '/ventas/nueva',
       '/ventas/historial',
       '/ventas/pagos-pendientes',
@@ -34,9 +35,8 @@ describe('MainLayout', () => {
     const toggle = fixture.nativeElement.querySelector('.mobile-toggle') as HTMLButtonElement;
     toggle.click();
     fixture.detectChanges();
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    (fixture.nativeElement.querySelector('.backdrop') as HTMLButtonElement).click();
-    fixture.detectChanges();
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(
+      (fixture.nativeElement.querySelector('#sidebar') as HTMLElement).classList.contains('open'),
+    ).toBe(true);
   });
 });

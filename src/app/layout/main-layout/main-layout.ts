@@ -24,7 +24,6 @@ export class MainLayout {
   protected readonly menuAbierto = signal(false);
   protected readonly pendientes = [
     { etiqueta: 'Elaboración de orden de trabajo', icono: 'lab' },
-    { etiqueta: 'Control de inventario', icono: 'box' },
   ];
   protected readonly seguridad = [{ etiqueta: 'Configuración', icono: 'settings' }];
 

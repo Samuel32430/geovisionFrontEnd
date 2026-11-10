@@ -47,7 +47,7 @@ describe('Dashboard', () => {
   });
 
   it('debe cargar ventas recientes y actualizar el total de ventas del día', async () => {
-    const hoyStr = new Date().toISOString();
+    const d = new Date(); const pad = (n: number) => n.toString().padStart(2, "0"); const hoyStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T10:00:00`;
     const mockVentaService = {
       historial: () =>
         of<PaginaVentaHistorial>({

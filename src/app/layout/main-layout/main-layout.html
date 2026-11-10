@@ -38,6 +38,15 @@
       ><app-icono nombre="user" />Atención de pacientes en consulta</a
     >
 
+    <p class="nav-label">INVENTARIO & ALMACÉN</p>
+    <a
+      routerLink="/inventario"
+      routerLinkActive="active"
+      ariaCurrentWhenActive="page"
+      (click)="menuAbierto.set(false)"
+      ><app-icono nombre="box" />Control de Inventario y Stock</a
+    >
+
     <p class="nav-label">VENTAS & CAJA</p>
     <a
       routerLink="/ventas/nueva"

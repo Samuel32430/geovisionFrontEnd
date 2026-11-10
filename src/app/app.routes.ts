@@ -27,6 +27,12 @@ export const routes: Routes = [
           import('./features/ventas/ventas.routes').then((m) => m.VENTAS_ROUTES),
       },
       {
+        path: 'inventario',
+        title: 'Inventario y Stock | Geo Vision',
+        loadChildren: () =>
+          import('./features/inventario/inventario.routes').then((m) => m.INVENTARIO_ROUTES),
+      },
+      {
         path: 'seguridad',
         loadChildren: () =>
           import('./features/seguridad/seguridad.routes').then((m) => m.SEGURIDAD_ROUTES),
