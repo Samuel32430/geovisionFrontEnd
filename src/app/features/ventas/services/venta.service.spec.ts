@@ -36,15 +36,13 @@ describe('VentaService', () => {
     const req = http.expectOne(`${environment.apiUrl}/ventas`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
-    req.flush({ idVenta: 10, total: 100, estado: 'PAGADA' });
+    req.flush({ id: 10, pagos: [], total: 100, estado: 'PAGADA' });
   });
 
   it('debe consultar el historial de ventas con filtros de termino, estado y paginacion', () => {
-    service
-      .historial({ termino: 'Maria', estado: 1, page: 0, size: 10 })
-      .subscribe((res) => {
-        expect(res.totalElements).toBe(1);
-      });
+    service.historial({ termino: 'Maria', estado: 1, page: 0, size: 10 }).subscribe((res) => {
+      expect(res.totalElements).toBe(1);
+    });
 
     const req = http.expectOne((r) => r.url === `${environment.apiUrl}/ventas/historial`);
     expect(req.request.method).toBe('GET');
@@ -52,7 +50,7 @@ describe('VentaService', () => {
     expect(req.request.params.get('estado')).toBe('1');
     expect(req.request.params.get('page')).toBe('0');
     expect(req.request.params.get('size')).toBe('10');
-    req.flush({ content: [{ idVenta: 1 }], totalElements: 1, totalPages: 1 });
+    req.flush({ content: [{ id: 1 }], totalElements: 1, totalPages: 1 });
   });
 
   it('debe consultar el detalle de venta para el modal de historial', () => {
@@ -62,6 +60,6 @@ describe('VentaService', () => {
 
     const req = http.expectOne(`${environment.apiUrl}/ventas/historial/5/detalle`);
     expect(req.request.method).toBe('GET');
-    req.flush({ idVenta: 5, total: 250, saldoPendiente: 50 });
+    req.flush({ id: 5, pagos: [], total: 250, saldoPendiente: 50 });
   });
 });

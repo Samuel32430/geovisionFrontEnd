@@ -29,7 +29,7 @@ describe('PagoPendienteService', () => {
     const req = http.expectOne((r) => r.url === `${environment.apiUrl}/ventas/pagos-pendientes`);
     expect(req.request.method).toBe('GET');
     expect(req.request.params.get('termino')).toBe('Laura');
-    req.flush([{ idVenta: 1, totalVenta: 500, saldoPendiente: 250 }]);
+    req.flush([{ id: 1, historialPagos: [], totalVenta: 500, saldoPendiente: 250 }]);
   });
 
   it('debe consultar saldo pendiente de una venta especifica', () => {
@@ -39,7 +39,7 @@ describe('PagoPendienteService', () => {
 
     const req = http.expectOne(`${environment.apiUrl}/ventas/pagos-pendientes/3`);
     expect(req.request.method).toBe('GET');
-    req.flush({ idVenta: 3, saldoPendiente: 150 });
+    req.flush({ id: 3, historialPagos: [], saldoPendiente: 150 });
   });
 
   it('debe registrar un abono o saldo liquidado', () => {
@@ -51,12 +51,13 @@ describe('PagoPendienteService', () => {
 
     service.registrarPago(payload).subscribe((res) => {
       expect(res.idPago).toBe(99);
+      expect(res.fechaPago).toBe('2026-11-10T10:00:00');
       expect(res.monto).toBe(150);
     });
 
     const req = http.expectOne(`${environment.apiUrl}/ventas/pagos-pendientes`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
-    req.flush({ idPago: 99, monto: 150, metodoPago: 'EFECTIVO' });
+    req.flush({ id: 99, fechaRegistro: '2026-11-10T10:00:00', monto: 150, metodoPago: 'EFECTIVO' });
   });
 });
