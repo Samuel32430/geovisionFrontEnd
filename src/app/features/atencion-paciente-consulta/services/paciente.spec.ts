@@ -24,7 +24,10 @@ describe('PacienteService', () => {
       expect(solicitud.request.params.get('size')).toBe('1');
       expect(solicitud.request.params.get('page')).toBe('0');
       expect(solicitud.request.params.has('termino')).toBe(false);
-      solicitud.flush({ totalElements: solicitud.request.params.get('estado') === '1' ? 12 : 3 });
+      solicitud.flush({
+        content: [],
+        totalElements: solicitud.request.params.get('estado') === '1' ? 12 : 3,
+      });
     }
     expect(resultado).toHaveBeenCalledWith({ activos: 12, inactivos: 3, total: 15 });
   });
@@ -48,6 +51,6 @@ describe('PacienteService', () => {
     const estado = http.expectOne(`${environment.apiUrl}/pacientes/7/estado`);
     expect(estado.request.method).toBe('PATCH');
     expect(estado.request.body).toEqual({ estado: 0 });
-    estado.flush({});
+    estado.flush({ id: 7, persona: { id: 7 }, estado: 0 });
   });
 });

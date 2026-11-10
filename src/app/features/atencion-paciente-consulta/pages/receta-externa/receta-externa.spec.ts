@@ -90,7 +90,7 @@ describe('RecetaExterna', () => {
         },
       ],
     });
-    req.flush({ idReceta: 42 });
+    req.flush({ id: 42, medidas: [], lentes: [] });
     f.detectChanges();
     expect(f.nativeElement.textContent).toContain('Receta externa registrada.');
     expect(f.componentInstance.puedeSalir()).toBe(true);
