@@ -7,8 +7,8 @@
 </header>
 
 <div class="contenido">
-  @if (resultado()) {
-    <p class="aviso exito" role="status">{{ resultado() }}</p>
+  @if (resultado(); as aviso) {
+    <p class="aviso" [class]="aviso.tipo" role="status">{{ aviso.texto }}</p>
   }
   @if (errorAccion()) {
     <p class="aviso error" role="alert">{{ errorAccion() }}</p>
@@ -130,6 +130,9 @@
                     Teléfono registrado: <strong>{{ telefono() }}</strong>
                   </p>
                   <div class="fila">
+                    <button class="boton" [disabled]="ocupado()" (click)="enviarSms()">
+                      Enviar SMS
+                    </button>
                     @if (enlace()) {
                       <a
                         class="boton"
@@ -154,8 +157,8 @@
                   </div>
                 } @else {
                   <p class="aviso advertencia">
-                    Para avisar por WhatsApp, el teléfono del paciente debe estar registrado en
-                    formato internacional, por ejemplo +51987654321.
+                    Para enviar un aviso, el teléfono del paciente debe estar registrado en formato
+                    internacional, por ejemplo +51987654321.
                   </p>
                 }
               }

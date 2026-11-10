@@ -50,7 +50,9 @@ export class OrdenDetalle {
   protected readonly ocupado = signal(false);
   protected readonly error = signal('');
   protected readonly errorAccion = signal('');
-  protected readonly resultado = signal('');
+  protected readonly resultado = signal<{ texto: string; tipo: 'exito' | 'advertencia' } | null>(
+    null,
+  );
   protected readonly enlace = signal('');
   protected readonly abierto = signal(false);
   protected readonly ultimo = computed(
@@ -101,7 +103,7 @@ export class OrdenDetalle {
     if (this.ocupado()) return;
     this.ocupado.set(true);
     this.errorAccion.set('');
-    this.resultado.set('');
+    this.resultado.set(null);
     this.accion = accion;
     this.observaciones = '';
     this.idLaboratorio = null;
@@ -147,12 +149,23 @@ export class OrdenDetalle {
         break;
       case 'calidad':
         if (envio && this.politica?.configurada) {
+          const confirmado = await this.avisos.confirmar({
+            titulo: 'Confirmar control de calidad',
+            mensaje: '¿Está seguro de confirmar este control de calidad?',
+            textoConfirmar: 'Confirmar control',
+          });
+          if (!confirmado || this.destroyRef.destroyed) return;
+
           await this.ejecutar(
             this.api.controlar(envio.id, this.mediciones(orden.lente.medidas), observaciones),
             (control) =>
               control.aprobado
-                ? 'Control aprobado. Pedido listo para entrega.'
-                : 'Control rechazado. Puedes reenviar el lente al laboratorio.',
+                ? { texto: 'Control aprobado. Pedido listo para entrega.', tipo: 'exito' }
+                : {
+                    texto:
+                      'El lente desaprobó el control de calidad. Puedes reenviarlo al laboratorio.',
+                    tipo: 'advertencia',
+                  },
           );
         }
         break;
@@ -162,6 +175,46 @@ export class OrdenDetalle {
         }
         break;
     }
+  }
+
+  protected async enviarSms(): Promise<void> {
+    if (this.ocupado() || !this.telefonoValido()) return;
+
+    const telefono = this.telefono();
+    this.ocupado.set(true);
+    let confirmado: boolean;
+    try {
+      confirmado = await this.avisos.confirmar({
+        titulo: 'Enviar SMS',
+        mensaje: `¿Confirmas el envío del aviso por SMS al número ${telefono}?`,
+        textoConfirmar: 'Enviar SMS',
+      });
+    } finally {
+      this.ocupado.set(false);
+    }
+    if (!confirmado || this.destroyRef.destroyed) return;
+
+    await this.ejecutar(this.api.sms(this.id, telefono), ({ estado }) => {
+      switch (estado) {
+        case 'ACEPTADO':
+          return {
+            texto: 'Textbee aceptó el SMS. La entrega aún no está confirmada.',
+            tipo: 'exito',
+          };
+        case 'FALLIDO':
+          return {
+            texto:
+              'Textbee rechazó el envío. Revisa la configuración antes de volver a intentarlo.',
+            tipo: 'advertencia',
+          };
+        default:
+          return {
+            texto:
+              'No se pudo confirmar el envío. Revisa el historial de Textbee antes de reintentar.',
+            tipo: 'advertencia',
+          };
+      }
+    });
   }
 
   protected async prepararAviso(): Promise<void> {
@@ -226,17 +279,19 @@ export class OrdenDetalle {
 
   private async ejecutar<T>(
     consulta: Observable<T>,
-    mensaje: string | ((respuesta: T) => string),
+    mensaje: string | ((respuesta: T) => { texto: string; tipo: 'exito' | 'advertencia' }),
   ): Promise<void> {
     this.ocupado.set(true);
-    this.resultado.set('');
+    this.resultado.set(null);
     this.errorAccion.set('');
     try {
       const respuesta = await this.leer(consulta);
       this.accion = null;
       this.enlace.set('');
       this.abierto.set(false);
-      this.resultado.set(typeof mensaje === 'string' ? mensaje : mensaje(respuesta));
+      this.resultado.set(
+        typeof mensaje === 'string' ? { texto: mensaje, tipo: 'exito' } : mensaje(respuesta),
+      );
       await this.cargar();
     } catch (error) {
       if (this.destroyRef.destroyed) return;
