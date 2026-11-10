@@ -136,6 +136,13 @@ export class OrdenApi {
     );
   }
 
+  sms(id: number, telefono: string) {
+    return this.http.post<{ estado: 'ACEPTADO' | 'FALLIDO' | 'INCIERTO' }>(
+      this.url + '/' + id + '/notificaciones/sms',
+      { telefono },
+    );
+  }
+
   entregar(idOrdenTrabajo: number, observaciones: string) {
     return this.http.post<OrdenTrabajo>(this.url + '/entrega', { idOrdenTrabajo, observaciones });
   }
