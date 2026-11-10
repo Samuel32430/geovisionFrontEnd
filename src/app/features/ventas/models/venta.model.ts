@@ -114,6 +114,21 @@ export interface ConsultaHistorialVentas {
   size: number;
 }
 
+export interface MercadoPagoQrRequest {
+  idVenta?: number | null;
+  monto: number;
+  descripcion?: string;
+}
+
+export interface MercadoPagoQrResponse {
+  qrData: string;
+  inStoreOrderId?: string;
+  externalReference: string;
+  monto: number;
+  estado: string;
+  qrImageUrl?: string;
+}
+
 export const ETIQUETAS_METODO_PAGO: Record<MetodoPago, string> = {
   EFECTIVO: 'Efectivo',
   TARJETA_DEBITO: 'Tarjeta de Débito',

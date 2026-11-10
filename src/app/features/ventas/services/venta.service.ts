@@ -11,6 +11,8 @@ import { ConIdApi, normalizarId } from '../../../core/models/id-api';
 import { VentaApi, venta } from './venta-api-mapeo';
 import {
   ConsultaHistorialVentas,
+  MercadoPagoQrRequest,
+  MercadoPagoQrResponse,
   VentaHistorialItem,
   VentaRegistroRequest,
 } from '../models/venta.model';
@@ -71,5 +73,11 @@ export class VentaService {
     return this.http
       .get<PaginaResponse<MonturaApi>>(`${this.urlCatalogos}/monturas`, { params })
       .pipe(timeout(15000), map(paginaMonturas));
+  }
+
+  generarOrdenQr(request: MercadoPagoQrRequest) {
+    return this.http
+      .post<MercadoPagoQrResponse>(`${this.url}/pagos/mercadopago/qr`, request)
+      .pipe(timeout(15000));
   }
 }
