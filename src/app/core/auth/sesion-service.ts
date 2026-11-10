@@ -1,10 +1,10 @@
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginResponse, retornoSeguro, Sesion } from './auth.model';
+import { LoginResponseApi, retornoSeguro, Sesion } from './auth.model';
 
 const CLAVE = 'geovision.sesion.v1';
 
-function esLogin(valor: unknown): valor is LoginResponse {
+function esLogin(valor: unknown): valor is LoginResponseApi {
   if (!valor || typeof valor !== 'object') return false;
   const datos = valor as Record<string, unknown>;
   return (
@@ -13,7 +13,7 @@ function esLogin(valor: unknown): valor is LoginResponse {
     typeof datos['username'] === 'string' &&
     typeof datos['nombreCompleto'] === 'string' &&
     typeof datos['correo'] === 'string' &&
-    Number.isSafeInteger(datos['idUsuario']) &&
+    Number.isSafeInteger(datos['id'] ?? datos['idUsuario']) &&
     (datos['idPersona'] === null || Number.isSafeInteger(datos['idPersona'])) &&
     Array.isArray(datos['roles']) &&
     datos['roles'].every((rol: unknown) => typeof rol === 'string') &&
@@ -82,7 +82,8 @@ export class SesionService {
       throw new Error('El token recibido es inválido o ya expiró.');
     }
     // Only decode expiration for UX; token validity and permissions are enforced by the backend.
-    const sesion: Sesion = { ...respuesta, expiraEn };
+    const { id, idUsuario, ...datos } = respuesta;
+    const sesion: Sesion = { ...datos, idUsuario: (id ?? idUsuario)!, expiraEn };
     this.estado.set(sesion);
     try {
       sessionStorage.setItem(CLAVE, JSON.stringify(sesion));

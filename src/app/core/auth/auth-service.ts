@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, of, tap, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse } from './auth.model';
+import { LoginRequest, LoginResponseApi } from './auth.model';
 import { SesionService } from './sesion-service';
 
 @Injectable({ providedIn: 'root' })
@@ -12,7 +12,7 @@ export class AuthService {
   private readonly url = `${environment.apiUrl}/auth`;
 
   login(request: LoginRequest) {
-    return this.http.post<LoginResponse>(`${this.url}/login`, request).pipe(
+    return this.http.post<LoginResponseApi>(`${this.url}/login`, request).pipe(
       timeout(15000),
       tap((respuesta) => this.sesion.iniciar(respuesta)),
     );
