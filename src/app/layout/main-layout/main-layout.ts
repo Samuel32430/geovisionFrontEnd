@@ -7,6 +7,7 @@ import { SesionService } from '../../core/auth/sesion-service';
 import { Router } from '@angular/router';
 import { SeguridadAccess } from '../../features/seguridad/seguridad-access';
 import { OrdenAcceso } from '../../features/ordenes-trabajo/orden-acceso';
+import { ConfiguracionAccess } from '../../features/configuracion/configuracion-access';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet, Icono],
@@ -19,6 +20,7 @@ export class MainLayout {
   protected readonly sesion = inject(SesionService);
   protected readonly accesoSeguridad = inject(SeguridadAccess);
   protected readonly accesoOrden = inject(OrdenAcceso);
+  protected readonly accesoConfiguracion = inject(ConfiguracionAccess);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -27,7 +29,7 @@ export class MainLayout {
   protected readonly pendientes = [
     { etiqueta: 'Control de inventario', icono: 'box' },
   ];
-  protected readonly seguridad = [{ etiqueta: 'Configuración', icono: 'settings' }];
+  protected readonly seguridad: { etiqueta: string; icono: string }[] = [];
 
   protected async cerrarSesion(): Promise<void> {
     if (this.cerrando()) return;

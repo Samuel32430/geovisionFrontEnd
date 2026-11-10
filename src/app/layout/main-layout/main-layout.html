@@ -91,6 +91,15 @@
         <app-icono [nombre]="item.icono" />{{ item.etiqueta }}
       </button>
     }
+    @if (accesoConfiguracion.permitido()) {
+      <a
+        routerLink="/configuracion"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuAbierto.set(false)"
+        ><app-icono nombre="settings" />Configuración de la Empresa</a
+      >
+    }
     @if (accesoSeguridad.permitido()) {
       <a
         routerLink="/seguridad/usuarios"

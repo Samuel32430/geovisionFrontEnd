@@ -44,6 +44,13 @@ export const routes: Routes = [
             (m) => m.ATENCION_PACIENTE_CONSULTA_ROUTES,
           ),
       },
+      {
+        path: 'configuracion',
+        loadChildren: () =>
+          import('./features/configuracion/configuracion.routes').then(
+            (m) => m.CONFIGURACION_ROUTES,
+          ),
+      },
     ],
   },
 ];
