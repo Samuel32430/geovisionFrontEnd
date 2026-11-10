@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { environment } from '../../../../environments/environment';
 import { VentaService } from './venta.service';
-import { VentaRegistroRequest } from '../models/venta.model';
+import { MercadoPagoQrRequest, MercadoPagoQrResponse, VentaRegistroRequest } from '../models/venta.model';
 
 describe('VentaService', () => {
   let service: VentaService;
@@ -61,5 +61,30 @@ describe('VentaService', () => {
     const req = http.expectOne(`${environment.apiUrl}/ventas/historial/5/detalle`);
     expect(req.request.method).toBe('GET');
     req.flush({ id: 5, pagos: [], total: 250, saldoPendiente: 50 });
+  });
+
+  it('debe generar orden QR dinámico en Mercado Pago enviando petición POST a /ventas/pagos/qr', () => {
+    const payload: MercadoPagoQrRequest = {
+      monto: 150,
+      descripcion: 'Venta #1',
+    };
+    const mockRespuesta: MercadoPagoQrResponse = {
+      qrData: '00020126580014com.mercadolibre...',
+      externalReference: 'REF-123',
+      monto: 150,
+      estado: 'CREADO',
+      qrImageUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=00020126...',
+    };
+
+    service.generarOrdenQr(payload).subscribe((res) => {
+      expect(res.qrData).toBe('00020126580014com.mercadolibre...');
+      expect(res.qrImageUrl).toContain('https://');
+      expect(res.monto).toBe(150);
+    });
+
+    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(payload);
+    req.flush(mockRespuesta);
   });
 });
