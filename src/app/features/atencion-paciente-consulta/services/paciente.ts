@@ -7,8 +7,20 @@ import {
   ConsultaPacientes,
   EstadoPaciente,
   Paciente,
-  PaginaPacientes,
+  PersonaPaciente,
 } from '../models/paciente.model';
+
+import { ConIdApi, normalizarId } from '../../../core/models/id-api';
+import { PaginaResponse } from '../../../core/models/pagina-response';
+
+type PacienteDatos = Omit<Paciente, 'persona'> & {
+  persona: ConIdApi<PersonaPaciente, 'idPersona'>;
+};
+type PacienteApi = ConIdApi<PacienteDatos, 'idPersona'>;
+const paciente = (dto: PacienteApi): Paciente => ({
+  ...normalizarId<PacienteDatos, 'idPersona'>(dto, 'idPersona'),
+  persona: normalizarId<PersonaPaciente, 'idPersona'>(dto.persona, 'idPersona'),
+});
 
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
@@ -21,11 +33,16 @@ export class PacienteService {
       .set('page', consulta.page)
       .set('size', consulta.size);
     if (consulta.termino.trim()) params = params.set('termino', consulta.termino.trim());
-    return this.http.get<PaginaPacientes>(this.url, { params }).pipe(timeout(15000));
+    return this.http.get<PaginaResponse<PacienteApi>>(this.url, { params }).pipe(
+      timeout(15000),
+      map((pagina) => ({ ...pagina, content: pagina.content.map(paciente) })),
+    );
   }
 
   cambiarEstado(idPersona: number, estado: EstadoPaciente) {
-    return this.http.patch<Paciente>(`${this.url}/${idPersona}/estado`, { estado });
+    return this.http
+      .patch<PacienteApi>(`${this.url}/${idPersona}/estado`, { estado })
+      .pipe(map(paciente));
   }
 
   resumen() {
@@ -42,20 +59,20 @@ export class PacienteService {
   }
 
   obtener(id: number) {
-    return this.http.get<Paciente>(`${this.url}/${id}`).pipe(timeout(15000));
+    return this.http.get<PacienteApi>(`${this.url}/${id}`).pipe(timeout(15000), map(paciente));
   }
 
   obtenerPorDocumento(documento: string) {
     return this.http
-      .get<Paciente>(`${this.url}/documento/${encodeURIComponent(documento.trim())}`)
-      .pipe(timeout(15000));
+      .get<PacienteApi>(`${this.url}/documento/${encodeURIComponent(documento.trim())}`)
+      .pipe(timeout(15000), map(paciente));
   }
 
   crear(request: PacienteRequest) {
-    return this.http.post<Paciente>(this.url, request);
+    return this.http.post<PacienteApi>(this.url, request).pipe(map(paciente));
   }
 
   actualizar(id: number, request: PacienteRequest) {
-    return this.http.put<Paciente>(`${this.url}/${id}`, request);
+    return this.http.put<PacienteApi>(`${this.url}/${id}`, request).pipe(map(paciente));
   }
 }

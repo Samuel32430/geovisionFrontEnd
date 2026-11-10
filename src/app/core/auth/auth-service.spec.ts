@@ -53,6 +53,15 @@ describe('Autenticación y sesión', () => {
     expect(sessionStorage.getItem(clave)).toBeNull();
   });
 
+  it('normalizes the backend id into the local session', () => {
+    const { idUsuario, ...respuesta } = loginPrueba();
+    TestBed.inject(AuthService)
+      .login({ username: 'prueba.p01', password: 'ClavePrueba!' })
+      .subscribe();
+    http.expectOne((r) => r.url.endsWith('/auth/login')).flush({ ...respuesta, id: idUsuario });
+    expect(TestBed.inject(SesionService).actual()?.idUsuario).toBe(idUsuario);
+  });
+
   it('should discard malformed saved JSON on initialization', () => {
     sessionStorage.setItem(clave, '{no-json');
     expect(TestBed.inject(SesionService).token()).toBeNull();

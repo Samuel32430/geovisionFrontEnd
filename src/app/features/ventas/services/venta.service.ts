@@ -1,14 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { timeout } from 'rxjs';
+import { map, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PaginaResponse } from '../../../core/models/pagina-response';
-import { Montura } from '../../atencion-paciente-consulta/models/lente.model';
+import {
+  MonturaApi,
+  paginaMonturas,
+} from '../../atencion-paciente-consulta/services/catalogo-optico';
+import { ConIdApi, normalizarId } from '../../../core/models/id-api';
+import { VentaApi, venta } from './venta-api-mapeo';
 import {
   ConsultaHistorialVentas,
-  PaginaVentaHistorial,
+  VentaHistorialItem,
   VentaRegistroRequest,
-  VentaResponse,
 } from '../models/venta.model';
 
 @Injectable({ providedIn: 'root' })
@@ -18,17 +22,15 @@ export class VentaService {
   private readonly urlCatalogos = `${environment.apiUrl}/catalogos-opticos`;
 
   registrar(request: VentaRegistroRequest) {
-    return this.http.post<VentaResponse>(this.url, request).pipe(timeout(20000));
+    return this.http.post<VentaApi>(this.url, request).pipe(timeout(20000), map(venta));
   }
 
   obtener(id: number) {
-    return this.http.get<VentaResponse>(`${this.url}/${id}`).pipe(timeout(15000));
+    return this.http.get<VentaApi>(`${this.url}/${id}`).pipe(timeout(15000), map(venta));
   }
 
   historial(consulta: ConsultaHistorialVentas) {
-    let params = new HttpParams()
-      .set('page', consulta.page)
-      .set('size', consulta.size);
+    let params = new HttpParams().set('page', consulta.page).set('size', consulta.size);
 
     if (consulta.termino && consulta.termino.trim()) {
       params = params.set('termino', consulta.termino.trim());
@@ -44,20 +46,30 @@ export class VentaService {
     }
 
     return this.http
-      .get<PaginaVentaHistorial>(`${this.url}/historial`, { params })
-      .pipe(timeout(15000));
+      .get<PaginaResponse<ConIdApi<VentaHistorialItem, 'idVenta'>>>(`${this.url}/historial`, {
+        params,
+      })
+      .pipe(
+        timeout(15000),
+        map((pagina) => ({
+          ...pagina,
+          content: pagina.content.map((dto) =>
+            normalizarId<VentaHistorialItem, 'idVenta'>(dto, 'idVenta'),
+          ),
+        })),
+      );
   }
 
   detalleHistorial(idVenta: number) {
     return this.http
-      .get<VentaResponse>(`${this.url}/historial/${idVenta}/detalle`)
-      .pipe(timeout(15000));
+      .get<VentaApi>(`${this.url}/historial/${idVenta}/detalle`)
+      .pipe(timeout(15000), map(venta));
   }
 
   monturasDisponibles(page = 0, size = 10) {
     const params = new HttpParams().set('page', page).set('size', size);
     return this.http
-      .get<PaginaResponse<Montura>>(`${this.urlCatalogos}/monturas`, { params })
-      .pipe(timeout(15000));
+      .get<PaginaResponse<MonturaApi>>(`${this.urlCatalogos}/monturas`, { params })
+      .pipe(timeout(15000), map(paginaMonturas));
   }
 }

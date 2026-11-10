@@ -19,6 +19,11 @@ export interface Sesion extends LoginResponse {
   expiraEn: number;
 }
 
+export type LoginResponseApi = Omit<LoginResponse, 'idUsuario'> & {
+  id?: number;
+  idUsuario?: number;
+};
+
 export function retornoSeguro(valor: string | null): string {
   return valor &&
     valor.startsWith('/') &&

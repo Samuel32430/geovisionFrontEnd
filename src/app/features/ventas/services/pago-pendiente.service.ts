@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { timeout } from 'rxjs';
+import { map, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { PagoResponse } from '../models/venta.model';
-import { PagoPendienteItem, PagoPendienteRequest } from '../models/pago-pendiente.model';
+import { pago, PagoApi, pendiente, PendienteApi } from './venta-api-mapeo';
+import { PagoPendienteRequest } from '../models/pago-pendiente.model';
 
 @Injectable({ providedIn: 'root' })
 export class PagoPendienteService {
@@ -15,14 +15,19 @@ export class PagoPendienteService {
     if (termino && termino.trim()) {
       params = params.set('termino', termino.trim());
     }
-    return this.http.get<PagoPendienteItem[]>(this.url, { params }).pipe(timeout(15000));
+    return this.http.get<PendienteApi[]>(this.url, { params }).pipe(
+      timeout(15000),
+      map((datos) => datos.map(pendiente)),
+    );
   }
 
   obtenerPorVenta(idVenta: number) {
-    return this.http.get<PagoPendienteItem>(`${this.url}/${idVenta}`).pipe(timeout(15000));
+    return this.http
+      .get<PendienteApi>(`${this.url}/${idVenta}`)
+      .pipe(timeout(15000), map(pendiente));
   }
 
   registrarPago(request: PagoPendienteRequest) {
-    return this.http.post<PagoResponse>(this.url, request).pipe(timeout(15000));
+    return this.http.post<PagoApi>(this.url, request).pipe(timeout(15000), map(pago));
   }
 }

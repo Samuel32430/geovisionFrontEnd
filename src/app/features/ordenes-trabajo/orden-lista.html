@@ -1,0 +1,175 @@
+<header class="cabecera">
+  <h1>Órdenes de trabajo</h1>
+  <p>Gestiona la elaboración de lentes, el control de calidad y la entrega del pedido.</p>
+</header>
+
+<div class="contenido">
+  <section class="panel filtros" aria-label="Filtros de órdenes">
+    <div class="segmentos" aria-label="Tipo de listado">
+      <button
+        type="button"
+        [attr.aria-pressed]="pestana === 'pendientes'"
+        (click)="cambiar('pendientes')"
+      >
+        Ventas pendientes de orden
+      </button>
+      <button
+        type="button"
+        [attr.aria-pressed]="pestana === 'ordenes'"
+        (click)="cambiar('ordenes')"
+      >
+        Órdenes registradas
+      </button>
+    </div>
+    <form class="fila" (ngSubmit)="buscar()">
+      <input
+        name="busqueda"
+        [(ngModel)]="busqueda"
+        maxlength="100"
+        type="search"
+        aria-label="Buscar pedido"
+        [placeholder]="
+          pestana === 'pendientes'
+            ? 'Buscar paciente, documento o comprobante…'
+            : 'Buscar paciente o documento…'
+        "
+      />
+      <button class="boton primario" type="submit">Buscar</button>
+      @if (pestana === 'ordenes') {
+        <select
+          name="estado"
+          [(ngModel)]="estado"
+          (ngModelChange)="cargar(0)"
+          aria-label="Filtrar por estado"
+        >
+          <option value="">Todos los estados</option>
+          @for (opcion of opciones; track opcion) {
+            <option [value]="opcion">{{ estados[opcion] }}</option>
+          }
+        </select>
+      }
+    </form>
+  </section>
+
+  <section class="panel" aria-label="Resultados">
+    @if (cargando()) {
+      <p class="vacio" role="status">Cargando pedidos…</p>
+    } @else if (error()) {
+      <div class="vacio" role="alert">
+        {{ error() }} <button class="boton" type="button" (click)="cargar()">Reintentar</button>
+      </div>
+    } @else {
+      <div class="tabla-scroll">
+        @if (pestana === 'pendientes') {
+          <table>
+            <thead>
+              <tr>
+                <th>Paciente</th>
+                <th>Venta</th>
+                <th>Lente</th>
+                <th>Total de venta</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (pendiente of pendientes(); track pendiente.idLente) {
+                <tr>
+                  <td>
+                    <strong>{{ pendiente.nombrePaciente }}</strong>
+                  </td>
+                  <td>{{ pendiente.numeroComprobante || 'Venta #' + pendiente.idVenta }}</td>
+                  <td>Lente #{{ pendiente.idLente }}</td>
+                  <td>{{ pendiente.totalVenta | currency: 'PEN' : 'S/ ' }}</td>
+                  <td>
+                    @if (acceso.gestionar()) {
+                      <button
+                        class="boton primario"
+                        type="button"
+                        [disabled]="guardando()"
+                        (click)="generar(pendiente)"
+                      >
+                        Generar orden
+                      </button>
+                    } @else {
+                      <span class="muted">Solo consulta</span>
+                    }
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="vacio">No hay ventas pendientes para esta búsqueda.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <table>
+            <thead>
+              <tr>
+                <th>Orden</th>
+                <th>Paciente</th>
+                <th>Registro</th>
+                <th>Laboratorio</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (orden of ordenes(); track orden.id) {
+                <tr>
+                  <td>
+                    <strong>#{{ orden.id }}</strong>
+                  </td>
+                  <td>{{ orden.nombrePaciente }}</td>
+                  <td>{{ orden.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ orden.envios[0]?.nombreLaboratorio || '—' }}</td>
+                  <td>
+                    <span class="estado" [attr.data-estado]="orden.estado">{{
+                      estados[orden.estado]
+                    }}</span>
+                  </td>
+                  <td>
+                    <a class="enlace" [routerLink]="['/ordenes-trabajo', orden.id]"
+                      >Ver detalle →</a
+                    >
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="vacio">No hay órdenes para esta búsqueda.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+      <footer class="paginacion fila">
+        <span>{{ total }} resultados</span>
+        <label
+          >Filas
+          <select [(ngModel)]="size" (ngModelChange)="cargar(0)">
+            <option [ngValue]="10">10 por página</option>
+            <option [ngValue]="20">20 por página</option>
+            <option [ngValue]="50">50 por página</option>
+          </select>
+        </label>
+        <nav class="fila" aria-label="Paginación">
+          <button class="boton" type="button" [disabled]="page === 0" (click)="cargar(page - 1)">
+            ‹ Anterior
+          </button>
+          @if (paginas) {
+            <span class="estado" aria-current="page">{{ page + 1 }} / {{ paginas }}</span>
+          }
+          <button
+            class="boton"
+            type="button"
+            [disabled]="page + 1 >= paginas"
+            (click)="cargar(page + 1)"
+          >
+            Siguiente ›
+          </button>
+        </nav>
+      </footer>
+    }
+  </section>
+</div>
