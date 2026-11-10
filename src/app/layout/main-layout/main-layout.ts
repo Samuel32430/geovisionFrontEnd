@@ -6,6 +6,7 @@ import { AuthService } from '../../core/auth/auth-service';
 import { SesionService } from '../../core/auth/sesion-service';
 import { Router } from '@angular/router';
 import { SeguridadAccess } from '../../features/seguridad/seguridad-access';
+import { OrdenAcceso } from '../../features/ordenes-trabajo/orden-acceso';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet, Icono],
@@ -17,13 +18,13 @@ export class MainLayout {
   protected readonly avisos = inject(AvisoService);
   protected readonly sesion = inject(SesionService);
   protected readonly accesoSeguridad = inject(SeguridadAccess);
+  protected readonly accesoOrden = inject(OrdenAcceso);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly cerrando = signal(false);
   protected readonly menuAbierto = signal(false);
   protected readonly pendientes = [
-    { etiqueta: 'Elaboración de orden de trabajo', icono: 'lab' },
     { etiqueta: 'Control de inventario', icono: 'box' },
   ];
   protected readonly seguridad = [{ etiqueta: 'Configuración', icono: 'settings' }];

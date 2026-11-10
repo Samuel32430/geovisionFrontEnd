@@ -61,6 +61,15 @@
       ><app-icono nombre="credit-card" />Pagos Pendientes</a
     >
 
+    @if (accesoOrden.leer()) {
+      <a
+        routerLink="/ordenes-trabajo"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuAbierto.set(false)"
+        ><app-icono nombre="lab" />Elaboración de orden de trabajo</a
+      >
+    }
     @for (item of pendientes; track item.etiqueta) {
       <button type="button" (click)="avisos.pendiente(item.etiqueta)">
         <app-icono [nombre]="item.icono" />{{ item.etiqueta }}

@@ -1,0 +1,399 @@
+<header class="cabecera fila">
+  <div>
+    <h1>{{ orden() ? 'Orden de trabajo #' + orden()?.id : 'Orden de trabajo' }}</h1>
+    <p>Seguimiento de laboratorio, calidad y entrega.</p>
+  </div>
+  <a class="boton" routerLink="/ordenes-trabajo">← Volver a órdenes</a>
+</header>
+
+<div class="contenido">
+  @if (resultado()) {
+    <p class="aviso exito" role="status">{{ resultado() }}</p>
+  }
+  @if (errorAccion()) {
+    <p class="aviso error" role="alert">{{ errorAccion() }}</p>
+  }
+  @if (cargando()) {
+    <p class="panel vacio" role="status">Consultando orden…</p>
+  } @else if (error()) {
+    <div class="panel vacio" role="alert">
+      {{ error() }} <button class="boton" type="button" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (orden(); as pedido) {
+    <section class="panel bloque">
+      <div class="fila separado">
+        <div>
+          <span class="etiqueta">Paciente</span>
+          <h2>{{ pedido.nombrePaciente }}</h2>
+          <p>Registrada el {{ pedido.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</p>
+        </div>
+        <span class="estado" [attr.data-estado]="pedido.estado">{{ estados[pedido.estado] }}</span>
+      </div>
+      <dl class="datos">
+        <div>
+          <dt>Venta</dt>
+          <dd>{{ pedido.idVenta ? 'Venta #' + pedido.idVenta : 'Sin venta verificable' }}</dd>
+        </div>
+        <div>
+          <dt>Saldo pendiente</dt>
+          <dd>
+            {{
+              pedido.saldoPendiente === null
+                ? 'Sin verificar'
+                : (pedido.saldoPendiente | currency: 'PEN' : 'S/ ')
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>Aviso por WhatsApp</dt>
+          <dd>
+            {{
+              pedido.fechaNotificacion
+                ? (pedido.fechaNotificacion | date: 'dd/MM/yyyy HH:mm')
+                : 'Sin confirmar'
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>Entrega</dt>
+          <dd>
+            {{
+              pedido.fechaEntrega ? (pedido.fechaEntrega | date: 'dd/MM/yyyy HH:mm') : 'Pendiente'
+            }}
+          </dd>
+        </div>
+      </dl>
+      @if (pedido.descripcion) {
+        <p class="nota">{{ pedido.descripcion }}</p>
+      }
+    </section>
+
+    @if (pedido.estado !== 'ENTREGADO' && pedido.estado !== 'ANULADO') {
+      <section class="panel bloque">
+        <h2>Siguiente paso</h2>
+        @switch (pedido.estado) {
+          @case ('PENDIENTE') {
+            @if (acceso.gestionar()) {
+              <button class="boton primario" [disabled]="ocupado()" (click)="abrir('envio')">
+                Enviar al laboratorio
+              </button>
+            } @else {
+              <p>La orden espera su primer envío al laboratorio.</p>
+            }
+          }
+          @case ('CONTROL_CALIDAD_RECHAZADO') {
+            <p>
+              El último control fue rechazado. Un nuevo envío conservará el historial de este
+              intento.
+            </p>
+            @if (acceso.gestionar()) {
+              <button class="boton primario" [disabled]="ocupado()" (click)="abrir('envio')">
+                Reenviar al laboratorio
+              </button>
+            }
+          }
+          @case ('ENVIADO_LABORATORIO') {
+            <p>Confirma la recepción cuando el lente regrese del laboratorio.</p>
+            @if (acceso.gestionar() && ultimo()) {
+              <button class="boton primario" [disabled]="ocupado()" (click)="abrir('recepcion')">
+                Registrar recepción
+              </button>
+            }
+          }
+          @case ('RECIBIDO_LABORATORIO') {
+            <p>El lente está pendiente de control de calidad.</p>
+            @if (acceso.calidad() && ultimo()) {
+              <button class="boton primario" [disabled]="ocupado()" (click)="abrir('calidad')">
+                Registrar lensometría
+              </button>
+            }
+          }
+          @case ('LISTO_ENTREGA') {
+            @if (pedido.saldoPendiente !== 0) {
+              <div class="aviso advertencia">
+                {{
+                  pedido.saldoPendiente === null
+                    ? 'Verifica la venta asociada antes de entregar.'
+                    : 'La entrega requiere que el saldo pendiente sea cero.'
+                }}
+                @if (pedido.idVenta && pedido.saldoPendiente !== null) {
+                  <a class="enlace" routerLink="/ventas/pagos-pendientes"
+                    >Ir a pagos pendientes →</a
+                  >
+                }
+              </div>
+            }
+            @if (acceso.gestionar()) {
+              @if (!pedido.fechaNotificacion) {
+                @if (telefonoValido()) {
+                  <p>
+                    Teléfono registrado: <strong>{{ telefono() }}</strong>
+                  </p>
+                  <div class="fila">
+                    @if (enlace()) {
+                      <a
+                        class="boton"
+                        [href]="enlace()"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        (click)="abierto.set(true)"
+                        >Abrir WhatsApp ↗</a
+                      >
+                      <button
+                        class="boton"
+                        [disabled]="ocupado() || !abierto()"
+                        (click)="confirmarAviso()"
+                      >
+                        Confirmar aviso enviado
+                      </button>
+                    } @else {
+                      <button class="boton" [disabled]="ocupado()" (click)="prepararAviso()">
+                        Preparar aviso por WhatsApp
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <p class="aviso advertencia">
+                    Para avisar por WhatsApp, el teléfono del paciente debe estar registrado en
+                    formato internacional, por ejemplo +51987654321.
+                  </p>
+                }
+              }
+              <button
+                class="boton primario siguiente"
+                [disabled]="ocupado() || pedido.saldoPendiente !== 0"
+                (click)="abrir('entrega')"
+              >
+                Registrar entrega
+              </button>
+            }
+          }
+          @default {
+            <p>Consulta el estado y el historial del pedido.</p>
+          }
+        }
+
+        @if (accion) {
+          <form class="formulario" #form="ngForm" (ngSubmit)="form.valid && guardar()">
+            @switch (accion) {
+              @case ('envio') {
+                <h3>Datos del envío</h3>
+                <div class="datos">
+                  <label
+                    >Laboratorio
+                    <select name="laboratorio" [(ngModel)]="idLaboratorio" required>
+                      <option [ngValue]="null">Selecciona un laboratorio</option>
+                      @for (laboratorio of laboratorios; track laboratorio.id) {
+                        <option [ngValue]="laboratorio.id">{{ laboratorio.nombre }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label
+                    >Recepción estimada <input name="fecha" type="date" [(ngModel)]="fecha"
+                  /></label>
+                </div>
+                @if (!ocupado() && !laboratorios.length && !errorAccion()) {
+                  <p class="aviso advertencia">No hay laboratorios activos disponibles.</p>
+                }
+              }
+              @case ('recepcion') {
+                <h3>Confirmar recepción</h3>
+                <p>Registra que recibiste el lente de {{ ultimo()?.nombreLaboratorio }}.</p>
+              }
+              @case ('entrega') {
+                <h3>Confirmar entrega</h3>
+                <p>Registra la entrega física del pedido a {{ pedido.nombrePaciente }}.</p>
+              }
+              @case ('calidad') {
+                <h3>Lensometría</h3>
+                @if (politica; as regla) {
+                  @if (regla.configurada) {
+                    <p>
+                      Tolerancias activas: {{ regla.dioptrias }} D · {{ regla.ejeGrados }}° ·
+                      {{ regla.distanciaPupilarMm }} mm de DP · {{ regla.prisma }} de prisma.
+                    </p>
+                    @for (medida of pedido.lente.medidas; track medida.tipoMedida; let i = $index) {
+                      <fieldset>
+                        <legend>{{ medida.tipoMedida }}</legend>
+                        <div class="datos">
+                          <label
+                            >Distancia pupilar medida (mm)
+                            <small>Receta: {{ medida.distanciaPupilar }}</small>
+                            <input
+                              [name]="'dp' + i"
+                              inputmode="decimal"
+                              pattern="(?!0{1,3}([.]0{1,2})?$)[0-9]{1,3}([.][0-9]{1,2})?"
+                              required
+                              [(ngModel)]="captura[i].distanciaPupilar"
+                            />
+                          </label>
+                          <label
+                            >Prisma medido
+                            <small>Receta: {{ medida.prisma ?? '—' }}</small>
+                            <input
+                              [name]="'prisma' + i"
+                              inputmode="decimal"
+                              pattern="[0-9]{1,3}([.][0-9]{1,2})?"
+                              [required]="medida.prisma !== null"
+                              [(ngModel)]="captura[i].prisma"
+                            />
+                          </label>
+                        </div>
+                        @for (ojo of ojos; track ojo.clave) {
+                          <h4>{{ ojo.etiqueta }}</h4>
+                          <div class="datos">
+                            @for (magnitud of magnitudes; track magnitud) {
+                              <label>
+                                <span class="capital">{{
+                                  magnitud === 'adicion' ? 'Adición' : magnitud
+                                }}</span>
+                                <small>Receta: {{ medida[ojo.clave][magnitud] ?? '—' }}</small>
+                                <input
+                                  [name]="i + ojo.clave + magnitud"
+                                  inputmode="decimal"
+                                  [pattern]="patrones[magnitud]"
+                                  [required]="
+                                    magnitud !== 'adicion' || medida[ojo.clave].adicion !== null
+                                  "
+                                  [(ngModel)]="captura[i][ojo.clave][magnitud]"
+                                />
+                              </label>
+                            }
+                          </div>
+                        }
+                      </fieldset>
+                    }
+                    <p>
+                      Ingresa las mediciones con punto decimal. El sistema determinará si el lente
+                      cumple la política.
+                    </p>
+                  } @else {
+                    <p class="aviso advertencia">
+                      Las tolerancias todavía deben configurarse en el backend para registrar el
+                      control.
+                    </p>
+                  }
+                }
+              }
+            }
+            @if (accion !== 'calidad' || politica?.configurada) {
+              <label
+                >Observaciones (opcional)
+                <textarea
+                  name="observaciones"
+                  [(ngModel)]="observaciones"
+                  maxlength="500"
+                  rows="2"
+                ></textarea>
+              </label>
+            }
+            <div class="fila">
+              <button class="boton" type="button" [disabled]="ocupado()" (click)="accion = null">
+                Cancelar
+              </button>
+              <button
+                class="boton primario"
+                type="submit"
+                [disabled]="
+                  ocupado() ||
+                  form.invalid ||
+                  (accion === 'calidad' && (!politica?.configurada || !captura.length))
+                "
+              >
+                {{ ocupado() ? 'Procesando…' : 'Confirmar' }}
+              </button>
+            </div>
+          </form>
+        }
+      </section>
+    }
+
+    <section class="panel bloque">
+      <h2>Receta y especificaciones</h2>
+      <dl class="datos">
+        <div>
+          <dt>Receta</dt>
+          <dd>#{{ pedido.lente.idReceta }}</dd>
+        </div>
+        <div>
+          <dt>Material</dt>
+          <dd>{{ pedido.lente.nombreMaterialCristal || '—' }}</dd>
+        </div>
+        <div>
+          <dt>Montura</dt>
+          <dd>{{ pedido.lente.nombreMontura || 'Sin montura registrada' }}</dd>
+        </div>
+        <div>
+          <dt>Tratamientos</dt>
+          <dd>
+            @for (tratamiento of pedido.lente.tratamientos; track $index) {
+              {{ tratamiento.nombre }}{{ $last ? '' : ', ' }}
+            } @empty {
+              Sin tratamientos
+            }
+          </dd>
+        </div>
+      </dl>
+      @for (medida of pedido.lente.medidas; track medida.tipoMedida) {
+        <div class="medida">
+          <strong>{{ medida.tipoMedida }}</strong>
+          <span>DP {{ medida.distanciaPupilar }} mm · Prisma {{ medida.prisma ?? '—' }}</span>
+          @for (ojo of ojos; track ojo.clave) {
+            <span>{{ ojo.etiqueta }}: {{ resumenOjo(medida, ojo.clave) }}</span>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="panel bloque">
+      <h2>Historial de laboratorio</h2>
+      @for (envio of pedido.envios; track envio.id) {
+        <article class="intento">
+          <div class="fila separado">
+            <h3>{{ envio.nombreLaboratorio }}</h3>
+            @if (envio.aprobado !== null) {
+              <span
+                class="estado"
+                [attr.data-estado]="envio.aprobado ? 'LISTO_ENTREGA' : 'CONTROL_CALIDAD_RECHAZADO'"
+              >
+                {{ envio.aprobado ? 'Control aprobado' : 'Control rechazado' }}
+              </span>
+            }
+          </div>
+          <dl class="datos">
+            <div>
+              <dt>Envío</dt>
+              <dd>{{ envio.fechaEnvio | date: 'dd/MM/yyyy HH:mm' }}</dd>
+            </div>
+            <div>
+              <dt>Recepción estimada</dt>
+              <dd>{{ (envio.fechaRecepcionEstimada | date: 'dd/MM/yyyy') || '—' }}</dd>
+            </div>
+            <div>
+              <dt>Recepción</dt>
+              <dd>{{ (envio.fechaRecepcion | date: 'dd/MM/yyyy HH:mm') || 'Pendiente' }}</dd>
+            </div>
+            <div>
+              <dt>Control</dt>
+              <dd>{{ (envio.fechaRevision | date: 'dd/MM/yyyy HH:mm') || 'Pendiente' }}</dd>
+            </div>
+          </dl>
+          @if (envio.observaciones) {
+            <p class="nota">{{ envio.observaciones }}</p>
+          }
+          @for (medida of envio.medidasControl; track medida.tipoMedida) {
+            <div class="medida">
+              <strong>Lensometría · {{ medida.tipoMedida }}</strong>
+              <span>DP {{ medida.distanciaPupilar }} mm · Prisma {{ medida.prisma ?? '—' }}</span>
+              @for (ojo of ojos; track ojo.clave) {
+                <span>{{ ojo.etiqueta }}: {{ resumenOjo(medida, ojo.clave) }}</span>
+              }
+            </div>
+          }
+        </article>
+      } @empty {
+        <p>Todavía no hay envíos registrados.</p>
+      }
+    </section>
+  }
+</div>
