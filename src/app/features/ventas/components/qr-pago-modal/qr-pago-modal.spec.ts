@@ -24,11 +24,20 @@ describe('QrPagoModal', () => {
     http.verify();
   });
 
+  it('no debe llamar al backend y debe mostrar error si el monto es menor o igual a cero', () => {
+    fixture.componentRef.setInput('monto', 0);
+    fixture.detectChanges();
+
+    http.expectNone(`${environment.apiUrl}/ventas/pagos/qr`);
+    expect(component['cargando']()).toBe(false);
+    expect(component['error']()).toBe('El monto a cobrar debe ser mayor a cero.');
+  });
+
   it('debe crearse y solicitar la orden QR dinámico al inicializarse', () => {
     fixture.componentRef.setInput('monto', 150);
     fixture.detectChanges();
 
-    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/mercadopago/qr`);
+    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
       idVenta: null,
@@ -59,7 +68,7 @@ describe('QrPagoModal', () => {
     fixture.componentRef.setInput('monto', 200);
     fixture.detectChanges();
 
-    const req1 = http.expectOne(`${environment.apiUrl}/ventas/pagos/mercadopago/qr`);
+    const req1 = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
     req1.flush(
       { mensaje: 'Error de conexión con Mercado Pago' },
       { status: 500, statusText: 'Server Error' }
@@ -77,7 +86,7 @@ describe('QrPagoModal', () => {
     fixture.detectChanges();
 
     expect(component['cargando']()).toBe(true);
-    const req2 = http.expectOne(`${environment.apiUrl}/ventas/pagos/mercadopago/qr`);
+    const req2 = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
     req2.flush({
       qrData: '00020126580014reintento...',
       externalReference: 'REF-2',
@@ -96,7 +105,7 @@ describe('QrPagoModal', () => {
     fixture.componentRef.setInput('monto', 100);
     fixture.detectChanges();
 
-    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/mercadopago/qr`);
+    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
     req.flush({
       qrData: '000201...',
       externalReference: 'REF-3',
@@ -121,7 +130,7 @@ describe('QrPagoModal', () => {
     fixture.componentRef.setInput('monto', 100);
     fixture.detectChanges();
 
-    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/mercadopago/qr`);
+    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
     req.flush({
       qrData: '000201...',
       externalReference: 'REF-4',
@@ -142,7 +151,7 @@ describe('QrPagoModal', () => {
     fixture.componentRef.setInput('monto', 100);
     fixture.detectChanges();
 
-    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/mercadopago/qr`);
+    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
     req.flush({
       qrData: '000201...',
       externalReference: 'REF-5',

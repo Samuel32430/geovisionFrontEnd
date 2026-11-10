@@ -63,7 +63,7 @@ describe('VentaService', () => {
     req.flush({ id: 5, pagos: [], total: 250, saldoPendiente: 50 });
   });
 
-  it('debe generar orden QR dinámico en Mercado Pago enviando petición POST a /ventas/pagos/mercadopago/qr', () => {
+  it('debe generar orden QR dinámico en Mercado Pago enviando petición POST a /ventas/pagos/qr', () => {
     const payload: MercadoPagoQrRequest = {
       monto: 150,
       descripcion: 'Venta #1',
@@ -82,7 +82,7 @@ describe('VentaService', () => {
       expect(res.monto).toBe(150);
     });
 
-    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/mercadopago/qr`);
+    const req = http.expectOne(`${environment.apiUrl}/ventas/pagos/qr`);
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(payload);
     req.flush(mockRespuesta);

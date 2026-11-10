@@ -77,7 +77,7 @@ export class VentaService {
 
   generarOrdenQr(request: MercadoPagoQrRequest) {
     return this.http
-      .post<MercadoPagoQrResponse>(`${this.url}/pagos/mercadopago/qr`, request)
+      .post<MercadoPagoQrResponse>(`${this.url}/pagos/qr`, request)
       .pipe(timeout(15000));
   }
 }

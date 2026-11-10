@@ -33,6 +33,12 @@ export class QrPagoModal implements OnInit {
   }
 
   protected cargarOrdenQr(): void {
+    if (!this.monto() || this.monto() <= 0) {
+      this.error.set('El monto a cobrar debe ser mayor a cero.');
+      this.cargando.set(false);
+      return;
+    }
+
     this.cargando.set(true);
     this.error.set(null);
 
