@@ -56,7 +56,7 @@ describe('Nuevo usuario: selección de persona y alta conjunta', () => {
     f.detectChanges();
     http
       .expectOne((r) => r.url.endsWith('/roles'))
-      .flush([{ idRol: 3, nombre: 'RECEPCIONISTA', permisos: [] }]);
+      .flush([{ id: 3, nombre: 'RECEPCIONISTA', permisos: [] }]);
     http
       .expectOne((r) => r.url.endsWith('/usuarios/personas') && r.params.get('size') === '5')
       .flush(pagina(personas));
@@ -119,7 +119,7 @@ describe('Nuevo usuario: selección de persona y alta conjunta', () => {
       rolesIds: [],
       idPersona: 20,
     });
-    req.flush({ idUsuario: 7 });
+    req.flush({ id: 7, roles: [] });
     f.detectChanges();
     expect(f.componentInstance.puedeSalir()).toBe(true);
     expect(TestBed.inject(Router).navigate).toHaveBeenCalledWith(['/seguridad/usuarios']);
@@ -143,7 +143,7 @@ describe('Nuevo usuario: selección de persona y alta conjunta', () => {
     });
     expect(req.request.body.usuario.rolesIds).toEqual([3]);
     expect(req.request.body.empleado).toEqual({ fechaContrato: '2026-01-01' });
-    req.flush({ idUsuario: 7 });
+    req.flush({ id: 7, roles: [] });
   });
   it('ofrece editar una cuenta existente incluso inactiva y no permite seleccionarla para otra alta', () => {
     const f = abrir([
@@ -188,7 +188,7 @@ describe('Nuevo usuario: selección de persona y alta conjunta', () => {
     enviar(f);
     const req = http.expectOne((r) => r.method === 'POST');
     expect(req.request.body.empleado).toEqual({ fechaContrato: '2026-01-01' });
-    req.flush({});
+    req.flush({ id: 7, roles: [] });
   });
   it('no permite seleccionar personas sin empleado activo aunque una respuesta antigua las incluya', () => {
     const f = abrir([{ ...persona, empleadoActivo: false }]);
