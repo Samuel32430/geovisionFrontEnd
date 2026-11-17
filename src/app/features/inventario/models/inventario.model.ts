@@ -77,7 +77,7 @@ export interface ProductoRequest {
   marca: string;
   descripcion?: string;
   precio: number;
-  stockInicial?: number;
+  stock: number;
   idCategoria?: number;
   montura?: MonturaDetalle;
 }
