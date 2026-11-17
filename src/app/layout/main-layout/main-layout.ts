@@ -26,9 +26,7 @@ export class MainLayout {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly cerrando = signal(false);
   protected readonly menuAbierto = signal(false);
-  protected readonly pendientes = [
-    { etiqueta: 'Control de inventario', icono: 'box' },
-  ];
+  protected readonly pendientes: { etiqueta: string; icono: string }[] = [];
   protected readonly seguridad: { etiqueta: string; icono: string }[] = [];
 
   protected async cerrarSesion(): Promise<void> {
