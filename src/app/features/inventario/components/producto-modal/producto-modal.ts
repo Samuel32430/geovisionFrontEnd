@@ -90,6 +90,7 @@ export class ProductoModal implements OnInit {
       marca: this.marca().trim(),
       descripcion: this.descripcion().trim() || undefined,
       precio: this.precio(),
+      stock: this.productoEditar()?.stock ?? Math.max(0, this.stockInicial()),
       idCategoria: this.idCategoria(),
     };
 
