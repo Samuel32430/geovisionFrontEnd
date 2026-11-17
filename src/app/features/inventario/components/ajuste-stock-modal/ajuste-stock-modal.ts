@@ -54,8 +54,15 @@ export class AjusteStockModal {
       return;
     }
 
+    const prod = this.producto();
+    const id = Number(prod.idProducto ?? (prod as any).id ?? (prod as any).id_producto ?? 0);
+    if (!id || id <= 0) {
+      this.error.set('No se pudo identificar el código numérico (ID) del producto.');
+      return;
+    }
+
     this.confirmar.emit({
-      idProducto: this.producto().idProducto,
+      idProducto: id,
       cantidad: Math.floor(cant),
       tipoAjuste: this.tipoAjuste(),
       motivo: this.motivo(),

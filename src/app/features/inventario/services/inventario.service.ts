@@ -1,11 +1,12 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, timeout } from 'rxjs';
+import { map, Observable, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   AjusteStockRequest,
   EntradaStockRequest,
   MovimientoStockResponse,
+  normalizarProductoItem,
   PaginaMovimientos,
   PaginaProductos,
   ProductoItem,
@@ -44,17 +45,28 @@ export class InventarioService {
       params = params.set('estado', filtros.estado.toString());
     }
 
-    return this.http.get<PaginaProductos>(this.urlProductos, { params }).pipe(timeout(15000));
+    return this.http.get<PaginaProductos>(this.urlProductos, { params }).pipe(
+      timeout(15000),
+      map((res) => ({
+        ...res,
+        content: (res.content || []).map(normalizarProductoItem),
+      }))
+    );
   }
 
   obtenerProductoPorId(id: number): Observable<ProductoItem> {
-    return this.http.get<ProductoItem>(`${this.urlProductos}/${id}`).pipe(timeout(10000));
+    const idValido = Number(id);
+    return this.http.get<ProductoItem>(`${this.urlProductos}/${idValido}`).pipe(
+      timeout(10000),
+      map(normalizarProductoItem)
+    );
   }
 
   consultarStockActual(idProducto: number, umbral = 5): Observable<ProductoStock> {
+    const idValido = Number(idProducto);
     const params = new HttpParams().set('umbralStockMinimo', umbral.toString());
     return this.http
-      .get<ProductoStock>(`${this.urlInventario}/stock/${idProducto}`, { params })
+      .get<ProductoStock>(`${this.urlInventario}/stock/${idValido}`, { params })
       .pipe(timeout(10000));
   }
 
@@ -62,18 +74,29 @@ export class InventarioService {
     const params = new HttpParams().set('umbral', umbral.toString());
     return this.http
       .get<ProductoItem[]>(`${this.urlInventario}/alertas/bajo-stock`, { params })
-      .pipe(timeout(15000));
+      .pipe(
+        timeout(15000),
+        map((lista) => (lista || []).map(normalizarProductoItem))
+      );
   }
 
   registrarEntrada(request: EntradaStockRequest): Observable<MovimientoStockResponse> {
+    const payload = {
+      ...request,
+      idProducto: Number(request.idProducto),
+    };
     return this.http
-      .post<MovimientoStockResponse>(`${this.urlInventario}/entradas`, request)
+      .post<MovimientoStockResponse>(`${this.urlInventario}/entradas`, payload)
       .pipe(timeout(15000));
   }
 
   registrarAjuste(request: AjusteStockRequest): Observable<MovimientoStockResponse> {
+    const payload = {
+      ...request,
+      idProducto: Number(request.idProducto),
+    };
     return this.http
-      .post<MovimientoStockResponse>(`${this.urlInventario}/ajustes`, request)
+      .post<MovimientoStockResponse>(`${this.urlInventario}/ajustes`, payload)
       .pipe(timeout(15000));
   }
 
@@ -82,26 +105,38 @@ export class InventarioService {
     page = 0,
     size = 10
   ): Observable<PaginaMovimientos> {
+    const idValido = Number(idProducto);
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
 
     return this.http
-      .get<PaginaMovimientos>(`${this.urlInventario}/movimientos/${idProducto}`, { params })
+      .get<PaginaMovimientos>(`${this.urlInventario}/movimientos/${idValido}`, { params })
       .pipe(timeout(15000));
   }
 
   cambiarEstadoProducto(idProducto: number, nuevoEstado: number): Observable<ProductoItem> {
+    const idValido = Number(idProducto);
     return this.http
-      .patch<ProductoItem>(`${this.urlProductos}/${idProducto}/estado?estado=${nuevoEstado}`, {})
-      .pipe(timeout(10000));
+      .patch<ProductoItem>(`${this.urlProductos}/${idValido}/estado?estado=${nuevoEstado}`, {})
+      .pipe(
+        timeout(10000),
+        map(normalizarProductoItem)
+      );
   }
 
   registrarProducto(request: ProductoRequest): Observable<ProductoItem> {
-    return this.http.post<ProductoItem>(this.urlProductos, request).pipe(timeout(15000));
+    return this.http.post<ProductoItem>(this.urlProductos, request).pipe(
+      timeout(15000),
+      map(normalizarProductoItem)
+    );
   }
 
   actualizarProducto(id: number, request: ProductoRequest): Observable<ProductoItem> {
-    return this.http.put<ProductoItem>(`${this.urlProductos}/${id}`, request).pipe(timeout(15000));
+    const idValido = Number(id);
+    return this.http.put<ProductoItem>(`${this.urlProductos}/${idValido}`, request).pipe(
+      timeout(15000),
+      map(normalizarProductoItem)
+    );
   }
 }

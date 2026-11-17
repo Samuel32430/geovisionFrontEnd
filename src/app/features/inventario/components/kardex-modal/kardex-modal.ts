@@ -24,16 +24,28 @@ export class KardexModal implements OnInit {
   protected readonly totalElementos = signal(0);
   protected readonly error = signal<string | null>(null);
 
+  protected get idProductoValido(): number {
+    const prod = this.producto();
+    return Number(prod.idProducto ?? (prod as any).id ?? (prod as any).id_producto ?? 0);
+  }
+
   ngOnInit(): void {
     this.cargarKardex(0);
   }
 
   protected cargarKardex(page: number): void {
+    const id = this.idProductoValido;
+    if (!id || id <= 0) {
+      this.error.set('No se pudo identificar el código numérico (ID) del producto.');
+      this.cargando.set(false);
+      return;
+    }
+
     this.cargando.set(true);
     this.error.set(null);
 
     this.inventarioService
-      .listarMovimientosKardex(this.producto().idProducto, page, 8)
+      .listarMovimientosKardex(id, page, 8)
       .subscribe({
         next: (res) => {
           this.movimientos.set(res.content || []);

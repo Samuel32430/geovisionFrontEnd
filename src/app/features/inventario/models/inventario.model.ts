@@ -13,6 +13,7 @@ export interface MonturaDetalle {
 }
 
 export interface ProductoItem {
+  id?: number;
   idProducto: number;
   codigo: string;
   nombre: string;
@@ -27,6 +28,15 @@ export interface ProductoItem {
   nombreCategoria?: string;
   esMontura?: boolean;
   montura?: MonturaDetalle;
+}
+
+export function normalizarProductoItem(dto: any): ProductoItem {
+  const idReal = Number(dto?.idProducto ?? dto?.id ?? dto?.id_producto ?? 0);
+  return {
+    ...dto,
+    id: idReal,
+    idProducto: idReal,
+  };
 }
 
 export interface ProductoStock {
@@ -77,7 +87,9 @@ export interface ProductoRequest {
   marca: string;
   descripcion?: string;
   precio: number;
-  stock: number;
+  stock?: number;
+  stockInicial?: number;
+  estado?: number;
   idCategoria?: number;
   montura?: MonturaDetalle;
 }
