@@ -81,6 +81,9 @@
             }
           </small>
         </div>
+        <div class="recovery-row">
+          <a routerLink="/recuperar-password" class="forgot-link">¿Olvidaste tu contraseña?</a>
+        </div>
         <button type="submit" class="submit" [disabled]="ingresando()">
           <span>{{ ingresando() ? 'Ingresando…' : 'Iniciar sesión' }}</span
           ><span aria-hidden="true">→</span>

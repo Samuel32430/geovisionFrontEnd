@@ -115,4 +115,48 @@ describe('Autenticación y sesión', () => {
       '/atencion-paciente-consulta/pacientes?page=2',
     );
   });
+
+  it('solicita recuperacion de password enviando el correo recortado', () => {
+    TestBed.inject(AuthService)
+      .solicitarRecuperacionPassword('  usuario@geovision.pe  ')
+      .subscribe((res) => {
+        expect(res.mensaje).toBe('Enlace enviado');
+      });
+    const req = http.expectOne((r) => r.url.endsWith('/auth/recuperar-password'));
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ correo: 'usuario@geovision.pe' });
+    req.flush({ mensaje: 'Enlace enviado' });
+  });
+
+  it('valida token de recuperacion enviando el parametro recortado', () => {
+    TestBed.inject(AuthService)
+      .validarTokenRecuperacion('  token-xyz  ')
+      .subscribe((res) => {
+        expect(res.valido).toBe(true);
+      });
+    const req = http.expectOne((r) => r.url.endsWith('/auth/validar-token'));
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.get('token')).toBe('token-xyz');
+    req.flush({ valido: true });
+  });
+
+  it('restablece password enviando token recortado y contrasenas', () => {
+    TestBed.inject(AuthService)
+      .restablecerPassword({
+        token: '  token-123  ',
+        nuevoPassword: 'NewPassword123!',
+        confirmarPassword: 'NewPassword123!',
+      })
+      .subscribe((res) => {
+        expect(res.mensaje).toBe('Contraseña actualizada');
+      });
+    const req = http.expectOne((r) => r.url.endsWith('/auth/reset-password'));
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      token: 'token-123',
+      nuevoPassword: 'NewPassword123!',
+      confirmarPassword: 'NewPassword123!',
+    });
+    req.flush({ mensaje: 'Contraseña actualizada' });
+  });
 });
