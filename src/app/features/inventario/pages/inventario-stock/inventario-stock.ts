@@ -202,7 +202,7 @@ export class InventarioStock implements OnInit {
     const editar = this.productoParaEditar();
 
     const accion$ = editar
-      ? this.inventarioService.actualizarProducto(editar.idProducto, req)
+      ? this.inventarioService.actualizarProducto(Number(editar.idProducto ?? (editar as any).id ?? 0), req)
       : this.inventarioService.registrarProducto(req);
 
     accion$.subscribe({
@@ -242,7 +242,7 @@ export class InventarioStock implements OnInit {
     if (!confirmado) return;
 
     this.cargando.set(true);
-    this.inventarioService.cambiarEstadoProducto(p.idProducto, nuevoEstado).subscribe({
+    this.inventarioService.cambiarEstadoProducto(Number(p.idProducto ?? (p as any).id ?? 0), nuevoEstado).subscribe({
       next: () => {
         this.avisos.abrir({
           titulo: 'Estado Actualizado',

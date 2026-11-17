@@ -121,7 +121,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (prod of productos(); track prod.idProducto) {
+            @for (prod of productos(); track (prod.idProducto || prod.id || prod.codigo)) {
               <tr>
                 <td>
                   <span class="code-badge">{{ prod.codigo }}</span>
