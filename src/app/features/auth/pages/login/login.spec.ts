@@ -106,4 +106,11 @@ describe('Login', () => {
     expect(navegar).not.toHaveBeenCalled();
     expect(TestBed.inject(SesionService).token()).toBeNull();
   });
+
+  it('should render the forgot password link pointing to recuperar-password', () => {
+    const link = fixture.nativeElement.querySelector('.forgot-link') as HTMLAnchorElement;
+    expect(link).toBeTruthy();
+    expect(link.textContent).toContain('¿Olvidaste tu contraseña?');
+    expect(link.getAttribute('href')).toBe('/recuperar-password');
+  });
 });

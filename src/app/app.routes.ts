@@ -8,6 +8,28 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/pages/login/login').then((m) => m.Login),
   },
   {
+    path: 'recuperar-password',
+    title: 'Recuperar contraseña | Geo Vision',
+    loadComponent: () =>
+      import('./features/auth/pages/recuperar-password/recuperar-password').then(
+        (m) => m.RecuperarPassword,
+      ),
+  },
+  {
+    path: 'reset-password',
+    title: 'Restablecer contraseña | Geo Vision',
+    loadComponent: () =>
+      import('./features/auth/pages/reset-password/reset-password').then((m) => m.ResetPassword),
+  },
+  {
+    path: 'auth/recuperar-password',
+    redirectTo: 'recuperar-password',
+  },
+  {
+    path: 'auth/reset-password',
+    redirectTo: 'reset-password',
+  },
+  {
     path: '',
     canActivate: [authGuard],
     canActivateChild: [authGuard],
