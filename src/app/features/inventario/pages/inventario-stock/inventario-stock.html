@@ -1,0 +1,290 @@
+<div class="inventario-container">
+  <header class="page-header">
+    <div>
+      <span class="breadcrumb">Almacén / Control de Existencias</span>
+      <h1>Control de Inventario y Stock</h1>
+      <p>Gestión del catálogo óptico, entradas de compras, ajustes por auditoría y trazabilidad en Kardex.</p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn-nuevo" (click)="abrirNuevoProducto()">
+        <app-icono nombre="plus" />
+        Nuevo Producto
+      </button>
+    </div>
+  </header>
+
+  <!-- Métricas superiores -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon blue">
+        <app-icono nombre="box" />
+      </div>
+      <div class="metric-info">
+        <span class="metric-val">{{ totalElementos() }}</span>
+        <span class="metric-label">Productos Registrados</span>
+      </div>
+    </div>
+
+    <div class="metric-card" [class.alert-border]="alertasBajoStock().length > 0">
+      <div class="metric-icon red">
+        <app-icono nombre="warning" />
+      </div>
+      <div class="metric-info">
+        <span class="metric-val text-red">{{ alertasBajoStock().length }}</span>
+        <span class="metric-label">Alertas de Bajo Stock (&le; 5 un.)</span>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon teal">
+        <app-icono nombre="grid" />
+      </div>
+      <div class="metric-info">
+        <span class="metric-val text-teal">{{ totalStockUnidades() }}</span>
+        <span class="metric-label">Unidades en Página</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="filters-card">
+    <div class="search-input-wrap">
+      <app-icono nombre="search" />
+      <input
+        type="text"
+        placeholder="Buscar por código, nombre o marca..."
+        [ngModel]="termino()"
+        (ngModelChange)="termino.set($event)"
+        (keyup.enter)="buscar()"
+      />
+    </div>
+
+    <div class="filter-group">
+      <select [ngModel]="idCategoria()" (ngModelChange)="idCategoria.set($event ? +$event : null); buscar()">
+        <option [ngValue]="null">Todas las Categorías</option>
+        <option [value]="1">Monturas</option>
+        <option [value]="2">Lunas / Cristales</option>
+        <option [value]="3">Lentes de Contacto</option>
+        <option [value]="4">Accesorios y Soluciones</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <select [ngModel]="estadoFiltro()" (ngModelChange)="estadoFiltro.set($event ? +$event : null); buscar()">
+        <option [ngValue]="null">Todos los Estados</option>
+        <option [value]="1">Activos</option>
+        <option [value]="0">Inactivos</option>
+      </select>
+    </div>
+
+    <div class="filter-actions">
+      <button type="button" class="btn-filtrar" (click)="buscar()">
+        Filtrar
+      </button>
+      <button type="button" class="btn-limpiar" (click)="limpiarFiltros()">
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de Existencias -->
+  <div class="table-card">
+    @if (cargando()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Consultando catálogo y existencias…</p>
+      </div>
+    } @else if (productos().length === 0) {
+      <div class="empty-state">
+        <app-icono nombre="box" />
+        <h3>No se encontraron productos</h3>
+        <p>Intenta ajustar los criterios de búsqueda o agrega un nuevo producto al catálogo.</p>
+        <button type="button" class="btn-nuevo" (click)="abrirNuevoProducto()">
+          <app-icono nombre="plus" />
+          Agregar Producto
+        </button>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Producto / Modelo</th>
+              <th>Marca</th>
+              <th>Categoría</th>
+              <th>Precio Venta</th>
+              <th>Stock Actual</th>
+              <th>Estado</th>
+              <th class="actions-col">Acciones de Almacén</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (prod of productos(); track prod.idProducto) {
+              <tr>
+                <td>
+                  <span class="code-badge">{{ prod.codigo }}</span>
+                </td>
+                <td>
+                  <div class="prod-name-wrap">
+                    <strong>{{ prod.nombre }}</strong>
+                    @if (prod.descripcion) {
+                      <small class="prod-desc">{{ prod.descripcion }}</small>
+                    }
+                    @if (prod.montura) {
+                      <span class="montura-tag">
+                        {{ prod.montura.material }} · {{ prod.montura.color }} · Cal. {{ prod.montura.calibre || '—' }}
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td>{{ prod.marca }}</td>
+                <td>
+                  <span class="cat-pill">{{ prod.nombreCategoria || 'General' }}</span>
+                </td>
+                <td class="price-cell">
+                  S/ {{ prod.precio | number: '1.2-2' }}
+                </td>
+                <td>
+                  <!-- Nivel de stock con badge de semáforo -->
+                  <div class="stock-cell">
+                    <span
+                      class="stock-badge"
+                      [class.critico]="prod.stock <= 5"
+                      [class.medio]="prod.stock > 5 && prod.stock <= 10"
+                      [class.normal]="prod.stock > 10"
+                    >
+                      {{ prod.stock }} un.
+                    </span>
+                    @if (prod.stock <= 5) {
+                      <span class="stock-warning-label" title="Stock en nivel crítico">Bajo</span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="status-pill"
+                    [class.active]="prod.estado === 1"
+                    [class.inactive]="prod.estado !== 1"
+                  >
+                    {{ prod.estado === 1 ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="actions-group">
+                    <button
+                      type="button"
+                      class="action-btn btn-entrada"
+                      title="Registrar Entrada (+ Stock)"
+                      (click)="abrirEntrada(prod)"
+                    >
+                      <app-icono nombre="plus" />
+                      Entrada
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-btn btn-ajuste"
+                      title="Ajuste de Stock (Merma / Rotura)"
+                      (click)="abrirAjuste(prod)"
+                    >
+                      <app-icono nombre="warning" />
+                      Ajuste
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-btn btn-kardex"
+                      title="Ver Historial Kardex"
+                      (click)="abrirKardex(prod)"
+                    >
+                      <app-icono nombre="clipboard" />
+                      Kardex
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-btn btn-edit"
+                      title="Editar producto"
+                      (click)="abrirEditarProducto(prod)"
+                    >
+                      <app-icono nombre="edit" />
+                    </button>
+
+                    <button
+                      type="button"
+                      class="action-btn btn-toggle"
+                      [title]="prod.estado === 1 ? 'Desactivar producto' : 'Activar producto'"
+                      (click)="alternarEstado(prod)"
+                    >
+                      {{ prod.estado === 1 ? 'Desactivar' : 'Activar' }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      <div class="pagination-footer">
+        <span class="pag-text">
+          Mostrando página {{ paginaActual() + 1 }} de {{ totalPaginas() || 1 }} ({{ totalElementos() }} productos)
+        </span>
+        <div class="pag-controls">
+          <button
+            type="button"
+            class="btn-nav-pag"
+            [disabled]="paginaActual() === 0"
+            (click)="cambiarPagina(-1)"
+          >
+            Anterior
+          </button>
+          <span class="pag-num">{{ paginaActual() + 1 }}</span>
+          <button
+            type="button"
+            class="btn-nav-pag"
+            [disabled]="paginaActual() + 1 >= totalPaginas()"
+            (click)="cambiarPagina(1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Modales -->
+@if (productoParaEntrada()) {
+  <app-entrada-stock-modal
+    [producto]="productoParaEntrada()!"
+    (cerrar)="productoParaEntrada.set(null)"
+    (confirmar)="confirmarEntrada($event)"
+  />
+}
+
+@if (productoParaAjuste()) {
+  <app-ajuste-stock-modal
+    [producto]="productoParaAjuste()!"
+    (cerrar)="productoParaAjuste.set(null)"
+    (confirmar)="confirmarAjuste($event)"
+  />
+}
+
+@if (productoParaKardex()) {
+  <app-kardex-modal
+    [producto]="productoParaKardex()!"
+    (cerrar)="productoParaKardex.set(null)"
+  />
+}
+
+@if (modalProductoAbierto()) {
+  <app-producto-modal
+    [productoEditar]="productoParaEditar()"
+    (cerrar)="modalProductoAbierto.set(false)"
+    (guardar)="guardarProducto($event)"
+  />
+}
