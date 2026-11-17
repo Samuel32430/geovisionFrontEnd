@@ -1,0 +1,137 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    @if (cuenta(); as c) {
+      <div class="modal-header">
+        <div class="icon-wrap">
+          <app-icono nombre="credit-card" />
+        </div>
+        <div>
+          <h3>Registrar Pago de Saldo <span class="num-venta">#{{ c.numeroComprobante || ('VN-' + c.idVenta) }}</span></h3>
+          <p>Amortización o liquidación total con actualización de saldo y estado</p>
+        </div>
+        <button class="btn-close" type="button" aria-label="Cerrar modal" (click)="cerrar.emit()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        @if (error()) {
+          <div class="error-banner">
+            <app-icono nombre="warning" />
+            <span>{{ error() }}</span>
+          </div>
+        }
+
+        <!-- Info Cliente -->
+        <div class="cliente-bloque">
+          <div class="avatar-sm">
+            {{ c.pacienteNombre.charAt(0) || 'C' }}
+          </div>
+          <div>
+            <strong>{{ c.pacienteNombre }}</strong>
+            <small>{{ c.pacienteDocumento ? 'DNI: ' + c.pacienteDocumento : 'Sin DNI' }} • {{ c.pacienteTelefono || 'Sin teléfono' }}</small>
+          </div>
+        </div>
+
+        <!-- Métricas de Deuda -->
+        <div class="metricas-grid">
+          <div class="metrica-caja">
+            <span class="label">TOTAL VENTA</span>
+            <strong>S/ {{ c.totalVenta | number: '1.2-2' }}</strong>
+          </div>
+          <div class="metrica-caja adelanto">
+            <span class="label">ADELANTO PREVIO</span>
+            <strong>S/ {{ c.totalPagado | number: '1.2-2' }}</strong>
+          </div>
+          <div class="metrica-caja saldo">
+            <span class="label">SALDO RESTANTE</span>
+            <strong>S/ {{ c.saldoPendiente | number: '1.2-2' }}</strong>
+          </div>
+        </div>
+
+        <!-- Monto a Cobrar con Accesos Rápidos -->
+        <div class="campo-bloque">
+          <div class="campo-header">
+            <label for="montoCobro">MONTO A COBRAR (S/):</label>
+            <div class="accesos-rapidos">
+              <button type="button" class="btn-chip" (click)="setMontoCompleto()">
+                Total (S/ {{ c.saldoPendiente | number: '1.2-2' }})
+              </button>
+              <button type="button" class="btn-chip" (click)="setMontoMitad()">
+                50% (S/ {{ (c.saldoPendiente / 2) | number: '1.2-2' }})
+              </button>
+            </div>
+          </div>
+          <div class="input-monto-wrap">
+            <span>S/</span>
+            <input
+              id="montoCobro"
+              type="number"
+              step="0.10"
+              [ngModel]="monto()"
+              (ngModelChange)="monto.set($event)"
+            />
+          </div>
+        </div>
+
+        <!-- Medio de Pago -->
+        <div class="campo-bloque">
+          <label class="seccion-label">MEDIO DE PAGO</label>
+          <div class="medios-grid">
+            <button
+              type="button"
+              class="medio-btn"
+              [class.active]="medioPago() === 'EFECTIVO'"
+              (click)="medioPago.set('EFECTIVO')"
+            >
+              <app-icono nombre="money" /> Efectivo
+            </button>
+            <button
+              type="button"
+              class="medio-btn"
+              [class.active]="medioPago() === 'TARJETA_DEBITO'"
+              (click)="medioPago.set('TARJETA_DEBITO')"
+            >
+              <app-icono nombre="credit-card" /> Tarjeta POS
+            </button>
+            <button
+              type="button"
+              class="medio-btn"
+              [class.active]="medioPago() === 'TRANSFERENCIA'"
+              (click)="medioPago.set('TRANSFERENCIA')"
+            >
+              <app-icono nombre="clipboard" /> Transferencia
+            </button>
+            <button
+              type="button"
+              class="medio-btn"
+              [class.active]="medioPago() === 'QR_YAPE_PLIN'"
+              (click)="medioPago.set('QR_YAPE_PLIN')"
+            >
+              <app-icono nombre="money" /> Yape / Plin
+            </button>
+          </div>
+        </div>
+
+        <!-- Nro de Operación -->
+        <div class="campo-bloque">
+          <label for="numOpAbono">NRO. DE OPERACIÓN / REFERENCIA {{ medioPago() === 'EFECTIVO' ? '(OPCIONAL)' : '*' }}:</label>
+          <input
+            id="numOpAbono"
+            type="text"
+            class="input-texto"
+            placeholder="Ej: PAGO-EFECTIVO-CAJA-01 o N° Voucher"
+            [ngModel]="numeroOperacion()"
+            (ngModelChange)="numeroOperacion.set($event)"
+          />
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" (click)="cerrar.emit()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="confirmarAbono()">
+          <app-icono nombre="check" />
+          {{ monto() >= c.saldoPendiente ? 'Confirmar Cancelación Total' : 'Confirmar Abono Parcial' }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

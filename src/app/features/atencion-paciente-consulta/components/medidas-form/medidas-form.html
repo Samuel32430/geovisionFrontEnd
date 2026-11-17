@@ -1,0 +1,137 @@
+@for (grupo of medidas().controls; track grupo; let i = $index) {
+  <section class="measure" [formGroup]="grupo" [attr.aria-labelledby]="'medida-' + i">
+    <header>
+      <div class="title">
+        <span class="number">M{{ i + 1 }}</span>
+        <div>
+          <h2 [id]="'medida-' + i">Grupo de medidas {{ i + 1 }}</h2>
+          <p>Refracción y medidas de ambos ojos</p>
+        </div>
+      </div>
+      <div class="actions">
+        <label
+          >Tipo de visión<select formControlName="tipoMedida">
+            <option value="LEJOS">Lejos</option>
+            <option value="MEDIO">Intermedia</option>
+            <option value="CERCA">Cerca</option>
+          </select></label
+        >
+        @if (medidas().length > 1) {
+          <button
+            type="button"
+            class="remove"
+            [disabled]="bloqueado()"
+            (click)="eliminar.emit(i)"
+            [attr.aria-label]="'Eliminar grupo de medidas ' + (i + 1)"
+          >
+            Eliminar grupo
+          </button>
+        }
+      </div>
+    </header>
+    <div class="metrics">
+      <label
+        >Distancia pupilar (mm) *<input
+          type="number"
+          formControlName="distanciaPupilar"
+          min="0.01"
+          max="999.99"
+          step="0.01"
+          placeholder="Ej. 63.00"
+          [attr.aria-invalid]="
+            grupo.controls.distanciaPupilar.touched && grupo.controls.distanciaPupilar.invalid
+          "
+        />
+        @if (grupo.controls.distanciaPupilar.touched && grupo.controls.distanciaPupilar.invalid) {
+          <small class="error"
+            >Ingresa un valor positivo, hasta 999.99, con máximo dos decimales.</small
+          >
+        }</label
+      ><label
+        >Prisma (Δ)<input
+          type="number"
+          formControlName="prisma"
+          min="0"
+          max="999.99"
+          step="0.01"
+          placeholder="Opcional"
+        />
+        @if (grupo.controls.prisma.touched && grupo.controls.prisma.invalid) {
+          <small class="error">Usa un valor de 0 a 999.99 con máximo dos decimales.</small>
+        }
+      </label>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Ojo</th>
+            @for (campo of campos; track campo.clave) {
+              <th>{{ campo.texto }}</th>
+            }
+            <th>Agudeza visual</th>
+            <th>Validación</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (fila of ojos; track fila.clave) {
+            <tr [formGroupName]="fila.clave">
+              <th scope="row">{{ fila.texto }}</th>
+              @for (campo of campos; track campo.clave) {
+                <td>
+                  <input
+                    type="number"
+                    [formControlName]="campo.clave"
+                    [step]="campo.clave === 'eje' ? 1 : 0.25"
+                    [attr.aria-label]="campo.texto + ' ' + fila.texto + ', grupo ' + (i + 1)"
+                    [attr.aria-invalid]="
+                      grupo.controls[fila.clave].controls[campo.clave].touched &&
+                      grupo.controls[fila.clave].controls[campo.clave].invalid
+                    "
+                    placeholder="—"
+                  />
+                  @if (
+                    grupo.controls[fila.clave].controls[campo.clave].touched &&
+                    grupo.controls[fila.clave].controls[campo.clave].invalid
+                  ) {
+                    <small class="error">{{
+                      campo.clave === 'eje'
+                        ? 'Entero entre 0 y 180.'
+                        : 'Múltiplo de 0.25 dentro del tamaño admitido.'
+                    }}</small>
+                  }
+                </td>
+              }
+              <td>
+                <input
+                  type="text"
+                  formControlName="agudezaVisual"
+                  maxlength="50"
+                  placeholder="Ej. 20/20"
+                  [attr.aria-label]="'Agudeza visual ' + fila.texto + ', grupo ' + (i + 1)"
+                />
+              </td>
+              <td>
+                <span class="status" [class.invalid]="grupo.controls[fila.clave].invalid">{{
+                  grupo.controls[fila.clave].invalid ? 'Revisar datos' : 'Formato válido'
+                }}</span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <label class="observations"
+      >Observaciones del grupo<textarea
+        formControlName="observaciones"
+        rows="3"
+        maxlength="255"
+        placeholder="Observaciones de esta medida (opcional)"
+      ></textarea
+      ><small>{{ grupo.controls.observaciones.value.length }}/255 caracteres</small></label
+    >
+  </section>
+}
+<button type="button" class="add" [disabled]="bloqueado()" (click)="agregar.emit()">
+  ＋ Agregar otro grupo de medidas
+</button>

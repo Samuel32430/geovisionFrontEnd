@@ -1,0 +1,78 @@
+.gv-form .fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.gv-form .fields.single {
+  grid-template-columns: 1fr;
+}
+.gv-form .field {
+  min-width: 0;
+}
+.gv-form .field label {
+  display: block;
+  font-size: 12px;
+  color: #354b68;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.gv-form .field label span {
+  color: #879bb5;
+  font-weight: 400;
+}
+.gv-form b {
+  color: #e23b65;
+}
+.gv-form .field input,
+.gv-form .field select,
+.gv-form .field textarea {
+  width: 100%;
+  border: 1px solid #dce5f1;
+  border-radius: 10px;
+  background: #fafbfd;
+  padding: 11px 12px;
+  color: #20314a;
+  font-size: 12px;
+  min-height: 40px;
+}
+.gv-form .field textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+.gv-form .field input::placeholder,
+.gv-form .field textarea::placeholder {
+  color: #8a9eba;
+}
+.gv-form .field [aria-invalid='true'] {
+  border-color: #e45d76;
+  background: #fffafb;
+}
+.gv-form .field-error {
+  display: block;
+  min-height: 14px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #c93753;
+  margin-top: 5px;
+}
+.gv-form .label-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: start;
+}
+.gv-form .age {
+  font-size: 10px;
+  color: #008b7d;
+  background: #effbf9;
+  border: 1px solid #b5ebe0;
+  padding: 3px 7px;
+  border-radius: 15px;
+  white-space: nowrap;
+}
+.gv-form .card-note {
+  font-size: 11px;
+  color: #8b9cb4;
+  line-height: 1.6;
+  margin: 10px 0 0;
+}

@@ -1,0 +1,52 @@
+<dialog #dialogo aria-labelledby="catalogue-title" (cancel)="cerrar.emit()">
+  <section class="catalogue" aria-labelledby="catalogue-title" tabindex="-1">
+    <header>
+      <div>
+        <h2 id="catalogue-title">Seleccionar montura</h2>
+        <p>Existencias consultadas del catálogo</p>
+      </div>
+      <button type="button" class="button" (click)="cerrar.emit()">Cerrar</button>
+    </header>
+    @if (cargando()) {
+      <p role="status">Cargando monturas…</p>
+    } @else if (error()) {
+      <div role="alert">
+        <p class="error">{{ error() }}</p>
+        <button class="button" (click)="paginar.emit(0)">Reintentar</button>
+      </div>
+    } @else if (pagina(); as datos) {
+      <div class="frames">
+        @for (m of datos.content; track m.idProducto) {
+          <article>
+            <h3>{{ m.nombre }}</h3>
+            <p>{{ m.codigo }} · {{ m.color || 'Sin color informado' }}</p>
+            <p>{{ m.materialDescripcion }} · {{ m.modeloDescripcion }}</p>
+            <p>Stock consultado: {{ m.stock }}</p>
+            <strong>S/ {{ m.precio | number: '1.2-2' }}</strong
+            ><button class="button" [disabled]="m.stock <= 0" (click)="elegir.emit(m)">
+              Seleccionar
+            </button>
+          </article>
+        } @empty {
+          <p>No hay monturas disponibles. Puedes registrar el lente sin montura de inventario.</p>
+        }
+      </div>
+      <div class="pagination">
+        <button
+          class="button"
+          [disabled]="datos.number === 0"
+          (click)="paginar.emit(datos.number - 1)"
+        >
+          Anterior</button
+        ><span>{{ datos.totalPages ? datos.number + 1 : 0 }} / {{ datos.totalPages }}</span
+        ><button
+          class="button"
+          [disabled]="datos.number + 1 >= datos.totalPages"
+          (click)="paginar.emit(datos.number + 1)"
+        >
+          Siguiente
+        </button>
+      </div>
+    }
+  </section>
+</dialog>

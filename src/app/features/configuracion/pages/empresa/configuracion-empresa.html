@@ -1,0 +1,274 @@
+<div class="configuracion-page">
+  <app-cabecera-pagina
+    [enlaces]="[
+      { texto: 'Inicio', ruta: '/inicio' },
+      { texto: 'Configuración de la Empresa' }
+    ]"
+  />
+
+  <header class="heading">
+    <div>
+      <h1>Configuración de la Empresa</h1>
+      <p>Administra la información legal, comercial y de contacto de la óptica.</p>
+    </div>
+
+    @if (!cargando() && !errorCarga() && empresa() && !editando()) {
+      <button type="button" class="btn primary" (click)="iniciarEdicion()">
+        <app-icono nombre="edit" />
+        Editar información
+      </button>
+    }
+  </header>
+
+  @if (cargando()) {
+    <div class="panel state" role="status">
+      <p>Cargando datos de la empresa…</p>
+    </div>
+  } @else if (errorCarga()) {
+    <div class="panel state" role="alert">
+      <h2>No se pudo cargar la configuración</h2>
+      <p>{{ errorCarga() }}</p>
+      <button type="button" class="btn primary" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
+    <!-- Alerta de primera configuración -->
+    @if (empresa() === null) {
+      <div class="notice">
+        <strong>Configuración inicial requerida:</strong>
+        Aún no se han configurado los datos de la empresa. Por favor completa el formulario a continuación para habilitar la información en recetas y comprobantes.
+      </div>
+    }
+
+    <!-- Vista de Consulta (Ficha Empresa) -->
+    @if (empresa(); as e) {
+      @if (!editando()) {
+        <section class="panel empresa-card">
+          <div class="empresa-header">
+            <div class="empresa-avatar">
+              @if (e.logo && !logoError()) {
+                <img
+                  [src]="e.logo"
+                  alt="Logo de {{ e.nombreComercial || e.nombreLegal }}"
+                  (error)="logoError.set(true)"
+                />
+              } @else {
+                <span class="avatar-fallback"><app-icono nombre="eye" /></span>
+              }
+            </div>
+            <div class="empresa-titles">
+              <span class="eyebrow">DATOS INSTITUCIONALES</span>
+              <h2>{{ e.nombreComercial || e.nombreLegal }}</h2>
+              <span class="razon-social">{{ e.nombreLegal }}</span>
+              <div class="badge-ruc">
+                <span class="badge active"><i aria-hidden="true"></i> RUC: {{ e.ruc }}</span>
+                <span class="badge-note">Empresa activa en el sistema</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Razón Social (Nombre Legal)</span>
+              <strong class="info-val">{{ e.nombreLegal }}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">Nombre Comercial</span>
+              <strong class="info-val">{{ e.nombreComercial || 'No especificado' }}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">RUC</span>
+              <strong class="info-val">{{ e.ruc }}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">Teléfono</span>
+              <strong class="info-val">{{ e.telefono || 'No especificado' }}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">Correo Electrónico</span>
+              <strong class="info-val">{{ e.correo || 'No especificado' }}</strong>
+            </div>
+
+            <div class="info-item">
+              <span class="info-label">Dirección Fiscal</span>
+              <strong class="info-val">{{ e.direccion || 'No especificada' }}</strong>
+            </div>
+
+            <div class="info-item full">
+              <span class="info-label">Ruta o URL del Logo</span>
+              <span class="info-val-code">{{ e.logo || 'Sin logo configurado' }}</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <app-icono nombre="info" />
+            <span>Estos datos se imprimen automáticamente en la cabecera de las recetas ópticas en PDF y comprobantes.</span>
+          </div>
+        </section>
+      }
+    }
+
+    <!-- Vista de Formulario (Registro o Edición) -->
+    @if (editando()) {
+      <form class="panel form-panel" [formGroup]="form" (ngSubmit)="guardar()" [attr.aria-busy]="guardando()">
+        <div class="panel-header-section">
+          <div>
+            <h2>{{ empresa() ? 'Editar Datos de la Empresa' : 'Registro Inicial de la Empresa' }}</h2>
+            <p>{{ empresa() ? 'Actualiza los datos institucionales de la óptica.' : 'Ingresa la información oficial requerida.' }}</p>
+          </div>
+          @if (empresa()) {
+            <button type="button" class="btn" [disabled]="guardando()" (click)="cancelarEdicion()">
+              Cancelar
+            </button>
+          }
+        </div>
+
+        <div class="fields-grid">
+          <!-- RUC -->
+          <div class="field">
+            <label for="ruc">RUC *</label>
+            <input
+              id="ruc"
+              formControlName="ruc"
+              type="text"
+              maxlength="11"
+              placeholder="Ej. 20123456789"
+              [attr.aria-invalid]="form.controls.ruc.touched && form.controls.ruc.invalid"
+            />
+            @if (form.controls.ruc.touched && form.controls.ruc.invalid) {
+              <small class="field-error">El RUC debe contener exactamente 11 dígitos numéricos.</small>
+            }
+          </div>
+
+          <!-- Nombre Legal -->
+          <div class="field">
+            <label for="nombreLegal">Razón Social (Nombre Legal) *</label>
+            <input
+              id="nombreLegal"
+              formControlName="nombreLegal"
+              type="text"
+              maxlength="200"
+              placeholder="Ej. Óptica Geo Visión S.A.C."
+              [attr.aria-invalid]="form.controls.nombreLegal.touched && form.controls.nombreLegal.invalid"
+            />
+            @if (form.controls.nombreLegal.touched && form.controls.nombreLegal.invalid) {
+              <small class="field-error">El nombre legal es obligatorio (máximo 200 caracteres).</small>
+            }
+          </div>
+
+          <!-- Nombre Comercial -->
+          <div class="field">
+            <label for="nombreComercial">Nombre Comercial</label>
+            <input
+              id="nombreComercial"
+              formControlName="nombreComercial"
+              type="text"
+              maxlength="200"
+              placeholder="Ej. Geo Visión"
+              [attr.aria-invalid]="form.controls.nombreComercial.touched && form.controls.nombreComercial.invalid"
+            />
+            @if (form.controls.nombreComercial.touched && form.controls.nombreComercial.invalid) {
+              <small class="field-error">Máximo 200 caracteres.</small>
+            }
+          </div>
+
+          <!-- Teléfono -->
+          <div class="field">
+            <label for="telefono">Teléfono de Contacto</label>
+            <input
+              id="telefono"
+              formControlName="telefono"
+              type="text"
+              maxlength="50"
+              placeholder="Ej. 999123456 o (01) 456-7890"
+              [attr.aria-invalid]="form.controls.telefono.touched && form.controls.telefono.invalid"
+            />
+            @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+              <small class="field-error">Máximo 50 caracteres.</small>
+            }
+          </div>
+
+          <!-- Correo -->
+          <div class="field">
+            <label for="correo">Correo Electrónico</label>
+            <input
+              id="correo"
+              formControlName="correo"
+              type="email"
+              maxlength="100"
+              placeholder="Ej. contacto@geovision.pe"
+              [attr.aria-invalid]="form.controls.correo.touched && form.controls.correo.invalid"
+            />
+            @if (form.controls.correo.touched && form.controls.correo.invalid) {
+              <small class="field-error">Ingresa un correo electrónico con formato válido.</small>
+            }
+          </div>
+
+          <!-- Dirección -->
+          <div class="field">
+            <label for="direccion">Dirección Fiscal</label>
+            <input
+              id="direccion"
+              formControlName="direccion"
+              type="text"
+              maxlength="200"
+              placeholder="Ej. Av. Principal 123, Lima"
+              [attr.aria-invalid]="form.controls.direccion.touched && form.controls.direccion.invalid"
+            />
+            @if (form.controls.direccion.touched && form.controls.direccion.invalid) {
+              <small class="field-error">Máximo 200 caracteres.</small>
+            }
+          </div>
+
+          <!-- Logo URL -->
+          <div class="field full">
+            <label for="logo">Ruta o URL del Logo</label>
+            <input
+              id="logo"
+              formControlName="logo"
+              type="text"
+              maxlength="200"
+              placeholder="Ej. /imagenes/logo.png o https://ejemplo.com/logo.png"
+              [attr.aria-invalid]="form.controls.logo.touched && form.controls.logo.invalid"
+            />
+            @if (form.controls.logo.touched && form.controls.logo.invalid) {
+              <small class="field-error">Máximo 200 caracteres.</small>
+            }
+
+            @if (form.controls.logo.value.trim().length > 0) {
+              <div class="logo-preview">
+                <span class="preview-label">Vista previa del logo:</span>
+                <div class="preview-box">
+                  <img
+                    [src]="form.controls.logo.value.trim()"
+                    alt="Previsualización de logo"
+                    (error)="logoError.set(true)"
+                    (load)="logoError.set(false)"
+                  />
+                  @if (logoError()) {
+                    <span class="preview-error">No se pudo cargar la imagen desde la ruta especificada.</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          @if (empresa()) {
+            <button type="button" class="btn" [disabled]="guardando()" (click)="cancelarEdicion()">
+              Cancelar
+            </button>
+          }
+          <button type="submit" class="btn primary" [disabled]="guardando() || form.invalid">
+            <app-icono nombre="check" />
+            {{ guardando() ? 'Guardando…' : (empresa() ? 'Actualizar Información' : 'Registrar Empresa') }}
+          </button>
+        </div>
+      </form>
+    }
+  }
+</div>

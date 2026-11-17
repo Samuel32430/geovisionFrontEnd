@@ -1,0 +1,91 @@
+dialog {
+  border: 0;
+  padding: 0;
+  border-radius: 18px;
+  max-width: 900px;
+  width: calc(100% - 32px);
+  background: white;
+}
+dialog::backdrop {
+  background: #10223880;
+}
+.catalogue {
+  max-height: 85dvh;
+  overflow: auto;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  max-width: 900px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.frames {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 20px 0;
+}
+.frames article {
+  border: 1px solid #dfe8f3;
+  border-radius: 12px;
+  padding: 16px;
+}
+.frames h3 {
+  margin: 0;
+}
+.frames .button {
+  display: block;
+  margin-top: 12px;
+}
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+h2 {
+  font-size: 17px;
+  margin: 0;
+}
+h3 {
+  font-size: 13px;
+  margin: 0;
+}
+p {
+  font-size: 12px;
+  color: #6e829f;
+  line-height: 1.6;
+}
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.button {
+  border: 1px solid #dce5f1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: white;
+  color: #425771;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.button:disabled {
+  opacity: 0.5;
+}
+.error {
+  color: #be2947;
+}
+button:focus-visible {
+  outline: 3px solid #00b6a2;
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .frames {
+    grid-template-columns: 1fr;
+  }
+}

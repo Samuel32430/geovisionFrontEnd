@@ -1,0 +1,4 @@
+/* Reglas locales específicas de nueva-venta */
+:host {
+  display: block;
+}

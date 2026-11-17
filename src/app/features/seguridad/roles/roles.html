@@ -1,0 +1,130 @@
+<div class="security-page roles-page">
+  <header class="heading">
+    <div>
+      <h1>Roles y Permisos</h1>
+      <p>Configura las acciones que puede realizar cada rol del sistema.</p>
+    </div>
+  </header>
+  @if (cargando()) {
+    <div class="panel state" role="status">Cargando roles y permisos…</div>
+  } @else if (error()) {
+    <div class="panel state" role="alert">
+      <h2>No se pudo cargar la configuración</h2>
+      <p>{{ error() }}</p>
+      <button class="btn" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else if (!roles().length) {
+    <div class="panel state">
+      <h2>No hay roles disponibles</h2>
+      <p>Los roles del catálogo aparecerán aquí.</p>
+    </div>
+  } @else {
+    <div class="roles-layout">
+      <aside class="role-sidebar" aria-label="Roles del sistema">
+        <div class="role-list-heading">
+          <strong>ROLES DEFINIDOS</strong><span>{{ roles().length }} en total</span>
+        </div>
+        <div class="role-list">
+          @for (rol of roles(); track rol.idRol) {
+            <button
+              type="button"
+              [class.selected]="seleccionado()?.idRol === rol.idRol"
+              [attr.aria-pressed]="seleccionado()?.idRol === rol.idRol"
+              [disabled]="guardando() || confirmando()"
+              (click)="seleccionar(rol)"
+            >
+              <strong>{{ rol.nombre }}</strong
+              ><small>{{ rol.permisos.length }} permisos asignados</small>
+            </button>
+          }
+        </div>
+      </aside>
+      @if (seleccionado(); as rol) {
+        <section class="panel role-detail" [attr.aria-busy]="guardando()">
+          <div class="form-content">
+            <header class="heading">
+              <div>
+                <div class="role-title">
+                  <h2>{{ rol.nombre }}</h2>
+                  <span class="badge" role="status">{{ seleccion().length }} seleccionados</span>
+                </div>
+                <p>Permisos agrupados por módulo</p>
+              </div>
+            </header>
+            <p class="notice role-notice" appAvisoCerrable>
+              <app-icono nombre="info" /><span>
+                La configuración se comparte con todas las cuentas que tengan este rol. El acceso
+                efectivo de cada cuenta reúne los permisos de todos sus roles.</span
+              >
+            </p>
+            <fieldset [disabled]="guardando() || confirmando()">
+              <legend class="sr-only">Permisos de {{ rol.nombre }}</legend>
+              <div class="modules">
+                @for (grupo of grupos(); track grupo.modulo) {
+                  <section
+                    class="module"
+                    [class.has-selection]="todos(grupo.permisos) || parcial(grupo.permisos)"
+                  >
+                    <header>
+                      <h3>{{ grupo.nombre }}</h3>
+                      <label class="choice"
+                        ><input
+                          type="checkbox"
+                          [checked]="todos(grupo.permisos)"
+                          [indeterminate]="parcial(grupo.permisos)"
+                          (change)="alternarModulo(grupo.permisos)"
+                          [attr.aria-label]="'Seleccionar todos los permisos de ' + grupo.nombre"
+                        />Todos</label
+                      >
+                    </header>
+                    @for (p of grupo.permisos; track p.idPermiso) {
+                      <label class="choice"
+                        ><input
+                          type="checkbox"
+                          [checked]="seleccion().includes(p.idPermiso)"
+                          (change)="alternar(p.idPermiso)"
+                        />{{ etiquetas[p.nombre] || p.nombre }}</label
+                      >
+                    }
+                  </section>
+                } @empty {
+                  <p>No hay permisos disponibles en el catálogo.</p>
+                }
+              </div>
+            </fieldset>
+            @if (!seleccion().length) {
+              <p>Este rol no tiene permisos seleccionados.</p>
+            }
+            @if (errorGuardar()) {
+              <p class="error" role="alert">{{ errorGuardar() }}</p>
+            }
+          </div>
+          <footer class="form-footer">
+            <span>{{
+              seleccion().length +
+                ' permisos seleccionados' +
+                (sucio() ? ' · Cambios sin guardar' : '')
+            }}</span>
+            <div class="actions">
+              <button
+                type="button"
+                class="btn"
+                [disabled]="!sucio() || guardando() || confirmando()"
+                (click)="descartar()"
+              >
+                Descartar cambios</button
+              ><button
+                type="button"
+                class="btn primary"
+                [disabled]="!sucio() || guardando() || confirmando()"
+                (click)="guardar()"
+              >
+                <app-icono nombre="check" />{{ guardando() ? 'Guardando…' : 'Guardar permisos' }}
+              </button>
+            </div>
+          </footer>
+        </section>
+      }
+    </div>
+  }
+</div>

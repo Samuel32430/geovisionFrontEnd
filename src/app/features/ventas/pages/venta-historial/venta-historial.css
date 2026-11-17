@@ -1,0 +1,4 @@
+/* Reglas locales de venta-historial */
+:host {
+  display: block;
+}

@@ -1,0 +1,96 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    <div class="modal-header">
+      <div class="icon-wrap">
+        <app-icono nombre="document" />
+      </div>
+      <div class="header-titles">
+        <h3>Receta Oftalmológica Asociada</h3>
+        <p>
+          {{ receta()?.nombreCompletoEmpleado ? receta()?.nombreCompletoEmpleado + ' • ' : '' }}
+          {{ receta()?.esRecetaExterna ? 'Receta Externa' : 'Consulta Oftalmológica' }}
+        </p>
+      </div>
+      <button class="btn-close" type="button" aria-label="Cerrar modal" (click)="cerrar.emit()">
+        ✕
+      </button>
+    </div>
+
+    @if (receta(); as r) {
+      <div class="modal-body">
+        @for (m of r.medidas; track m.idMedida) {
+          <div class="medida-bloque">
+            <div class="medida-badge">Uso: {{ m.tipoMedida }} • DP: {{ m.distanciaPupilar }} mm</div>
+            <table class="tabla-refraccion">
+              <thead>
+                <tr>
+                  <th>Ojo</th>
+                  <th>Esfera (SPH)</th>
+                  <th>Cilindro (CYL)</th>
+                  <th>Eje (AXIS)</th>
+                  <th>Adición (ADD)</th>
+                  <th>D.P. (mm)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="ojo-label">Ojo Derecho (OD)</td>
+                  <td [class.highlight]="m.ojoDerecho.esfera !== null">
+                    {{ m.ojoDerecho.esfera !== null ? (m.ojoDerecho.esfera | number: '1.2-2') : '—' }}
+                  </td>
+                  <td>{{ m.ojoDerecho.cilindro !== null ? (m.ojoDerecho.cilindro | number: '1.2-2') : '—' }}</td>
+                  <td>{{ m.ojoDerecho.eje !== null ? m.ojoDerecho.eje + '°' : '—' }}</td>
+                  <td>{{ m.ojoDerecho.adicion !== null ? (m.ojoDerecho.adicion | number: '1.2-2') : '—' }}</td>
+                  <td>{{ m.distanciaPupilar }}</td>
+                </tr>
+                <tr>
+                  <td class="ojo-label">Ojo Izquierdo (OI)</td>
+                  <td [class.highlight]="m.ojoIzquierdo.esfera !== null">
+                    {{ m.ojoIzquierdo.esfera !== null ? (m.ojoIzquierdo.esfera | number: '1.2-2') : '—' }}
+                  </td>
+                  <td>{{ m.ojoIzquierdo.cilindro !== null ? (m.ojoIzquierdo.cilindro | number: '1.2-2') : '—' }}</td>
+                  <td>{{ m.ojoIzquierdo.eje !== null ? m.ojoIzquierdo.eje + '°' : '—' }}</td>
+                  <td>{{ m.ojoIzquierdo.adicion !== null ? (m.ojoIzquierdo.adicion | number: '1.2-2') : '—' }}</td>
+                  <td>{{ m.distanciaPupilar }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            @if (m.observaciones) {
+              <div class="info-alert">
+                <strong>Indicaciones clínicas:</strong> {{ m.observaciones }}
+              </div>
+            }
+          </div>
+        }
+
+        @if (r.lentes && r.lentes.length > 0) {
+          <div class="lentes-configurados">
+            <h4>Lentes ya configurados para esta receta</h4>
+            <ul>
+              @for (l of r.lentes; track l.idLente) {
+                <li>
+                  <strong>{{ l.nombreMontura || 'Sin montura asignada' }}</strong>
+                  <span>Cristal: {{ l.nombreMaterialCristal || 'Básico' }}</span>
+                  @if (l.tratamientos && l.tratamientos.length > 0) {
+                    <span>
+                      Tratamientos: {{ l.tratamientos.map(t => t.nombre).join(', ') }}
+                    </span>
+                  }
+                  <span class="subtotal-pill">S/ {{ (l.subTotal || 0) | number: '1.2-2' }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" (click)="cerrar.emit()">Cerrar</button>
+        <button class="btn btn-primary" type="button" (click)="confirmarUso()">
+          <app-icono nombre="check" /> Usar esta receta en la venta
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,132 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card print-target" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+    @if (venta(); as v) {
+      <div class="modal-header no-print">
+        <div class="icon-wrap">
+          <app-icono nombre="document" />
+        </div>
+        <div>
+          <h3>Detalle de Transacción #{{ v.numeroComprobante || v.idVenta }}</h3>
+          <p>Resumen comercial y estado de la orden</p>
+        </div>
+        <button class="btn-close" type="button" aria-label="Cerrar modal" (click)="cerrar.emit()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="transaccion-meta">
+          <div class="meta-item">
+            <span class="label">CLIENTE:</span>
+            <strong>{{ v.nombreCompletoPaciente || 'Público General / Cliente Varios' }}</strong>
+          </div>
+          <div class="meta-item">
+            <span class="label">FECHA EMISIÓN:</span>
+            <span>{{ v.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">TIPO VENTA:</span>
+            <span class="tipo-pill">{{ v.idReceta ? 'Venta con Receta' : 'Venta Directa' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">COMPROBANTE:</span>
+            <span>{{ v.tipoComprobanteDescripcion || v.tipoComprobante }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">ESTADO ACTUAL:</span>
+            <span
+              class="badge-estado"
+              [class.pagada]="v.estado === 'PAGADA'"
+              [class.pendiente]="v.estado === 'PENDIENTE'"
+              [class.anulada]="v.estado === 'ANULADA'"
+            >
+              {{ v.estadoDescripcion }}
+            </span>
+          </div>
+          <div class="meta-item">
+            <span class="label">ATENDIDO POR:</span>
+            <span>{{ v.nombreCompletoEmpleado }}</span>
+          </div>
+        </div>
+
+        <div class="items-bloque">
+          <h4>Ítems Vendidos</h4>
+          <table class="items-tabla">
+            <thead>
+              <tr>
+                <th>Descripción</th>
+                <th class="text-center">Cant.</th>
+                <th class="text-right">Precio Unit.</th>
+                <th class="text-right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (p of v.productos; track p.idProducto) {
+                <tr>
+                  <td>{{ p.nombreProducto || 'Producto Óptico' }}</td>
+                  <td class="text-center">{{ p.cantidad }}</td>
+                  <td class="text-right">S/ {{ p.precioUnit | number: '1.2-2' }}</td>
+                  <td class="text-right">S/ {{ p.subTotal | number: '1.2-2' }}</td>
+                </tr>
+              }
+              @for (s of v.servicios; track s.idServicio) {
+                <tr>
+                  <td>{{ s.nombreServicio || 'Servicio Óptico' }}</td>
+                  <td class="text-center">1</td>
+                  <td class="text-right">S/ {{ s.precio | number: '1.2-2' }}</td>
+                  <td class="text-right">S/ {{ s.precio | number: '1.2-2' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="desglose-financiero">
+          <div class="linea">
+            <span>Subtotal:</span>
+            <span>S/ {{ v.total | number: '1.2-2' }}</span>
+          </div>
+          <div class="linea total-linea">
+            <strong>Total Venta:</strong>
+            <strong class="total-monto">S/ {{ v.total | number: '1.2-2' }}</strong>
+          </div>
+          <div class="linea pagado-linea">
+            <span>Monto Cobrado / Abonado:</span>
+            <span>S/ {{ v.totalPagado | number: '1.2-2' }}</span>
+          </div>
+          <div class="linea saldo-linea" [class.con-saldo]="v.saldoPendiente > 0">
+            <span>Saldo Pendiente:</span>
+            <strong>S/ {{ v.saldoPendiente | number: '1.2-2' }}</strong>
+          </div>
+        </div>
+
+        @if (v.pagos && v.pagos.length > 0) {
+          <div class="historial-pagos-bloque">
+            <h4>Historial de Cobros y Pagos</h4>
+            <div class="pagos-lista">
+              @for (p of v.pagos; track p.idPago) {
+                <div class="pago-item">
+                  <div class="pago-izq">
+                    <strong>{{ p.metodoPagoDescripcion }}</strong>
+                    <span>{{ p.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    @if (p.numeroOperacion) {
+                      <small class="voucher">N° Op: {{ p.numeroOperacion }}</small>
+                    }
+                  </div>
+                  <strong class="pago-monto">S/ {{ p.monto | number: '1.2-2' }}</strong>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer no-print">
+        <button class="btn btn-secondary" type="button" (click)="imprimir()">
+          <app-icono nombre="download" /> Imprimir Comprobante
+        </button>
+        <button class="btn btn-primary" type="button" (click)="cerrar.emit()">
+          Cerrar
+        </button>
+      </div>
+    }
+  </div>
+</div>
