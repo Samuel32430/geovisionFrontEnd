@@ -1,0 +1,126 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="icon-wrap">
+        <app-icono nombre="clipboard" />
+      </div>
+      <div>
+        <h3>Historial Kardex — {{ producto().nombre }}</h3>
+        <p class="sub">Trazabilidad de entradas, salidas y ajustes de stock</p>
+      </div>
+      <button class="btn-close" (click)="cerrar.emit()" type="button" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Resumen producto -->
+      <div class="kardex-resumen">
+        <div>
+          <span class="sub-label">Código:</span>
+          <strong>{{ producto().codigo }}</strong>
+        </div>
+        <div>
+          <span class="sub-label">Marca:</span>
+          <span>{{ producto().marca }}</span>
+        </div>
+        <div>
+          <span class="sub-label">Stock Actual:</span>
+          <span class="stock-badge">{{ producto().stock }} un.</span>
+        </div>
+      </div>
+
+      @if (cargando()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Cargando movimientos del Kardex…</p>
+        </div>
+      } @else if (error()) {
+        <div class="alert-error">
+          <app-icono nombre="warning" />
+          <span>{{ error() }}</span>
+        </div>
+      } @else if (movimientos().length === 0) {
+        <div class="empty-state">
+          <app-icono nombre="info" />
+          <p>No se registran movimientos de inventario para este producto.</p>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table class="kardex-table">
+            <thead>
+              <tr>
+                <th>Fecha / Hora</th>
+                <th>Operación</th>
+                <th>Previo</th>
+                <th>Variación</th>
+                <th>Posterior</th>
+                <th>Usuario</th>
+                <th>Observaciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (mov of movimientos(); track mov.idMovimiento) {
+                <tr>
+                  <td class="fecha-cell">
+                    {{ mov.fechaRegistro | date: 'dd/MM/yyyy HH:mm' }}
+                  </td>
+                  <td>
+                    <span class="motivo-tag">
+                      {{ mov.motivoDescripcion || ('Motivo #' + mov.motivo) }}
+                    </span>
+                  </td>
+                  <td class="num-cell">{{ mov.stockPrevio }}</td>
+                  <td class="num-cell">
+                    <span
+                      class="variacion-badge"
+                      [class.positive]="mov.stockPosterior > mov.stockPrevio"
+                      [class.negative]="mov.stockPosterior < mov.stockPrevio"
+                    >
+                      {{ mov.stockPosterior > mov.stockPrevio ? '+' : '' }}{{ mov.cantidad }}
+                    </span>
+                  </td>
+                  <td class="num-cell bold">{{ mov.stockPosterior }}</td>
+                  <td class="user-cell">
+                    <app-icono nombre="user" />
+                    <span>{{ mov.nombreUsuario }}</span>
+                  </td>
+                  <td class="obs-cell" [title]="mov.observaciones || ''">
+                    {{ mov.observaciones || '—' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination-bar">
+          <span class="pag-info">
+            Página {{ paginaActual() + 1 }} de {{ totalPaginas() || 1 }} (Total: {{ totalElementos() }} registros)
+          </span>
+          <div class="pag-btns">
+            <button
+              type="button"
+              class="btn-pag"
+              [disabled]="paginaActual() === 0"
+              (click)="cambiarPagina(-1)"
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              class="btn-pag"
+              [disabled]="paginaActual() + 1 >= totalPaginas()"
+              (click)="cambiarPagina(1)"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-primary" type="button" (click)="cerrar.emit()">Cerrar</button>
+    </div>
+  </div>
+</div>

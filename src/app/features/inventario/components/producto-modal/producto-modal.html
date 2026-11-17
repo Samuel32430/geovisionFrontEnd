@@ -1,0 +1,187 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="icon-wrap">
+        <app-icono nombre="edit" />
+      </div>
+      <div>
+        <h3>{{ productoEditar() ? 'Editar Producto' : 'Registrar Nuevo Producto' }}</h3>
+        <p class="sub">Catálogo general de monturas, lunas y accesorios</p>
+      </div>
+      <button class="btn-close" (click)="cerrar.emit()" type="button" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      @if (error()) {
+        <div class="alert-error">
+          <app-icono nombre="warning" />
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="pCodigo">Código (*)</label>
+          <input
+            id="pCodigo"
+            type="text"
+            placeholder="Ej: MONT-RAY-01"
+            [disabled]="!!productoEditar()"
+            [ngModel]="codigo()"
+            (ngModelChange)="codigo.set($event); error.set(null)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="pCategoria">Categoría (*)</label>
+          <select
+            id="pCategoria"
+            [ngModel]="idCategoria()"
+            (ngModelChange)="onCategoriaChange(+$event)"
+          >
+            <option [value]="1">Monturas</option>
+            <option [value]="2">Lunas / Cristales</option>
+            <option [value]="3">Lentes de Contacto</option>
+            <option [value]="4">Accesorios y Soluciones</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="pNombre">Nombre del Producto (*)</label>
+          <input
+            id="pNombre"
+            type="text"
+            placeholder="Ej: Montura Aviator Clásica"
+            [ngModel]="nombre()"
+            (ngModelChange)="nombre.set($event); error.set(null)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="pMarca">Marca (*)</label>
+          <input
+            id="pMarca"
+            type="text"
+            placeholder="Ej: Ray-Ban, Oakley, etc."
+            [ngModel]="marca()"
+            (ngModelChange)="marca.set($event); error.set(null)"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="pPrecio">Precio de Venta (S/) (*)</label>
+          <input
+            id="pPrecio"
+            type="number"
+            step="0.10"
+            min="0"
+            [ngModel]="precio()"
+            (ngModelChange)="precio.set($event); error.set(null)"
+          />
+        </div>
+
+        @if (!productoEditar()) {
+          <div class="form-group">
+            <label for="pStockIni">Stock Inicial</label>
+            <input
+              id="pStockIni"
+              type="number"
+              min="0"
+              [ngModel]="stockInicial()"
+              (ngModelChange)="stockInicial.set($event)"
+            />
+          </div>
+        }
+
+        <div class="form-group full-width">
+          <label for="pDesc">Descripción</label>
+          <input
+            id="pDesc"
+            type="text"
+            placeholder="Detalles adicionales, acabados, características..."
+            [ngModel]="descripcion()"
+            (ngModelChange)="descripcion.set($event)"
+          />
+        </div>
+      </div>
+
+      <!-- Detalle técnico si es montura -->
+      @if (esMontura()) {
+        <div class="montura-section">
+          <h4>Especificaciones Ópticas de la Montura</h4>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Tipo Montura</label>
+              <select [ngModel]="tipoMontura()" (ngModelChange)="tipoMontura.set($event)">
+                <option value="COMPLETA">Completa (Aro cerrado)</option>
+                <option value="SEMI_AL_AIRE">Semi al aire (Ranurada)</option>
+                <option value="AL_AIRE">Al aire (Tres piezas)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Material</label>
+              <select [ngModel]="material()" (ngModelChange)="material.set($event)">
+                <option value="ACETATO">Acetato</option>
+                <option value="METAL">Metal</option>
+                <option value="TITANIO">Titanio</option>
+                <option value="TR90">TR90 (Ultem)</option>
+                <option value="MIXTO">Mixto</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Color</label>
+              <input type="text" [ngModel]="color()" (ngModelChange)="color.set($event)" />
+            </div>
+
+            <div class="form-group">
+              <label>Género</label>
+              <select [ngModel]="genero()" (ngModelChange)="genero.set($event)">
+                <option value="UNISEX">Unisex</option>
+                <option value="HOMBRE">Hombre</option>
+                <option value="MUJER">Mujer</option>
+                <option value="NINO">Niño / Infantil</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Calibre (mm)</label>
+              <input type="number" placeholder="52" [ngModel]="calibre()" (ngModelChange)="calibre.set($event)" />
+            </div>
+
+            <div class="form-group">
+              <label>Puente (mm)</label>
+              <input type="number" placeholder="18" [ngModel]="puente()" (ngModelChange)="puente.set($event)" />
+            </div>
+
+            <div class="form-group">
+              <label>Varilla (mm)</label>
+              <input type="number" placeholder="140" [ngModel]="varilla()" (ngModelChange)="varilla.set($event)" />
+            </div>
+
+            <div class="form-group">
+              <label>Forma</label>
+              <select [ngModel]="forma()" (ngModelChange)="forma.set($event)">
+                <option value="RECTANGULAR">Rectangular</option>
+                <option value="REDONDA">Redonda</option>
+                <option value="OVALADA">Ovalada</option>
+                <option value="AVIADOR">Aviador</option>
+                <option value="CAT_EYE">Cat Eye (Ojo de gato)</option>
+                <option value="GEOMETRICA">Geométrica</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" type="button" (click)="cerrar.emit()">Cancelar</button>
+      <button class="btn-primary" type="button" (click)="onSubmit()">
+        <app-icono nombre="check" />
+        {{ productoEditar() ? 'Guardar Cambios' : 'Registrar Producto' }}
+      </button>
+    </div>
+  </div>
+</div>

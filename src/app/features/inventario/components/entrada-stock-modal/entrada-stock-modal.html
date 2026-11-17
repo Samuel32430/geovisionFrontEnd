@@ -1,0 +1,91 @@
+<div class="modal-backdrop" (click)="cerrar.emit()">
+  <div class="modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="icon-wrap">
+        <app-icono nombre="box" />
+      </div>
+      <div>
+        <h3>Registrar Entrada de Stock</h3>
+        <p class="sub">Ingreso de mercadería / compra para inventario</p>
+      </div>
+      <button class="btn-close" (click)="cerrar.emit()" type="button" aria-label="Cerrar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Ficha de producto -->
+      <div class="producto-banner">
+        <div class="info-line">
+          <span class="label">Código:</span>
+          <span class="badge-code">{{ producto().codigo }}</span>
+        </div>
+        <div class="info-line">
+          <span class="label">Producto:</span>
+          <strong>{{ producto().nombre }}</strong>
+        </div>
+        <div class="info-line">
+          <span class="label">Marca:</span>
+          <span>{{ producto().marca }}</span>
+        </div>
+        <div class="stock-pill">
+          Stock actual: <strong>{{ producto().stock }} unidades</strong>
+        </div>
+      </div>
+
+      @if (error()) {
+        <div class="alert-error">
+          <app-icono nombre="warning" />
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      <div class="form-group">
+        <label for="cantidad">Cantidad a ingresar (*)</label>
+        <div class="input-with-stepper">
+          <button type="button" class="btn-step" (click)="cantidad.set(cantidad() > 1 ? cantidad() - 1 : 1)">-</button>
+          <input
+            id="cantidad"
+            type="number"
+            min="1"
+            [ngModel]="cantidad()"
+            (ngModelChange)="cantidad.set($event); error.set(null)"
+          />
+          <button type="button" class="btn-step" (click)="cantidad.set(cantidad() + 1)">+</button>
+        </div>
+        <small class="hint">Nuevo stock estimado: <strong>{{ producto().stock + (cantidad() || 0) }}</strong></small>
+      </div>
+
+      <div class="form-group">
+        <label for="motivo">Motivo de entrada</label>
+        <select
+          id="motivo"
+          [ngModel]="motivo()"
+          (ngModelChange)="motivo.set(+$event)"
+        >
+          <option [value]="1">1 - Compra a proveedor</option>
+          <option [value]="2">2 - Devolución de cliente</option>
+          <option [value]="3">3 - Ingreso por consignación</option>
+          <option [value]="4">4 - Regularización inicial</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="observaciones">Observaciones / Guía de remisión / Factura</label>
+        <textarea
+          id="observaciones"
+          rows="3"
+          placeholder="Ej: Factura F001-4920 del proveedor Luxottica"
+          [ngModel]="observaciones()"
+          (ngModelChange)="observaciones.set($event)"
+        ></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-secondary" type="button" (click)="cerrar.emit()">Cancelar</button>
+      <button class="btn-primary" type="button" (click)="guardar()">
+        <app-icono nombre="check" />
+        Confirmar Entrada
+      </button>
+    </div>
+  </div>
+</div>
