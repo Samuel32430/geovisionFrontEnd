@@ -24,6 +24,24 @@ export type LoginResponseApi = Omit<LoginResponse, 'idUsuario'> & {
   idUsuario?: number;
 };
 
+export interface RecuperarPasswordRequest {
+  correo: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  nuevoPassword: string;
+  confirmarPassword: string;
+}
+
+export interface MensajeRespuesta {
+  mensaje: string;
+}
+
+export interface ValidarTokenRespuesta {
+  valido: boolean;
+}
+
 export function retornoSeguro(valor: string | null): string {
   return valor &&
     valor.startsWith('/') &&

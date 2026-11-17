@@ -1,8 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { catchError, map, of, tap, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponseApi } from './auth.model';
+import {
+  LoginRequest,
+  LoginResponseApi,
+  MensajeRespuesta,
+  RecuperarPasswordRequest,
+  ResetPasswordRequest,
+  ValidarTokenRespuesta,
+} from './auth.model';
 import { SesionService } from './sesion-service';
 
 @Injectable({ providedIn: 'root' })
@@ -28,5 +35,30 @@ export class AuthService {
       }),
       map(() => undefined),
     );
+  }
+
+  solicitarRecuperacionPassword(correo: string) {
+    const payload: RecuperarPasswordRequest = { correo: correo.trim() };
+    return this.http
+      .post<MensajeRespuesta>(`${this.url}/recuperar-password`, payload)
+      .pipe(timeout(15000));
+  }
+
+  validarTokenRecuperacion(token: string) {
+    const params = new HttpParams().set('token', token.trim());
+    return this.http
+      .get<ValidarTokenRespuesta>(`${this.url}/validar-token`, { params })
+      .pipe(timeout(10000));
+  }
+
+  restablecerPassword(request: ResetPasswordRequest) {
+    const payload: ResetPasswordRequest = {
+      token: request.token.trim(),
+      nuevoPassword: request.nuevoPassword,
+      confirmarPassword: request.confirmarPassword,
+    };
+    return this.http
+      .post<MensajeRespuesta>(`${this.url}/reset-password`, payload)
+      .pipe(timeout(15000));
   }
 }
