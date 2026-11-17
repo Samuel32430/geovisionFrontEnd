@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
+import { mantenimientoGuard } from './features/mantenimiento/mantenimiento-access';
 
 export const routes: Routes = [
   {
@@ -35,6 +36,13 @@ export const routes: Routes = [
     canActivateChild: [authGuard],
     loadComponent: () => import('./layout/main-layout/main-layout').then((m) => m.MainLayout),
     children: [
+      {
+        path: 'mantenimiento',
+        canActivate: [mantenimientoGuard],
+        title: 'Mantenimiento de catálogos | Geo Vision',
+        loadComponent: () =>
+          import('./features/mantenimiento/mantenimiento').then((m) => m.Mantenimiento),
+      },
       { path: '', pathMatch: 'full', redirectTo: 'inicio' },
       {
         path: 'inicio',
@@ -45,8 +53,7 @@ export const routes: Routes = [
       {
         path: 'ventas',
         title: 'Ventas | Geo Vision',
-        loadChildren: () =>
-          import('./features/ventas/ventas.routes').then((m) => m.VENTAS_ROUTES),
+        loadChildren: () => import('./features/ventas/ventas.routes').then((m) => m.VENTAS_ROUTES),
       },
       {
         path: 'inventario',

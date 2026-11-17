@@ -1,0 +1,283 @@
+<section class="mantenimiento">
+  <header class="encabezado">
+    <div>
+      <p class="eyebrow">ADMINISTRACIÓN · CATÁLOGOS</p>
+      <h1>Mantenimiento de catálogos</h1>
+      <p>Configura los productos, servicios y proveedores de la óptica.</p>
+    </div>
+    <button class="principal" type="button" [disabled]="ocupado()" (click)="abrir()">
+      + Nuevo registro
+    </button>
+  </header>
+  <nav class="pestanas" aria-label="Catálogos de mantenimiento">
+    @for (catalogo of catalogos; track catalogo.clave) {
+      <button
+        type="button"
+        [attr.data-catalogo]="catalogo.clave"
+        [class.activa]="seleccionado().clave === catalogo.clave"
+        [attr.aria-current]="seleccionado().clave === catalogo.clave ? 'page' : null"
+        [disabled]="ocupado()"
+        (click)="seleccionar(catalogo)"
+      >
+        {{ catalogo.titulo }}
+      </button>
+    }
+  </nav>
+  <div class="panel">
+    <div class="titulo-lista">
+      <h2>{{ seleccionado().titulo }}</h2>
+      <span>{{ total() }} registros</span>
+    </div>
+    <form class="filtros" (ngSubmit)="cargar()">
+      <label
+        >Buscar por nombre<input
+          name="termino"
+          [(ngModel)]="termino"
+          maxlength="200"
+          placeholder="Escribe un nombre…"
+      /></label>
+      @if (tieneEstado()) {
+        <label
+          >Estado<select name="estado" [(ngModel)]="estado">
+            <option value="">Todos</option>
+            <option value="1">Activos</option>
+            <option value="0">Inactivos</option>
+          </select></label
+        >
+      }
+      <button type="submit" [disabled]="cargando() || ocupado()">Buscar</button>
+      <button type="button" [disabled]="ocupado()" (click)="termino = ''; estado = ''; cargar()">
+        Limpiar
+      </button>
+    </form>
+    @if (error()) {
+      <div class="error" role="alert">
+        {{ error() }} <button type="button" (click)="cargar()">Reintentar</button>
+      </div>
+    }
+    @if (cargando()) {
+      <p class="vacio cargando" role="status">
+        <span class="spinner" aria-hidden="true"></span>Cargando registros…
+      </p>
+    } @else if (!error()) {
+      <div class="tabla">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              @if (tieneDescripcion()) {
+                <th scope="col">Descripción</th>
+              }
+              @if (seleccionado().clave === 'servicios') {
+                <th scope="col">Precio referencial</th>
+              }
+              @if (seleccionado().clave === 'laboratorios') {
+                <th scope="col">Contacto</th>
+              }
+              @if (tieneEstado()) {
+                <th scope="col">Estado</th>
+              }
+              <th scope="col">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (registro of registros(); track registro.id) {
+              <tr>
+                <td>
+                  <strong>{{ registro.nombre }}</strong>
+                </td>
+                @if (tieneDescripcion()) {
+                  <td>{{ registro.descripcion || '—' }}</td>
+                }
+                @if (seleccionado().clave === 'servicios') {
+                  <td>{{ registro.precio | currency: 'PEN' : 'S/ ' : '1.2-2' }}</td>
+                }
+                @if (seleccionado().clave === 'laboratorios') {
+                  <td>
+                    {{ registro.telefono || 'Sin teléfono'
+                    }}<small>{{ registro.correo || 'Sin correo' }}</small>
+                  </td>
+                }
+                @if (tieneEstado()) {
+                  <td>
+                    <span class="estado" [class.inactivo]="registro.estado === 0">{{
+                      registro.estado === 1 ? 'Activo' : 'Inactivo'
+                    }}</span>
+                  </td>
+                }
+                <td>
+                  <div class="acciones">
+                    <button
+                      class="editar"
+                      type="button"
+                      [disabled]="ocupado()"
+                      (click)="abrir(registro)"
+                      [attr.aria-label]="'Editar ' + registro.nombre"
+                    >
+                      Editar
+                    </button>
+                    @if (tieneEstado()) {
+                      <button
+                        [class.desactivar]="registro.estado === 1"
+                        [class.activar]="registro.estado === 0"
+                        type="button"
+                        [disabled]="ocupado()"
+                        (click)="alternar(registro)"
+                        [attr.aria-label]="
+                          (registro.estado === 1 ? 'Desactivar ' : 'Activar ') + registro.nombre
+                        "
+                      >
+                        {{ registro.estado === 1 ? 'Desactivar' : 'Activar' }}
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      @if (!registros().length) {
+        <p class="vacio">
+          No se encontraron registros. Puedes cambiar los filtros o crear uno nuevo.
+        </p>
+      }
+      <footer class="paginacion">
+        <span>Página {{ paginas() ? pagina() + 1 : 0 }} de {{ paginas() }}</span
+        ><button
+          type="button"
+          [disabled]="pagina() === 0 || ocupado()"
+          (click)="cargar(pagina() - 1)"
+        >
+          Anterior</button
+        ><button
+          type="button"
+          [disabled]="pagina() + 1 >= paginas() || ocupado()"
+          (click)="cargar(pagina() + 1)"
+        >
+          Siguiente
+        </button>
+      </footer>
+    }
+  </div>
+</section>
+
+<dialog #dialogo aria-labelledby="titulo-formulario" (cancel)="cerrar($event)">
+  <form #form="ngForm" (ngSubmit)="guardar(form)">
+    <header class="cabecera-modal">
+      <div>
+        <p class="eyebrow">{{ seleccionado().titulo }}</p>
+        <h2 id="titulo-formulario">
+          {{ formulario.id == null ? 'Registrar' : 'Editar' }} {{ seleccionado().singular }}
+        </h2>
+      </div>
+      <button
+        type="button"
+        aria-label="Cerrar formulario"
+        [disabled]="ocupado()"
+        (click)="cerrar()"
+      >
+        ✕
+      </button>
+    </header>
+    <fieldset [disabled]="ocupado()" class="campos">
+      <label class="completo"
+        >Nombre *<input
+          autofocus
+          name="nombre"
+          [(ngModel)]="formulario.nombre"
+          required
+          [maxlength]="limiteNombre()"
+          #nombre="ngModel"
+        />
+        @if (nombre.invalid && nombre.touched) {
+          <small class="campo-error">El nombre es obligatorio.</small>
+        }
+        @if (erroresCampos()['nombre']) {
+          <small class="campo-error">{{ erroresCampos()['nombre'] }}</small>
+        }
+      </label>
+      @if (tieneDescripcion()) {
+        <label class="completo"
+          >Descripción<textarea
+            name="descripcion"
+            [(ngModel)]="formulario.descripcion"
+            maxlength="200"
+            rows="3"
+          ></textarea>
+        </label>
+      }
+      @if (seleccionado().clave === 'servicios') {
+        <label
+          >Precio referencial (S/) *<input
+            name="precio"
+            type="number"
+            [(ngModel)]="formulario.precio"
+            required
+            min="0"
+            max="9999999999.99"
+            step="0.01"
+            pattern="[0-9]+(\.[0-9]{1,2})?"
+            #precio="ngModel"
+          />
+          @if (precio.invalid && precio.touched) {
+            <small class="campo-error"
+              >Ingresa un precio no negativo con hasta dos decimales.</small
+            >
+          }
+        </label>
+      }
+      @if (seleccionado().clave === 'laboratorios') {
+        <label>RUC<input name="ruc" [(ngModel)]="formulario.ruc" maxlength="20" /></label>
+        <label
+          >Teléfono<input
+            name="telefono"
+            type="tel"
+            [(ngModel)]="formulario.telefono"
+            maxlength="50"
+        /></label>
+        <label class="completo"
+          >Dirección<input name="direccion" [(ngModel)]="formulario.direccion" maxlength="200"
+        /></label>
+        <label class="completo"
+          >Correo<input
+            name="correo"
+            type="email"
+            email
+            [(ngModel)]="formulario.correo"
+            maxlength="100"
+            #correo="ngModel"
+          />
+          @if (correo.invalid && correo.touched) {
+            <small class="campo-error">Ingresa un correo válido.</small>
+          }
+        </label>
+      }
+      @if (tieneEstado()) {
+        <label
+          >Estado<select name="estadoRegistro" [(ngModel)]="formulario.estado" required>
+            <option [ngValue]="1">Activo</option>
+            <option [ngValue]="0">Inactivo</option>
+          </select></label
+        >
+      }
+    </fieldset>
+    @if (errorFormulario()) {
+      <div class="error error-formulario" role="alert">
+        {{ errorFormulario() }}
+        @for (campo of erroresCampos() | keyvalue; track campo.key) {
+          <small>{{ campo.value }}</small>
+        }
+      </div>
+    }
+    <footer class="pie-modal">
+      <button type="button" [disabled]="ocupado()" (click)="cerrar()">Cancelar</button
+      ><button class="principal" type="submit" [disabled]="ocupado()">
+        @if (ocupado()) {
+          <span class="spinner" aria-hidden="true"></span>
+        }
+        {{ ocupado() ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </footer>
+  </form>
+</dialog>
