@@ -94,10 +94,6 @@ export class ProductoModal implements OnInit {
       idCategoria: this.idCategoria(),
     };
 
-    if (!this.productoEditar()) {
-      req.stockInicial = Math.max(0, this.stockInicial());
-    }
-
     if (this.esMontura()) {
       req.montura = {
         tipoMontura: this.tipoMontura(),
