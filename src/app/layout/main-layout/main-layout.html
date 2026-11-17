@@ -95,6 +95,15 @@
     >
 
     <p class="nav-label">SEGURIDAD & SISTEMA</p>
+    @if (accesoMantenimiento.permitido()) {
+      <a
+        routerLink="/mantenimiento"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        (click)="menuAbierto.set(false)"
+        ><app-icono nombre="settings" />Mantenimiento de catálogos</a
+      >
+    }
     @for (item of seguridad; track item.etiqueta) {
       <button type="button" (click)="avisos.pendiente(item.etiqueta)">
         <app-icono [nombre]="item.icono" />{{ item.etiqueta }}

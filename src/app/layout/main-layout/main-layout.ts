@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { SeguridadAccess } from '../../features/seguridad/seguridad-access';
 import { OrdenAcceso } from '../../features/ordenes-trabajo/orden-acceso';
 import { ConfiguracionAccess } from '../../features/configuracion/configuracion-access';
+import { MantenimientoAccess } from '../../features/mantenimiento/mantenimiento-access';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet, Icono],
@@ -21,6 +22,7 @@ export class MainLayout {
   protected readonly accesoSeguridad = inject(SeguridadAccess);
   protected readonly accesoOrden = inject(OrdenAcceso);
   protected readonly accesoConfiguracion = inject(ConfiguracionAccess);
+  protected readonly accesoMantenimiento = inject(MantenimientoAccess);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
