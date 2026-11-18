@@ -101,18 +101,30 @@
                   <span>Tel: {{ pacienteSeleccionado()?.persona?.telefono || 'No registrado' }}</span>
                 </p>
                 @if (recetaDetalle()) {
-                  <span class="badge-receta">● Receta óptica vinculada (#{{ recetaDetalle()?.idReceta }})</span>
+                  <div class="badge-receta-chip">
+                    <span class="receta-dot"></span>
+                    <span class="receta-texto">Receta óptica vinculada (#{{ recetaDetalle()?.idReceta }})</span>
+                    <button
+                      type="button"
+                      class="btn-desvincular-receta"
+                      (click)="desvincularReceta()"
+                      title="Desvincular esta receta de la venta"
+                    >
+                      ✕ Desvincular
+                    </button>
+                  </div>
                 }
               </div>
               <div class="paciente-acciones">
-                <button type="button" class="btn btn-sm btn-outline" (click)="deseleccionarPaciente()">
-                  Cambiar
+                <button
+                  type="button"
+                  class="btn-cambiar-paciente"
+                  (click)="deseleccionarPaciente()"
+                  title="Cambiar paciente seleccionado"
+                >
+                  <app-icono nombre="user" />
+                  <span>Cambiar Paciente</span>
                 </button>
-                @if (recetaDetalle()) {
-                  <button type="button" class="btn btn-sm btn-danger-outline" (click)="desvincularReceta()">
-                    Desvincular Receta
-                  </button>
-                }
               </div>
             </div>
           }

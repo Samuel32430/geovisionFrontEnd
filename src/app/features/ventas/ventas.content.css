@@ -283,10 +283,88 @@ app-nueva-venta .badge-receta {
   margin-top: 4px;
 }
 
+app-nueva-venta .badge-receta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 4px 10px;
+  background: #effcfa;
+  border: 1px solid #ccfbf1;
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #0b756d;
+}
+
+app-nueva-venta .badge-receta-chip .receta-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #09998e;
+}
+
+app-nueva-venta .badge-receta-chip .receta-texto {
+  line-height: 1.2;
+}
+
+app-nueva-venta .btn-desvincular-receta {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border: 1px solid #fecaca;
+  background: #ffffff;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+}
+
+app-nueva-venta .btn-desvincular-receta:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
 app-nueva-venta .paciente-acciones {
   margin-left: auto;
   display: flex;
-  gap: 8px;
+  align-items: center;
+}
+
+app-nueva-venta .btn-cambiar-paciente {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #ffffff;
+  border: 1px solid var(--border, #e5ecf5);
+  border-radius: 8px;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+app-nueva-venta .btn-cambiar-paciente app-icono {
+  width: 15px;
+  height: 15px;
+  color: #64748b;
+}
+
+app-nueva-venta .btn-cambiar-paciente:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+app-nueva-venta .btn-cambiar-paciente:hover app-icono {
+  color: #1e293b;
 }
 
 app-nueva-venta .items-count-badge {
