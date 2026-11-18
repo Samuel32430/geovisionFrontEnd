@@ -75,6 +75,14 @@ export class VentaService {
       .pipe(timeout(15000), map(paginaMonturas));
   }
 
+  serviciosDisponibles() {
+    return this.http
+      .get<{ id: number; nombre: string; descripcion?: string; precio: number; estado?: number }[]>(
+        `${this.urlCatalogos}/servicios`,
+      )
+      .pipe(timeout(15000));
+  }
+
   generarOrdenQr(request: MercadoPagoQrRequest) {
     return this.http
       .post<MercadoPagoQrResponse>(`${this.url}/pagos/qr`, request)

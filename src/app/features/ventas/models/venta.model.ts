@@ -31,6 +31,14 @@ export interface ServicioVendidoRequest {
   precio: number;
 }
 
+export interface ServicioCatalogo {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  estado?: number;
+}
+
 export interface ServicioVendidoResponse extends ServicioVendidoRequest {
   idServicioVendido?: number;
 }

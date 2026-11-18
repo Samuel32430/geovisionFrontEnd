@@ -15,6 +15,7 @@ import {
   MetodoPago,
   PagoRegistroRequest,
   ProductoVendidoRequest,
+  ServicioCatalogo,
   ServicioVendidoRequest,
   TipoComprobante,
   VentaRegistroRequest,
@@ -76,6 +77,7 @@ export class NuevaVenta {
   protected readonly busquedaItem = signal('');
   protected readonly buscandoItems = signal(false);
   protected readonly monturasCatalogo = signal<Montura[]>([]);
+  protected readonly serviciosCatalogo = signal<ServicioCatalogo[]>([]);
 
   // Carrito de compras
   protected readonly carrito = signal<CartItem[]>([]);
@@ -117,6 +119,7 @@ export class NuevaVenta {
 
   constructor() {
     this.cargarCatalogoMonturas();
+    this.cargarCatalogoServicios();
   }
 
   protected seleccionarPublicoGeneral(): void {
@@ -188,19 +191,25 @@ export class NuevaVenta {
     this.recetaDetalle.set(receta);
     this.modalRecetaAbierto.set(false);
 
+    const idServicioConfeccion = this.obtenerIdServicioConfeccion();
+    const servicioInfo = this.serviciosCatalogo().find((s) => s.id === idServicioConfeccion);
+    const precioBaseConfeccion = servicioInfo?.precio ?? 200;
+
     // Si la receta tiene lentes configurados, cargarlos
     const items = [...this.carrito()];
     if (receta.lentes && receta.lentes.length > 0) {
       for (const lente of receta.lentes) {
         items.push({
+          idServicio: idServicioConfeccion,
           nombre: `Lunas Graduadas (${lente.nombreMaterialCristal || 'Básico'}) - ${receta.nombreCompletoPaciente}`,
           tipo: 'Lunas Graduadas',
           cantidad: 1,
-          precioUnit: lente.subTotal || 150,
+          precioUnit: lente.subTotal || precioBaseConfeccion,
           asociadoReceta: true,
         });
         if (lente.nombreMontura) {
           items.push({
+            idProducto: (lente as any).idProductoMontura || undefined,
             nombre: `Montura: ${lente.nombreMontura}`,
             tipo: 'Montura',
             cantidad: 1,
@@ -211,10 +220,11 @@ export class NuevaVenta {
       }
     } else {
       items.push({
+        idServicio: idServicioConfeccion,
         nombre: `Confección Lentes con Receta #${receta.idReceta}`,
         tipo: 'Lunas Graduadas',
         cantidad: 1,
-        precioUnit: 200,
+        precioUnit: precioBaseConfeccion,
         asociadoReceta: true,
       });
     }
@@ -232,6 +242,24 @@ export class NuevaVenta {
       this.modalidadPago.set('COMPLETO');
       this.montoAdelanto.set(null);
     }
+  }
+
+  private cargarCatalogoServicios(): void {
+    this.ventaService.serviciosDisponibles().subscribe({
+      next: (res) => this.serviciosCatalogo.set(res),
+      error: () => this.serviciosCatalogo.set([]),
+    });
+  }
+
+  private obtenerIdServicioConfeccion(): number {
+    const lista = this.serviciosCatalogo();
+    const confeccion = lista.find(
+      (s) =>
+        s.nombre.toUpperCase().includes('CONFECCION') ||
+        s.nombre.toUpperCase().includes('MONTAJE') ||
+        s.nombre.toUpperCase().includes('CRISTAL'),
+    );
+    return confeccion?.id ?? (lista.length > 0 ? lista[0].id : 1);
   }
 
   private cargarCatalogoMonturas(): void {
