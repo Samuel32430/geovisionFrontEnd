@@ -78,13 +78,24 @@ export class InventarioStock implements OnInit {
   protected readonly modalProductoAbierto = signal(false);
 
   // Métricas calculadas
-  protected readonly totalStockUnidades = computed(() =>
-    this.productos().reduce((acc, p) => acc + (p.stock || 0), 0)
-  );
+  protected readonly totalStockUnidades = signal(0);
 
   ngOnInit(): void {
     this.cargarInventario(0);
     this.cargarAlertas();
+    this.cargarTotalStock();
+  }
+
+  protected cargarTotalStock(): void {
+    this.inventarioService
+      .listarProductos({ page: 0, size: 100 })
+      .subscribe({
+        next: (res) => {
+          const total = (res.content || []).reduce((acc, p) => acc + (p.stock || 0), 0);
+          this.totalStockUnidades.set(total);
+        },
+        error: () => {},
+      });
   }
 
   protected cargarInventario(page = 0): void {
@@ -123,6 +134,18 @@ export class InventarioStock implements OnInit {
     });
   }
 
+  protected cambiarCategoria(val: unknown): void {
+    const id = val !== null && val !== undefined && val !== '' ? Number(val) : null;
+    this.idCategoria.set(id);
+    this.buscar();
+  }
+
+  protected cambiarEstado(val: unknown): void {
+    const estado = val !== null && val !== undefined && val !== '' ? Number(val) : null;
+    this.estadoFiltro.set(estado);
+    this.buscar();
+  }
+
   protected buscar(): void {
     this.cargarInventario(0);
   }
@@ -159,6 +182,7 @@ export class InventarioStock implements OnInit {
         });
         this.cargarInventario(this.paginaActual());
         this.cargarAlertas();
+        this.cargarTotalStock();
       },
       error: (err) => {
         this.cargando.set(false);
@@ -188,6 +212,7 @@ export class InventarioStock implements OnInit {
         });
         this.cargarInventario(this.paginaActual());
         this.cargarAlertas();
+        this.cargarTotalStock();
       },
       error: (err) => {
         this.cargando.set(false);
@@ -235,6 +260,7 @@ export class InventarioStock implements OnInit {
         });
         this.cargarInventario(this.paginaActual());
         this.cargarAlertas();
+        this.cargarTotalStock();
       },
       error: (err) => {
         this.cargando.set(false);
