@@ -389,6 +389,7 @@
               <input
                 id="fechaEntrega"
                 type="date"
+                [min]="fechaEntregaMinima()"
                 [ngModel]="fechaEntrega()"
                 (ngModelChange)="fechaEntrega.set($event)"
               />

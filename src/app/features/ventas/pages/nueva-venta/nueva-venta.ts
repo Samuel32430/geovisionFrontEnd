@@ -109,6 +109,16 @@ export class NuevaVenta {
   protected readonly montoAdelanto = signal<number | null>(null);
   protected readonly fechaEntrega = signal('');
 
+  // Fecha mínima prometida de entrega (a partir de mañana)
+  protected readonly fechaEntregaMinima = computed(() => {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    const anio = manana.getFullYear();
+    const mes = String(manana.getMonth() + 1).padStart(2, '0');
+    const dia = String(manana.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+  });
+
   protected readonly medioPago = signal<MetodoPago>('EFECTIVO');
   protected readonly numeroOperacion = signal('');
 
@@ -513,8 +523,13 @@ export class NuevaVenta {
       return;
     }
     this.modalidadPago.set(modalidad);
-    if (modalidad === 'ADELANTO' && !this.montoAdelanto()) {
-      this.montoAdelanto.set(this.adelantoMinimo());
+    if (modalidad === 'ADELANTO') {
+      if (!this.montoAdelanto()) {
+        this.montoAdelanto.set(this.adelantoMinimo());
+      }
+      if (!this.fechaEntrega() || this.fechaEntrega() < this.fechaEntregaMinima()) {
+        this.fechaEntrega.set(this.fechaEntregaMinima());
+      }
     }
   }
 
@@ -553,6 +568,12 @@ export class NuevaVenta {
       }
       if (!this.fechaEntrega()) {
         this.error.set('Debe ingresar la fecha prometida de entrega para ventas con adelanto.');
+        return;
+      }
+      if (this.fechaEntrega() < this.fechaEntregaMinima()) {
+        this.error.set(
+          'La fecha prometida de entrega debe ser a partir de mañana (no se admiten fechas pasadas ni para el mismo día).',
+        );
         return;
       }
     }
