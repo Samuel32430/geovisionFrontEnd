@@ -4,6 +4,8 @@ import { VentaResponse } from '../../models/venta.model';
 import { Icono } from '../../../../shared/components/icono/icono';
 import { ConfiguracionApi } from '../../../configuracion/services/configuracion-api';
 import { ConfiguracionEmpresa } from '../../../configuracion/models/configuracion.model';
+import { VentaService } from '../../services/venta.service';
+import { AvisoService } from '../../../../shared/aviso-service';
 
 @Component({
   selector: 'app-venta-exitosa-modal',
@@ -14,11 +16,14 @@ import { ConfiguracionEmpresa } from '../../../configuracion/models/configuracio
 })
 export class VentaExitosaModal implements OnInit {
   private readonly configApi = inject(ConfiguracionApi);
+  private readonly ventaService = inject(VentaService);
+  private readonly avisos = inject(AvisoService);
 
   readonly venta = input.required<VentaResponse>();
   readonly cerrar = output<void>();
   readonly nuevaVenta = output<void>();
 
+  protected readonly descargandoPdf = signal(false);
   protected readonly empresaFallback = signal<ConfiguracionEmpresa | null>(null);
 
   ngOnInit(): void {
@@ -56,6 +61,23 @@ export class VentaExitosaModal implements OnInit {
   }
 
   protected imprimir(): void {
-    window.print();
+    const id = this.venta().idVenta;
+    if (!id || this.descargandoPdf()) return;
+    this.descargandoPdf.set(true);
+
+    this.ventaService.descargarComprobantePdf(id).subscribe({
+      next: (blob) => {
+        this.ventaService.abrirPdfEnPestana(blob);
+        this.descargandoPdf.set(false);
+      },
+      error: () => {
+        this.descargandoPdf.set(false);
+        this.avisos.abrir({
+          tipo: 'error',
+          titulo: 'Error al generar comprobante',
+          mensaje: 'No se pudo generar el comprobante oficial en PDF. Intente nuevamente.',
+        });
+      },
+    });
   }
 }

@@ -98,4 +98,17 @@ export class VentaService {
       .post<MercadoPagoQrResponse>(`${this.url}/pagos/qr`, request)
       .pipe(timeout(15000));
   }
+
+  descargarComprobantePdf(idVenta: number) {
+    return this.http
+      .get(`${this.url}/${idVenta}/comprobante/pdf`, {
+        responseType: 'blob',
+      })
+      .pipe(timeout(20000));
+  }
+
+  abrirPdfEnPestana(blob: Blob): void {
+    const blobUrl = window.URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+  }
 }

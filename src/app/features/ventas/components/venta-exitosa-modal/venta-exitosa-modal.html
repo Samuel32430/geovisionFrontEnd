@@ -91,8 +91,8 @@
     }
 
     <div class="modal-footer no-print">
-      <button class="btn btn-secondary" type="button" (click)="imprimir()">
-        <app-icono nombre="download" /> Imprimir Comprobante
+      <button class="btn btn-secondary" type="button" [disabled]="descargandoPdf()" (click)="imprimir()">
+        <app-icono nombre="download" /> {{ descargandoPdf() ? 'Generando PDF...' : 'Imprimir Comprobante' }}
       </button>
       <button class="btn btn-primary" type="button" (click)="nuevaVenta.emit()">
         <app-icono nombre="plus" /> Nueva Venta
