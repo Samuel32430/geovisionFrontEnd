@@ -94,7 +94,14 @@
       ><app-icono nombre="document" />Reporte de Ventas</a
     >
 
-    <p class="nav-label">SEGURIDAD & SISTEMA</p>
+    @if (
+      accesoMantenimiento.permitido() ||
+      seguridad.length > 0 ||
+      accesoConfiguracion.permitido() ||
+      accesoSeguridad.permitido()
+    ) {
+      <p class="nav-label">SEGURIDAD & SISTEMA</p>
+    }
     @if (accesoMantenimiento.permitido()) {
       <a
         routerLink="/mantenimiento"
