@@ -14,8 +14,8 @@
     @if (venta(); as v) {
       <div class="comprobante-papel">
         <div class="empresa-encabezado">
-          <h2>GEO VISION ÓPTICA & CONSULTORIO</h2>
-          <p>RUC: 20601234567 • Av. Principal 450, Miraflores, Lima</p>
+          <h2>{{ nombreEmpresa }}</h2>
+          <p>RUC: {{ rucEmpresa }} • {{ direccionEmpresa }}</p>
           <div class="tipo-badge">
             {{ v.tipoComprobanteDescripcion || v.tipoComprobante }} • {{ v.numeroComprobante }}
           </div>
