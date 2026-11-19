@@ -1,0 +1,39 @@
+:is(app-dashboard, app-paciente-list) .search-box {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #dbe4ef;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 6px 7px 6px 13px;
+  color: #627895;
+}
+:is(app-dashboard, app-paciente-list) .search-box input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+  color: var(--ink);
+}
+:is(app-dashboard, app-paciente-list) .search-box:focus-within {
+  outline: 2px solid #25b9ac;
+  outline-offset: 2px;
+}
+:is(app-dashboard, app-paciente-list) .search-box input::placeholder {
+  color: #627895;
+}
+:is(app-dashboard, app-paciente-list) .search-box button {
+  border: 0;
+  font-size: 12px;
+  font-weight: 600;
+  background: #087f77;
+  color: white;
+  padding: 7px 12px;
+  border-radius: 7px;
+}
+:is(app-dashboard, app-paciente-list) .search-box button:disabled {
+  opacity: 0.6;
+}

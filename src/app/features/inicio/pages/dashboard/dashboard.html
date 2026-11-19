@@ -1,29 +1,65 @@
 <header class="topbar">
   <div class="page-heading">
-    <div class="title-line">
-      <h1>Dashboard</h1>
-      <span class="status"><i></i> Vista inicial</span>
-    </div>
+    <h1>Dashboard</h1>
     <p class="date">{{ fecha }}</p>
   </div>
-  <form class="search" (submit)="$event.preventDefault(); avisos.pendiente('Búsqueda global')">
-    <app-icono nombre="search" /><input
-      aria-label="Buscar paciente, DNI, ticket o armazón"
-      placeholder="Buscar paciente, DNI, ticket o armazón…"
-      title="Presiona Enter para buscar"
-    /><button type="submit" class="search-submit">Buscar</button>
-  </form>
-  <div class="header-actions">
-    <button
-      class="notification"
-      type="button"
-      (click)="avisos.pendiente('Notificaciones')"
-      aria-label="Notificaciones"
+  @if (puedeVerPacientes()) {
+    <form
+      class="search-box search"
+      role="search"
+      aria-label="Búsqueda de pacientes"
+      (submit)="$event.preventDefault(); buscarPaciente()"
+      (focusout)="cerrarBusqueda($event)"
+      (keydown.escape)="busquedaInput.focus(); busquedaAbierta.set(false)"
     >
-      <app-icono nombre="bell" /></button
-    ><button class="btn btn-light" type="button" (click)="avisos.pendiente('Nueva consulta')">
-      <app-icono nombre="document" />+ Nueva Consulta</button
-    ><a class="btn btn-primary" routerLink="/ventas/nueva">
+      <app-icono nombre="search" />
+      <input
+        #busquedaInput
+        [formControl]="busqueda"
+        aria-label="Buscar pacientes"
+        placeholder="Buscar por documento, nombres, apellidos o teléfono…"
+        autocomplete="off"
+        (focus)="busquedaAbierta.set(true)"
+        (input)="busquedaAbierta.set(true)"
+      />
+      <button type="submit" [disabled]="!busqueda.value.trim()">Buscar</button>
+      @if (busquedaAbierta()) {
+        @if (sugerencias(); as coincidencias) {
+          <div class="search-results">
+            @if (coincidencias.datos?.length) {
+              <ul aria-label="Pacientes coincidentes">
+                @for (paciente of coincidencias.datos; track paciente.idPersona) {
+                  <li>
+                    <a [routerLink]="['/atencion-paciente-consulta/pacientes', paciente.idPersona]">
+                      <span class="search-result-name">
+                        {{
+                          paciente.persona.nombreCompleto ||
+                            paciente.persona.nombres + ' ' + paciente.persona.apellidos
+                        }}
+                      </span>
+                      <span class="search-result-document">{{
+                        paciente.persona.numeroDocumento
+                      }}</span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p role="status">
+                {{
+                  coincidencias.estado === 'lista'
+                    ? 'No se encontraron pacientes activos'
+                    : estadoConsulta[coincidencias.estado]
+                }}
+              </p>
+            }
+          </div>
+        }
+      }
+    </form>
+  }
+  <div class="header-actions">
+    <a class="btn btn-primary" routerLink="/ventas/nueva">
       <app-icono nombre="plus" />Nueva Venta
     </a>
   </div>
@@ -31,14 +67,13 @@
 <div class="dashboard">
   <section class="stats" aria-label="Resumen del día">
     @for (item of indicadores(); track item.titulo) {
-      <article class="stat" [class]="'stat ' + item.tono">
-        <div class="stat-top">
-          <span class="icon-tile"><app-icono [nombre]="item.icono" /></span
-          ><span class="stat-tag">{{ item.tono === 'amber' ? 'Sin datos' : '—' }}</span>
+      <article [class]="'panel stat ' + item.tono">
+        <span class="icon-tile"><app-icono [nombre]="item.icono" /></span>
+        <div>
+          <h2>{{ item.titulo }}</h2>
+          <p class="stat-value">{{ item.valor }}</p>
+          <p class="stat-detail">{{ item.detalle }}</p>
         </div>
-        <h2>{{ item.titulo }}</h2>
-        <p class="stat-value">{{ item.valor }}</p>
-        <p class="stat-detail">{{ item.detalle }}</p>
       </article>
     }
   </section>
@@ -46,22 +81,18 @@
     <section class="panel sales" aria-labelledby="ventas-titulo">
       <div class="panel-header sales-header">
         <div>
-          <h2 id="ventas-titulo">Ventas & Pedidos Recientes <span class="today">Hoy</span></h2>
-          <p>Órdenes generadas en punto de venta y laboratorio</p>
+          <h2 id="ventas-titulo">Ventas recientes</h2>
         </div>
         <div class="table-actions">
-          <a
-            routerLink="/ventas"
-            class="btn btn-neutral"
-          >
-            Ver historial de ventas
-          </a>
+          @if (puedeVerVentas()) {
+            <a routerLink="/ventas/historial" class="btn btn-neutral">Ver historial de ventas</a>
+          }
         </div>
       </div>
       <div class="table-scroll">
         <table>
           <caption class="sr-only">
-            Ventas y pedidos recientes del turno
+            Ventas recientes
           </caption>
           <thead>
             <tr>
@@ -76,9 +107,11 @@
           <tbody>
             @if (cargandoVentas()) {
               <tr>
-                <td colspan="6" style="text-align: center; padding: 30px; color: var(--muted);">
-                  Cargando ventas recientes...
-                </td>
+                <td colspan="6" class="table-message">Cargando ventas recientes...</td>
+              </tr>
+            } @else if (historial().estado !== 'lista') {
+              <tr>
+                <td colspan="6" class="table-message">{{ estadoConsulta[historial().estado] }}</td>
               </tr>
             } @else if (ventasRecientes().length === 0) {
               <tr>
@@ -86,8 +119,6 @@
                   <div class="empty sales-empty">
                     <span class="empty-icon"><app-icono nombre="bag" /></span>
                     <h3>Aún no hay ventas ni pedidos</h3>
-                    <p>Las órdenes del turno aparecerán aquí.</p>
-                    <span class="empty-note">Sin registros para mostrar</span>
                   </div>
                 </td>
               </tr>
@@ -95,9 +126,11 @@
               @for (venta of ventasRecientes(); track venta.idVenta) {
                 <tr>
                   <td>
-                    <strong>{{ venta.numeroComprobante || ('VN-' + venta.idVenta) }}</strong>
+                    <strong>{{ venta.numeroComprobante || 'VN-' + venta.idVenta }}</strong>
                     <br />
-                    <small class="tipo-comprobante-sub">{{ venta.tipoComprobanteDescripcion || venta.tipoComprobante }}</small>
+                    <small class="tipo-comprobante-sub">{{
+                      venta.tipoComprobanteDescripcion || venta.tipoComprobante
+                    }}</small>
                   </td>
                   <td>
                     <div class="cliente-cell">
@@ -125,9 +158,14 @@
                     </span>
                   </td>
                   <td>
-                    <a routerLink="/ventas" class="btn-action">
+                    <button
+                      class="btn btn-neutral btn-action"
+                      type="button"
+                      [disabled]="cargandoDetalle()"
+                      (click)="verVenta(venta.idVenta)"
+                    >
                       Ver detalle
-                    </a>
+                    </button>
                   </td>
                 </tr>
               }
@@ -135,65 +173,150 @@
           </tbody>
         </table>
       </div>
-      <footer class="table-footer">
-        <span>Mostrando {{ ventasRecientes().length }} órdenes recientes</span>
-        <div class="pagination">
-          <button type="button" disabled>Anterior</button
-          ><button class="current" type="button" disabled aria-current="page" aria-label="Página 1">
-            1</button
-          ><button type="button" disabled>Siguiente</button>
-        </div>
-      </footer>
+      @if (historial().datos; as pagina) {
+        <footer class="table-footer">
+          <span
+            >{{ pagina.totalElements }}
+            {{ pagina.totalElements === 1 ? 'venta registrada' : 'ventas registradas' }}</span
+          >
+          @if (pagina.totalPages > 1) {
+            <div class="pagination">
+              <button
+                type="button"
+                [disabled]="pagina.first"
+                (click)="cargarVentasRecientes(paginaVentas() - 1)"
+              >
+                Anterior
+              </button>
+              <button class="current" type="button" disabled aria-current="page">
+                {{ paginaVentas() + 1 }}
+              </button>
+              <button
+                type="button"
+                [disabled]="pagina.last"
+                (click)="cargarVentasRecientes(paginaVentas() + 1)"
+              >
+                Siguiente
+              </button>
+            </div>
+          }
+        </footer>
+      }
     </section>
     <div class="right-column">
-      <section class="panel stock" aria-labelledby="stock-titulo">
+      <section class="panel summary-panel summary-stock" aria-labelledby="stock-titulo">
         <div class="panel-header">
-          <span class="small-tile amber"><app-icono nombre="warning" /></span>
+          <span class="small-tile"><app-icono nombre="warning" /></span>
           <div class="panel-title">
             <h2 id="stock-titulo">Alertas de Stock</h2>
-            <p>Reorden sugerido por mínimo</p>
+            <p>Productos con stock de 5 unidades o menos</p>
           </div>
-          <span class="count amber">0 críticos</span>
+          @if (stock().datos; as productos) {
+            <span class="count" [class.has-items]="productos.length > 0">
+              {{ productos.length }} {{ productos.length === 1 ? 'alerta' : 'alertas' }}
+            </span>
+          }
         </div>
-        <div class="empty compact">
-          <span class="empty-icon"><app-icono nombre="box" /></span>
-          <h3>Sin alertas para mostrar</h3>
-          <p>Aquí verás los productos que necesiten reposición.</p>
-        </div>
-        <div class="panel-footer">
-          <button
-            type="button"
-            class="text-button"
-            (click)="avisos.pendiente('Control de inventario')"
-          >
-            Gestionar inventario de almacén<app-icono nombre="chevron" />
-          </button>
-        </div>
+        @if (alertasRecientes().length) {
+          <ul class="panel-records">
+            @for (producto of alertasRecientes(); track producto.idProducto) {
+              <li>
+                <div class="panel-record">
+                  <app-icono nombre="box" />
+                  <span class="record-title">{{ producto.nombre }}</span>
+                  <span class="record-meta" [class.out-of-stock]="producto.stock === 0">
+                    {{
+                      producto.stock === 0
+                        ? 'Agotado'
+                        : producto.stock + (producto.stock === 1 ? ' unidad' : ' unidades')
+                    }}
+                  </span>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="empty compact">
+            <span class="empty-icon"><app-icono nombre="box" /></span>
+            <h3>
+              {{
+                stock().estado === 'lista'
+                  ? 'Sin alertas para mostrar'
+                  : estadoConsulta[stock().estado]
+              }}
+            </h3>
+          </div>
+        }
+        @if (puedeVerInventario()) {
+          <div class="panel-footer">
+            <a class="btn btn-neutral panel-link" routerLink="/inventario">
+              <span>Ver inventario</span><app-icono nombre="chevron" />
+            </a>
+          </div>
+        }
       </section>
-      <section class="panel consultations" aria-labelledby="consultas-titulo">
+      <section class="panel summary-panel" aria-labelledby="consultas-titulo">
         <div class="panel-header">
           <span class="small-tile"><app-icono nombre="calendar" /></span>
           <div class="panel-title">
             <h2 id="consultas-titulo">Consultas de Hoy</h2>
-            <p>Agenda de optometría</p>
+            <p>Exámenes visuales registrados</p>
           </div>
-          <span class="total">Total: 0</span>
+          @if (atenciones().datos; as consultas) {
+            <span class="count" [class.has-items]="consultas.totalConsultas > 0">
+              {{ consultas.totalConsultas }}
+              {{ consultas.totalConsultas === 1 ? 'consulta' : 'consultas' }}
+            </span>
+          }
         </div>
-        <div class="empty compact">
-          <span class="empty-icon"><app-icono nombre="calendar" /></span>
-          <h3>No hay consultas registradas</h3>
-          <p>Las atenciones del día aparecerán en este espacio.</p>
-        </div>
-        <div class="panel-footer">
-          <button
-            type="button"
-            class="agenda-button"
-            (click)="avisos.pendiente('Agenda de consultas')"
-          >
-            Ver Agenda Completa
-          </button>
-        </div>
+        @let recientes = atenciones().datos?.recientes ?? [];
+        @if (recientes.length) {
+          <ul class="panel-records">
+            @for (consulta of recientes; track consulta.idReceta) {
+              <li>
+                <a
+                  class="panel-record"
+                  [routerLink]="[
+                    '/atencion-paciente-consulta/pacientes',
+                    consulta.idPaciente,
+                    'historial',
+                  ]"
+                >
+                  <app-icono nombre="users" />
+                  <span class="record-title">{{ consulta.paciente }}</span>
+                  <time class="record-meta" [attr.datetime]="consulta.fechaRegistro">{{
+                    consulta.fechaRegistro | date: 'HH:mm'
+                  }}</time>
+                </a>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="empty compact">
+            <span class="empty-icon"><app-icono nombre="calendar" /></span>
+            <h3>
+              {{
+                atenciones().estado === 'lista'
+                  ? 'No hay consultas registradas'
+                  : estadoConsulta[atenciones().estado]
+              }}
+            </h3>
+          </div>
+        }
+        @if (puedeVerPacientes()) {
+          <div class="panel-footer">
+            <a
+              class="btn btn-neutral panel-link"
+              routerLink="/atencion-paciente-consulta/pacientes"
+            >
+              <span>Ver pacientes</span><app-icono nombre="chevron" />
+            </a>
+          </div>
+        }
       </section>
     </div>
   </div>
 </div>
+@if (ventaSeleccionada(); as venta) {
+  <app-venta-detalle-modal [venta]="venta" (cerrar)="ventaSeleccionada.set(null)" />
+}
