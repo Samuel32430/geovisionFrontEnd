@@ -23,17 +23,12 @@ export class ProductoModal implements OnInit {
   protected readonly precio = signal<number>(0);
   protected readonly stockInicial = signal<number>(0);
   protected readonly idCategoria = signal<number>(1);
-  protected readonly esMontura = signal(false);
+  protected readonly esMontura = signal(true);
 
   // Campos de montura
   protected readonly tipoMontura = signal('COMPLETA');
   protected readonly material = signal('ACETATO');
   protected readonly color = signal('NEGRO');
-  protected readonly calibre = signal<number | undefined>(undefined);
-  protected readonly puente = signal<number | undefined>(undefined);
-  protected readonly varilla = signal<number | undefined>(undefined);
-  protected readonly forma = signal('RECTANGULAR');
-  protected readonly genero = signal('UNISEX');
 
   protected readonly error = signal<string | null>(null);
 
@@ -52,11 +47,6 @@ export class ProductoModal implements OnInit {
         this.tipoMontura.set(p.montura.tipoMontura || 'COMPLETA');
         this.material.set(p.montura.material || 'ACETATO');
         this.color.set(p.montura.color || 'NEGRO');
-        this.calibre.set(p.montura.calibre);
-        this.puente.set(p.montura.puente);
-        this.varilla.set(p.montura.varilla);
-        this.forma.set(p.montura.forma || 'RECTANGULAR');
-        this.genero.set(p.montura.genero || 'UNISEX');
       }
     }
   }
@@ -99,11 +89,6 @@ export class ProductoModal implements OnInit {
         tipoMontura: this.tipoMontura(),
         material: this.material(),
         color: this.color(),
-        calibre: this.calibre(),
-        puente: this.puente(),
-        varilla: this.varilla(),
-        forma: this.forma(),
-        genero: this.genero(),
       };
     }
 
