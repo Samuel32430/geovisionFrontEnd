@@ -1,14 +1,42 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MainLayout } from './main-layout';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { SesionService } from '../../core/auth/sesion-service';
 
 describe('MainLayout', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [MainLayout],
-      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: SesionService,
+          useValue: {
+            actual: signal({
+              token: 'test',
+              tipoToken: 'Bearer',
+              id: 1,
+              idPersona: 1,
+              username: 'admin',
+              nombreCompleto: 'Administrador Sistema',
+              correo: 'admin@geovision.pe',
+              roles: ['ADMINISTRADOR'],
+              permisos: ['VENTAS_REGISTRAR', 'VENTAS_LEER', 'PAGOS_GESTIONAR', 'REPORTES_VER', 'PACIENTES_LEER', 'INVENTARIO_LEER'],
+              expiraEn: Date.now() + 3600000,
+            }),
+            nombre: signal('Administrador Sistema'),
+            iniciales: signal('AS'),
+            tienePermiso: () => true,
+            tieneRol: () => true,
+            cerrarSesion: () => {},
+          },
+        },
+      ],
     }).compileComponents();
   });
 
@@ -26,6 +54,9 @@ describe('MainLayout', () => {
       '/ventas/historial',
       '/ventas/pagos-pendientes',
       '/ventas/reportes',
+      '/configuracion',
+      '/seguridad/usuarios',
+      '/seguridad/roles',
     ]);
   });
 
