@@ -3,6 +3,7 @@
 @import './app/features/seguridad/seguridad.css';
 @import './app/features/atencion-paciente-consulta/pages/configurar-lentes/configurar-lentes.content.css';
 @import './app/shared/styles/forms.css';
+@import './app/shared/styles/search-box.css';
 @import './app/features/atencion-paciente-consulta/pages/paciente-list/paciente-list.content.css';
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -11,13 +12,6 @@
     transition: none !important;
     animation: none !important;
   }
-}
-.search-submit {
-  border: 0;
-  background: transparent;
-  color: var(--teal);
-  font-size: 11px;
-  padding: 0;
 }
 :root {
   --motion-fast: 140ms;
@@ -393,18 +387,8 @@ app-dashboard .btn-light {
 app-dashboard .btn-neutral {
   background: #f8fafc;
 }
-app-dashboard .notification {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: white;
-  color: #73869f;
-}
 /* Text actions highlight their label instead of casting a rectangular shadow. */
-button:is(.text-button, .close-text, .search-submit):not(:disabled):hover {
+button:is(.text-button, .close-text):not(:disabled):hover {
   box-shadow: none;
   filter: none;
   text-decoration: underline;
