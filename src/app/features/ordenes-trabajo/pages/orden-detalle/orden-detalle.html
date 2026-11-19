@@ -83,7 +83,7 @@
           }
           @case ('CONTROL_CALIDAD_RECHAZADO') {
             <p>
-              El último control fue rechazado. Un nuevo envío conservará el historial de este
+              El pedido se retrasó porque el último control fue rechazado. Un nuevo envío conservará el historial de este
               intento.
             </p>
             @if (acceso.gestionar()) {
@@ -279,16 +279,34 @@
                 }
               }
             }
-            @if (accion !== 'calidad' || politica?.configurada) {
-              <label
-                >Observaciones (opcional)
-                <textarea
-                  name="observaciones"
-                  [(ngModel)]="observaciones"
-                  maxlength="500"
-                  rows="2"
-                ></textarea>
-              </label>
+            @if ((accion !== 'calidad' || politica?.configurada) && limiteObservaciones !== null) {
+              @if (limiteObservaciones > 0) {
+                <label>
+                  Observaciones (opcional)
+                  <textarea
+                    name="observaciones"
+                    [(ngModel)]="observaciones"
+                    [attr.maxlength]="limiteObservaciones"
+                    [attr.aria-invalid]="espacioObservaciones() < 0"
+                    aria-describedby="espacio-observaciones"
+                    rows="2"
+                  ></textarea>
+                </label>
+                <small id="espacio-observaciones">
+                  @if (espacioObservaciones() < 0) {
+                    Reduce la observación en {{ -espacioObservaciones() }} bytes para continuar.
+                  } @else {
+                    Espacio disponible: {{ espacioObservaciones() }} bytes.
+                    Las letras con tilde pueden ocupar más de un byte.
+                  }
+                </small>
+              } @else if (limiteObservaciones === 0) {
+                <p>Este paso se puede registrar sin agregar observaciones.</p>
+              } @else {
+                <p class="aviso advertencia">
+                  El historial ocupa todo el espacio disponible para registrar este paso.
+                </p>
+              }
             }
             <div class="fila">
               <button class="boton" type="button" [disabled]="ocupado()" (click)="accion = null">
@@ -300,6 +318,8 @@
                 [disabled]="
                   ocupado() ||
                   form.invalid ||
+                  limiteObservaciones === null ||
+                  espacioObservaciones() < 0 ||
                   (accion === 'calidad' && (!politica?.configurada || !captura.length))
                 "
               >

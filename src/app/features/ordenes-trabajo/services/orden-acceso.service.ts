@@ -1,6 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { Router } from '@angular/router';
-import { SesionService } from '../../core/auth/sesion-service';
+import { SesionService } from '../../../core/auth/sesion-service';
 
 @Injectable({ providedIn: 'root' })
 export class OrdenAcceso {
@@ -12,8 +11,4 @@ export class OrdenAcceso {
   private permite(permiso: string): boolean {
     return this.sesion.actual()?.permisos.includes(permiso) ?? false;
   }
-}
-
-export function ordenGuard() {
-  return inject(OrdenAcceso).leer() || inject(Router).createUrlTree(['/inicio']);
 }

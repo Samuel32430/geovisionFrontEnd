@@ -4,15 +4,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom, map, Observable, Subscription } from 'rxjs';
-import { mensajeErrorHttp } from '../../core/utils/http-error';
-import { AvisoService } from '../../shared/aviso-service';
-import { OrdenAcceso } from './orden-acceso';
-import { ESTADOS, EstadoOrden, OrdenApi, OrdenTrabajo, PendienteOrden } from './orden-api';
+import { mensajeErrorHttp } from '../../../../core/utils/http-error';
+import { AvisoService } from '../../../../shared/aviso-service';
+import { OrdenAcceso } from '../../services/orden-acceso.service';
+import { ESTADOS, EstadoOrden, OrdenTrabajo, PendienteOrden } from '../../models/orden-trabajo.model';
+import { OrdenApi } from '../../services/orden-api.service';
 
 @Component({
   imports: [FormsModule, RouterLink, CurrencyPipe, DatePipe],
   templateUrl: './orden-lista.html',
-  styleUrl: './ordenes.css',
+  styleUrl: '../../styles/ordenes.css',
 })
 export class OrdenLista {
   private readonly api = inject(OrdenApi);

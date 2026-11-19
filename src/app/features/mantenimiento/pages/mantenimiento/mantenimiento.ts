@@ -12,9 +12,10 @@ import { CurrencyPipe, KeyValuePipe } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subscription } from 'rxjs';
-import { MantenimientoService, Catalogo, RegistroCatalogo } from './mantenimiento.service';
-import { AvisoService } from '../../shared/aviso-service';
-import { mensajeErrorHttp } from '../../core/utils/http-error';
+import type { Catalogo, RegistroCatalogo } from '../../models/mantenimiento.model';
+import { MantenimientoService } from '../../services/mantenimiento.service';
+import { AvisoService } from '../../../../shared/aviso-service';
+import { mensajeErrorHttp } from '../../../../core/utils/http-error';
 
 @Component({
   selector: 'app-mantenimiento',

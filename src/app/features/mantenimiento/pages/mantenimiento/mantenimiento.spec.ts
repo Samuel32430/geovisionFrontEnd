@@ -4,10 +4,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { By } from '@angular/platform-browser';
 import { NgForm } from '@angular/forms';
 import { Mantenimiento } from './mantenimiento';
-import { MantenimientoService } from './mantenimiento.service';
-import { AvisoService } from '../../shared/aviso-service';
-import { MantenimientoAccess } from './mantenimiento-access';
-import { SesionService } from '../../core/auth/sesion-service';
+import { MantenimientoService } from '../../services/mantenimiento.service';
+import { AvisoService } from '../../../../shared/aviso-service';
+import { MantenimientoAccess } from '../../services/mantenimiento-access.service';
+import { SesionService } from '../../../../core/auth/sesion-service';
 
 describe('Mantenimiento de catálogos', () => {
   let fixture: ComponentFixture<Mantenimiento>;
