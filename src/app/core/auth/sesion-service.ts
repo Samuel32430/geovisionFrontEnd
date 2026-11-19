@@ -41,6 +41,31 @@ export class SesionService {
   );
   private temporizador?: ReturnType<typeof setTimeout>;
 
+  tienePermiso(permiso: string | readonly string[]): boolean {
+    const sesion = this.actual();
+    if (!sesion) return false;
+    if (
+      sesion.roles.some(
+        (r) => r === 'ADMINISTRADOR' || r === 'ADMIN' || r === 'ROLE_ADMINISTRADOR' || r === 'ROLE_ADMIN',
+      )
+    ) {
+      return true;
+    }
+    if (typeof permiso === 'string') {
+      return sesion.permisos.includes(permiso);
+    }
+    return permiso.some((p) => sesion.permisos.includes(p));
+  }
+
+  tieneRol(rol: string | readonly string[]): boolean {
+    const sesion = this.actual();
+    if (!sesion) return false;
+    if (typeof rol === 'string') {
+      return sesion.roles.includes(rol);
+    }
+    return rol.some((r) => sesion.roles.includes(r));
+  }
+
   constructor() {
     inject(DestroyRef).onDestroy(() => clearTimeout(this.temporizador));
     try {

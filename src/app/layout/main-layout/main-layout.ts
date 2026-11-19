@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { AvisoService } from '../../shared/aviso-service';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Icono } from '../../shared/components/icono/icono';
@@ -23,6 +23,27 @@ export class MainLayout {
   protected readonly accesoOrden = inject(OrdenAcceso);
   protected readonly accesoConfiguracion = inject(ConfiguracionAccess);
   protected readonly accesoMantenimiento = inject(MantenimientoAccess);
+  protected readonly accesoPacientes = computed(() =>
+    this.sesion.tienePermiso(['PACIENTES_LEER', 'PACIENTES_REGISTRAR']),
+  );
+  protected readonly accesoInventario = computed(() =>
+    this.sesion.tienePermiso(['INVENTARIO_LEER', 'PRODUCTOS_LEER']),
+  );
+  protected readonly accesoVentaNueva = computed(() =>
+    this.sesion.tienePermiso('VENTAS_REGISTRAR'),
+  );
+  protected readonly accesoVentaHistorial = computed(() =>
+    this.sesion.tienePermiso('VENTAS_LEER'),
+  );
+  protected readonly accesoPagos = computed(() =>
+    this.sesion.tienePermiso('PAGOS_GESTIONAR'),
+  );
+  protected readonly accesoVentasSeccion = computed(
+    () => this.accesoVentaNueva() || this.accesoVentaHistorial() || this.accesoPagos(),
+  );
+  protected readonly accesoReportes = computed(() =>
+    this.sesion.tienePermiso('REPORTES_VER'),
+  );
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
