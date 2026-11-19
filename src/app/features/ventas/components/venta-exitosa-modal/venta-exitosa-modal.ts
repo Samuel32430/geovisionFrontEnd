@@ -36,7 +36,7 @@ export class VentaExitosaModal implements OnInit {
       this.empresaFallback()?.nombreComercial ||
       this.empresaFallback()?.nombreLegal ||
       'GeoVision Óptica & Laboratorio';
-    return raw.replace(/+/g, 'Ó');
+    return raw.replace(/\uFFFD+/g, 'Ó');
   }
 
   get rucEmpresa(): string {
