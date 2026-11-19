@@ -15,6 +15,7 @@ import {
   MetodoPago,
   PagoRegistroRequest,
   ProductoVendidoRequest,
+  ServicioCatalogo,
   ServicioVendidoRequest,
   TipoComprobante,
   VentaRegistroRequest,
@@ -76,6 +77,22 @@ export class NuevaVenta {
   protected readonly busquedaItem = signal('');
   protected readonly buscandoItems = signal(false);
   protected readonly monturasCatalogo = signal<Montura[]>([]);
+  protected readonly serviciosCatalogo = signal<ServicioCatalogo[]>([]);
+
+  // Buscador de Catálogo (Productos y Servicios)
+  protected readonly terminoBusqueda = signal('');
+  protected readonly buscandoCatalogo = signal(false);
+  protected readonly resultadosBusqueda = signal<
+    Array<{
+      idProducto?: number;
+      idServicio?: number;
+      codigo?: string;
+      nombre: string;
+      tipo: string;
+      precio: number;
+      stock?: number;
+    }>
+  >([]);
 
   // Carrito de compras
   protected readonly carrito = signal<CartItem[]>([]);
@@ -117,6 +134,7 @@ export class NuevaVenta {
 
   constructor() {
     this.cargarCatalogoMonturas();
+    this.cargarCatalogoServicios();
   }
 
   protected seleccionarPublicoGeneral(): void {
@@ -188,37 +206,50 @@ export class NuevaVenta {
     this.recetaDetalle.set(receta);
     this.modalRecetaAbierto.set(false);
 
+    const idServicioConfeccion = this.obtenerIdServicioConfeccion();
+    const servicioInfo = this.serviciosCatalogo().find((s) => s.id === idServicioConfeccion);
+    const precioBaseConfeccion = servicioInfo?.precio ?? 200;
+
     // Si la receta tiene lentes configurados, cargarlos
     const items = [...this.carrito()];
     if (receta.lentes && receta.lentes.length > 0) {
       for (const lente of receta.lentes) {
         items.push({
+          idServicio: idServicioConfeccion,
           nombre: `Lunas Graduadas (${lente.nombreMaterialCristal || 'Básico'}) - ${receta.nombreCompletoPaciente}`,
           tipo: 'Lunas Graduadas',
           cantidad: 1,
-          precioUnit: lente.subTotal || 150,
+          precioUnit: lente.subTotal || precioBaseConfeccion,
           asociadoReceta: true,
         });
         if (lente.nombreMontura) {
+          const precioMonturaReal =
+            lente.precioMontura ??
+            this.monturasCatalogo().find((m) => m.idProducto === (lente as any).idProductoMontura)?.precio ??
+            this.monturasCatalogo().find((m) => m.codigo === lente.codigoMontura)?.precio ??
+            320;
           items.push({
+            idProducto: (lente as any).idProductoMontura || undefined,
             nombre: `Montura: ${lente.nombreMontura}`,
             tipo: 'Montura',
             cantidad: 1,
-            precioUnit: 250,
+            precioUnit: precioMonturaReal,
             asociadoReceta: true,
           });
         }
       }
     } else {
       items.push({
+        idServicio: idServicioConfeccion,
         nombre: `Confección Lentes con Receta #${receta.idReceta}`,
         tipo: 'Lunas Graduadas',
         cantidad: 1,
-        precioUnit: 200,
+        precioUnit: precioBaseConfeccion,
         asociadoReceta: true,
       });
     }
     this.carrito.set(items);
+    this.verificarAdelantoMinimo();
     this.avisos.abrir({
       titulo: 'Receta vinculada',
       mensaje: `Se asoció la receta médica #${receta.idReceta} a la venta y se agregaron los ítems al carrito.`,
@@ -232,6 +263,24 @@ export class NuevaVenta {
       this.modalidadPago.set('COMPLETO');
       this.montoAdelanto.set(null);
     }
+  }
+
+  private cargarCatalogoServicios(): void {
+    this.ventaService.serviciosDisponibles().subscribe({
+      next: (res) => this.serviciosCatalogo.set(res),
+      error: () => this.serviciosCatalogo.set([]),
+    });
+  }
+
+  private obtenerIdServicioConfeccion(): number {
+    const lista = this.serviciosCatalogo();
+    const confeccion = lista.find(
+      (s) =>
+        s.nombre.toUpperCase().includes('CONFECCION') ||
+        s.nombre.toUpperCase().includes('MONTAJE') ||
+        s.nombre.toUpperCase().includes('CRISTAL'),
+    );
+    return confeccion?.id ?? (lista.length > 0 ? lista[0].id : 1);
   }
 
   private cargarCatalogoMonturas(): void {
@@ -256,18 +305,105 @@ export class NuevaVenta {
         precioUnit: m.precio,
       },
     ]);
+    this.verificarAdelantoMinimo();
   }
 
-  protected agregarItemPersonalizado(): void {
+  protected buscarCatalogo(termino: string): void {
+    this.terminoBusqueda.set(termino);
+    const q = termino.trim().toLowerCase();
+    if (!q || q.length < 2) {
+      this.resultadosBusqueda.set([]);
+      return;
+    }
+
+    this.buscandoCatalogo.set(true);
+
+    // 1. Filtrar servicios activos locales
+    const serviciosCoincidentes = this.serviciosCatalogo()
+      .filter((s) => s.nombre.toLowerCase().includes(q) || (s.descripcion && s.descripcion.toLowerCase().includes(q)))
+      .map((s) => ({
+        idServicio: s.id,
+        nombre: s.nombre,
+        tipo: 'Servicio',
+        precio: s.precio,
+      }));
+
+    // 2. Buscar productos remotos en inventario
+    this.ventaService.productosDisponibles(q, 0, 10).subscribe({
+      next: (res) => {
+        const productos = (res.content || []).map((p: any) => ({
+          idProducto: p.idProducto ?? p.id,
+          codigo: p.codigo,
+          nombre: p.nombre,
+          tipo: p.categoriaNombre || 'Producto',
+          precio: p.precio,
+          stock: p.stockActual ?? p.stock,
+        }));
+        this.resultadosBusqueda.set([...serviciosCoincidentes, ...productos]);
+        this.buscandoCatalogo.set(false);
+      },
+      error: () => {
+        const monturasLocales = this.monturasCatalogo()
+          .filter((m) => m.codigo.toLowerCase().includes(q) || m.nombre.toLowerCase().includes(q))
+          .map((m) => ({
+            idProducto: m.idProducto,
+            codigo: m.codigo,
+            nombre: m.nombre,
+            tipo: 'Montura',
+            precio: m.precio,
+            stock: m.stock,
+          }));
+        this.resultadosBusqueda.set([...serviciosCoincidentes, ...monturasLocales]);
+        this.buscandoCatalogo.set(false);
+      },
+    });
+  }
+
+  protected normalizarTipoItem(tipo: string): 'Montura' | 'Lunas Graduadas' | 'Accesorio' | 'Servicio' {
+    const t = tipo.toLowerCase();
+    if (t.includes('montura')) return 'Montura';
+    if (t.includes('luna') || t.includes('cristal')) return 'Lunas Graduadas';
+    if (t.includes('servicio') || t.includes('examen') || t.includes('refraccion')) return 'Servicio';
+    return 'Accesorio';
+  }
+
+  protected agregarItemDesdeBuscador(item: {
+    idProducto?: number;
+    idServicio?: number;
+    nombre: string;
+    tipo: string;
+    precio: number;
+    codigo?: string;
+  }): void {
+    const nombreItem = item.codigo ? `${item.codigo} - ${item.nombre}` : item.nombre;
     this.carrito.update((items) => [
       ...items,
       {
-        nombre: 'Kit de Limpieza & Estuche Óptico',
-        tipo: 'Accesorio',
+        idProducto: item.idProducto,
+        idServicio: item.idServicio,
+        nombre: nombreItem,
+        tipo: this.normalizarTipoItem(item.tipo),
         cantidad: 1,
-        precioUnit: 35.0,
+        precioUnit: item.precio,
       },
     ]);
+    this.terminoBusqueda.set('');
+    this.resultadosBusqueda.set([]);
+    this.verificarAdelantoMinimo();
+  }
+
+  protected limpiarBusquedaCatalogo(): void {
+    this.terminoBusqueda.set('');
+    this.resultadosBusqueda.set([]);
+  }
+
+  private verificarAdelantoMinimo(): void {
+    if (this.modalidadPago() === 'ADELANTO') {
+      const min = this.adelantoMinimo();
+      if (!this.montoAdelanto() || this.montoAdelanto()! < min) {
+        this.montoAdelanto.set(min);
+      }
+    }
   }
 
   protected cambiarCantidad(index: number, delta: number): void {
@@ -281,10 +417,12 @@ export class NuevaVenta {
       }
       return actual;
     });
+    this.verificarAdelantoMinimo();
   }
 
   protected eliminarItem(index: number): void {
     this.carrito.update((items) => items.filter((_, i) => i !== index));
+    this.verificarAdelantoMinimo();
   }
 
   protected seleccionarModalidad(modalidad: 'COMPLETO' | 'ADELANTO'): void {

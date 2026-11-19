@@ -33,8 +33,10 @@ export interface RecetaDetalle extends RecetaResumen {
     idLente: number;
     subTotal: number | null;
     nombreMaterialCristal: string | null;
+    idProductoMontura?: number | null;
     nombreMontura: string | null;
     codigoMontura: string | null;
+    precioMontura?: number | null;
     tratamientos: { nombre: string }[];
   }[];
 }

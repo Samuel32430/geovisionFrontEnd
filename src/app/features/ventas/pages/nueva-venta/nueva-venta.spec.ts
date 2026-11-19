@@ -24,6 +24,10 @@ describe('NuevaVenta', () => {
     // Initial monturas call
     const req = http.expectOne((r) => r.url === `${environment.apiUrl}/catalogos-opticos/monturas`);
     req.flush({ content: [{ idProducto: 1, codigo: 'RB-01', nombre: 'Ray-Ban Aviator', precio: 300 }] });
+
+    // Initial servicios call
+    const reqSrv = http.expectOne((r) => r.url === `${environment.apiUrl}/catalogos-opticos/servicios`);
+    reqSrv.flush([{ id: 25, nombre: 'CONFECCION Y MONTAJE DE LENTES', precio: 200, estado: 1 }]);
     fixture.detectChanges();
   });
 
@@ -63,7 +67,16 @@ describe('NuevaVenta', () => {
   });
 
   it('no debe permitir seleccionar adelanto si no existe receta vinculada (RN-VE06)', () => {
-    component['agregarItemPersonalizado']();
+    component['agregarMonturaAlCarrito']({
+      idProducto: 1,
+      codigo: 'RB-01',
+      nombre: 'Ray-Ban Aviator',
+      precio: 300,
+      stock: 5,
+      color: 'Dorado',
+      modeloDescripcion: null,
+      materialDescripcion: null,
+    });
     component['seleccionarModalidad']('ADELANTO');
 
     // Debe permanecer en COMPLETO
@@ -104,10 +117,55 @@ describe('NuevaVenta', () => {
   });
 
   it('debe exigir voucher/operacion para pagos con tarjeta o transferencia (RN-VE12)', () => {
-    component['agregarItemPersonalizado']();
+    component['agregarMonturaAlCarrito']({
+      idProducto: 1,
+      codigo: 'RB-01',
+      nombre: 'Ray-Ban Aviator',
+      precio: 300,
+      stock: 5,
+      color: 'Dorado',
+      modeloDescripcion: null,
+      materialDescripcion: null,
+    });
     component['seleccionarMedioPago']('TARJETA_DEBITO');
 
     component['registrarVenta']();
     expect(component['error']()).toContain('número de operación o voucher es obligatorio');
+  });
+
+  it('debe buscar en catálogo y agregar ítem desde el buscador interactivo', () => {
+    component['buscarCatalogo']('CONFECCION');
+    const req = http.expectOne((r) => r.url.includes('/productos'));
+    req.flush({ content: [{ id: 99, codigo: 'KIT-01', nombre: 'Kit Limpiador', precio: 25, stock: 10 }] });
+
+    expect(component['resultadosBusqueda']().length).toBeGreaterThan(0);
+    const servItem = component['resultadosBusqueda']().find((i) => i.tipo === 'Servicio');
+    expect(servItem).toBeDefined();
+
+    component['agregarItemDesdeBuscador'](servItem!);
+    expect(component['carrito']().length).toBe(1);
+    expect(component['carrito']()[0].idServicio).toBe(25);
+  });
+
+  it('debe asignar idServicio al asociar una receta para cumplir con la regla RN-VE01', () => {
+    const recetaMock: RecetaDetalle = {
+      idReceta: 1,
+      fechaRegistro: '2024-10-24T10:00:00',
+      esExterno: 0,
+      esRecetaExterna: false,
+      idPaciente: 12,
+      nombreCompletoPaciente: 'Samuel Vilca',
+      numeroDocumentoPaciente: '70961428',
+      idEmpleado: 1,
+      nombreCompletoEmpleado: 'Dr. Lopez',
+      medidas: [],
+      lentes: [],
+    };
+
+    component['aplicarRecetaAlCarrito'](recetaMock);
+    const itemReceta = component['carrito']().find((i) => i.asociadoReceta);
+    expect(itemReceta).toBeDefined();
+    expect(itemReceta?.idServicio).toBe(25);
+    expect(itemReceta?.precioUnit).toBe(200);
   });
 });

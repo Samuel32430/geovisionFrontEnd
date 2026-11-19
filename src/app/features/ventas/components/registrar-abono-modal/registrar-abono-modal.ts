@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Icono } from '../../../../shared/components/icono/icono';
 import { MetodoPago, requiereVoucher } from '../../models/venta.model';
 import { PagoPendienteItem, PagoPendienteRequest } from '../../models/pago-pendiente.model';
+import { QrPagoModal } from '../qr-pago-modal/qr-pago-modal';
 
 @Component({
   selector: 'app-registrar-abono-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecimalPipe, Icono],
+  imports: [CommonModule, FormsModule, DecimalPipe, Icono, QrPagoModal],
   templateUrl: './registrar-abono-modal.html',
   styleUrl: './registrar-abono-modal.css',
 })
@@ -21,6 +22,7 @@ export class RegistrarAbonoModal {
   protected readonly medioPago = signal<MetodoPago>('EFECTIVO');
   protected readonly numeroOperacion = signal('');
   protected readonly error = signal<string | null>(null);
+  protected readonly modalQrAbierto = signal(false);
 
   protected readonly saldoTotal = computed(() => this.cuenta().saldoPendiente);
 
@@ -37,6 +39,24 @@ export class RegistrarAbonoModal {
 
   protected setMontoMitad(): void {
     this.monto.set(Math.round((this.saldoTotal() / 2) * 100) / 100);
+  }
+
+  protected seleccionarMedioPago(metodo: MetodoPago): void {
+    this.medioPago.set(metodo);
+    if (metodo === 'QR_YAPE_PLIN') {
+      const val = this.monto();
+      if (!val || val <= 0) {
+        this.error.set('Ingrese un monto válido antes de generar el código QR.');
+        return;
+      }
+      this.error.set(null);
+      this.modalQrAbierto.set(true);
+    }
+  }
+
+  protected confirmarQr(operacion: string): void {
+    this.numeroOperacion.set(operacion);
+    this.modalQrAbierto.set(false);
   }
 
   protected confirmarAbono(): void {

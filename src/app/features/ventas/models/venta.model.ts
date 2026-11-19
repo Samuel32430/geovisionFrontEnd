@@ -31,6 +31,14 @@ export interface ServicioVendidoRequest {
   precio: number;
 }
 
+export interface ServicioCatalogo {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  precio: number;
+  estado?: number;
+}
+
 export interface ServicioVendidoResponse extends ServicioVendidoRequest {
   idServicioVendido?: number;
 }
@@ -83,6 +91,16 @@ export interface VentaResponse {
   productos: ProductoVendidoResponse[];
   servicios: ServicioVendidoResponse[];
   pagos: PagoResponse[];
+  datosEmpresa?: {
+    id?: number | null;
+    nombreLegal?: string | null;
+    nombreComercial?: string | null;
+    ruc?: string | null;
+    direccion?: string | null;
+    telefono?: string | null;
+    correo?: string | null;
+    logo?: string | null;
+  };
 }
 
 export interface VentaHistorialItem {

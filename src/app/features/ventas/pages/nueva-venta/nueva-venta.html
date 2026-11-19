@@ -101,18 +101,30 @@
                   <span>Tel: {{ pacienteSeleccionado()?.persona?.telefono || 'No registrado' }}</span>
                 </p>
                 @if (recetaDetalle()) {
-                  <span class="badge-receta">● Receta óptica vinculada (#{{ recetaDetalle()?.idReceta }})</span>
+                  <div class="badge-receta-chip">
+                    <span class="receta-dot"></span>
+                    <span class="receta-texto">Receta óptica vinculada (#{{ recetaDetalle()?.idReceta }})</span>
+                    <button
+                      type="button"
+                      class="btn-desvincular-receta"
+                      (click)="desvincularReceta()"
+                      title="Desvincular esta receta de la venta"
+                    >
+                      ✕ Desvincular
+                    </button>
+                  </div>
                 }
               </div>
               <div class="paciente-acciones">
-                <button type="button" class="btn btn-sm btn-outline" (click)="deseleccionarPaciente()">
-                  Cambiar
+                <button
+                  type="button"
+                  class="btn-cambiar-paciente"
+                  (click)="deseleccionarPaciente()"
+                  title="Cambiar paciente seleccionado"
+                >
+                  <app-icono nombre="user" />
+                  <span>Cambiar Paciente</span>
                 </button>
-                @if (recetaDetalle()) {
-                  <button type="button" class="btn btn-sm btn-danger-outline" (click)="desvincularReceta()">
-                    Desvincular Receta
-                  </button>
-                }
               </div>
             </div>
           }
@@ -129,6 +141,50 @@
       </div>
 
       <div class="card-body">
+        <!-- BUSCADOR DE PRODUCTOS Y SERVICIOS -->
+        <div class="buscador-catalogo-wrap">
+          <div class="input-con-icono">
+            <app-icono nombre="search" />
+            <input
+              type="text"
+              class="input-buscador-catalogo"
+              placeholder="Buscar por código, nombre de producto, montura o servicio..."
+              [ngModel]="terminoBusqueda()"
+              (ngModelChange)="buscarCatalogo($event)"
+            />
+            @if (buscandoCatalogo()) {
+              <span class="spinner-sm"></span>
+            } @else if (terminoBusqueda()) {
+              <button type="button" class="btn-clear-search" (click)="limpiarBusquedaCatalogo()">✕</button>
+            }
+          </div>
+
+          <!-- RESULTADOS DEL BUSCADOR -->
+          @if (resultadosBusqueda().length > 0) {
+            <div class="desplegable-resultados">
+              @for (item of resultadosBusqueda(); track ($index + '-' + item.nombre)) {
+                <div class="resultado-item" (click)="agregarItemDesdeBuscador(item)">
+                  <div class="res-info">
+                    <span class="res-tag" [class.tag-servicio]="item.tipo === 'Servicio'">{{ item.tipo }}</span>
+                    <strong class="res-nombre">{{ item.codigo ? item.codigo + ' - ' : '' }}{{ item.nombre }}</strong>
+                    @if (item.stock !== undefined) {
+                      <small class="res-stock">Stock: {{ item.stock }}</small>
+                    }
+                  </div>
+                  <div class="res-action">
+                    <span class="res-precio">S/ {{ item.precio | number: '1.2-2' }}</span>
+                    <button type="button" class="btn-add-item">+ Agregar</button>
+                  </div>
+                </div>
+              }
+            </div>
+          } @else if (terminoBusqueda().length >= 2 && !buscandoCatalogo()) {
+            <div class="desplegable-vacio">
+              <span>No se encontraron productos ni servicios con "{{ terminoBusqueda() }}"</span>
+            </div>
+          }
+        </div>
+
         <div class="catalogo-rapido">
           <span class="catalogo-label">Monturas disponibles en stock:</span>
           <div class="catalogo-chips">
@@ -198,12 +254,6 @@
               }
             </tbody>
           </table>
-        </div>
-
-        <div class="agregar-personalizado-bar">
-          <button type="button" class="link-btn" (click)="agregarItemPersonalizado()">
-            <app-icono nombre="plus" /> Agregar accesorio óptico (Kit / Estuche)
-          </button>
         </div>
       </div>
     </section>
@@ -304,12 +354,6 @@
             <span>Adelanto / Señal</span>
           </label>
         </div>
-
-        @if (!recetaDetalle()) {
-          <small class="nota-regla">
-            * Las ventas sin receta médica exigen pago al 100% (RN-VE06).
-          </small>
-        }
 
         @if (modalidadPago() === 'ADELANTO') {
           <div class="adelanto-detalle">

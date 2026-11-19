@@ -2,3 +2,158 @@
 :host {
   display: block;
 }
+
+/* Buscador interactivo de catálogo (Productos y Servicios) */
+.buscador-catalogo-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.input-con-icono {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 8px 14px;
+  transition: all 0.2s ease;
+}
+
+.input-con-icono:focus-within {
+  background: #ffffff;
+  border-color: var(--teal, #09998e);
+  box-shadow: 0 0 0 3px rgba(9, 153, 142, 0.12);
+}
+
+.input-buscador-catalogo {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 13px;
+  color: var(--ink, #1e293b);
+  outline: none;
+}
+
+.btn-clear-search {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.btn-clear-search:hover {
+  color: #475569;
+}
+
+.desplegable-resultados {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #ffffff;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(18, 28, 48, 0.12);
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.resultado-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.resultado-item:last-child {
+  border-bottom: none;
+}
+
+.resultado-item:hover {
+  background: #f0fdfa;
+}
+
+.res-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.res-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #e0f2fe;
+  color: #0369a1;
+  display: inline-block;
+  width: fit-content;
+}
+
+.res-tag.tag-servicio {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.res-nombre {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink, #1e293b);
+}
+
+.res-stock {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.res-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.res-precio {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink, #0f172a);
+}
+
+.btn-add-item {
+  background: var(--teal, #09998e);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-add-item:hover {
+  background: #087f76;
+}
+
+.desplegable-vacio {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: #ffffff;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+  color: #64748b;
+  font-size: 12px;
+  box-shadow: 0 8px 20px rgba(18, 28, 48, 0.08);
+}
