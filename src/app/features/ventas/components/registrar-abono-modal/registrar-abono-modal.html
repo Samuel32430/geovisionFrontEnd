@@ -80,7 +80,7 @@
               type="button"
               class="medio-btn"
               [class.active]="medioPago() === 'EFECTIVO'"
-              (click)="medioPago.set('EFECTIVO')"
+              (click)="seleccionarMedioPago('EFECTIVO')"
             >
               <app-icono nombre="money" /> Efectivo
             </button>
@@ -88,7 +88,7 @@
               type="button"
               class="medio-btn"
               [class.active]="medioPago() === 'TARJETA_DEBITO'"
-              (click)="medioPago.set('TARJETA_DEBITO')"
+              (click)="seleccionarMedioPago('TARJETA_DEBITO')"
             >
               <app-icono nombre="credit-card" /> Tarjeta POS
             </button>
@@ -96,7 +96,7 @@
               type="button"
               class="medio-btn"
               [class.active]="medioPago() === 'TRANSFERENCIA'"
-              (click)="medioPago.set('TRANSFERENCIA')"
+              (click)="seleccionarMedioPago('TRANSFERENCIA')"
             >
               <app-icono nombre="clipboard" /> Transferencia
             </button>
@@ -104,7 +104,7 @@
               type="button"
               class="medio-btn"
               [class.active]="medioPago() === 'QR_YAPE_PLIN'"
-              (click)="medioPago.set('QR_YAPE_PLIN')"
+              (click)="seleccionarMedioPago('QR_YAPE_PLIN')"
             >
               <app-icono nombre="money" /> Yape / Plin
             </button>
@@ -113,7 +113,14 @@
 
         <!-- Nro de Operación -->
         <div class="campo-bloque">
-          <label for="numOpAbono">NRO. DE OPERACIÓN / REFERENCIA {{ medioPago() === 'EFECTIVO' ? '(OPCIONAL)' : '*' }}:</label>
+          <div class="campo-header">
+            <label for="numOpAbono">NRO. DE OPERACIÓN / REFERENCIA {{ medioPago() === 'EFECTIVO' ? '(OPCIONAL)' : '*' }}:</label>
+            @if (medioPago() === 'QR_YAPE_PLIN') {
+              <button type="button" class="btn-chip" (click)="modalQrAbierto.set(true)">
+                <app-icono nombre="money" /> Ver QR de Cobro
+              </button>
+            }
+          </div>
           <input
             id="numOpAbono"
             type="text"
@@ -132,6 +139,16 @@
           {{ monto() >= c.saldoPendiente ? 'Confirmar Cancelación Total' : 'Confirmar Abono Parcial' }}
         </button>
       </div>
+
+      @if (modalQrAbierto()) {
+        <app-qr-pago-modal
+          [monto]="monto()"
+          [idVenta]="c.idVenta"
+          [descripcion]="'Abono Saldo Venta #' + (c.numeroComprobante || c.idVenta)"
+          (cerrar)="modalQrAbierto.set(false)"
+          (confirmar)="confirmarQr($event)"
+        />
+      }
     }
   </div>
 </div>
