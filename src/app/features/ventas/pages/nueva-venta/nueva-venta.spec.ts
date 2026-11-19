@@ -168,4 +168,57 @@ describe('NuevaVenta', () => {
     expect(itemReceta?.idServicio).toBe(25);
     expect(itemReceta?.precioUnit).toBe(200);
   });
+
+  it('no debe permitir modificar la cantidad ni duplicar los ítems asociados a receta médica', () => {
+    const recetaMock: RecetaDetalle = {
+      idReceta: 84,
+      fechaRegistro: '2024-10-24T10:00:00',
+      esExterno: 0,
+      esRecetaExterna: false,
+      idPaciente: 12,
+      nombreCompletoPaciente: 'Maria Rodriguez',
+      numeroDocumentoPaciente: '45892123',
+      idEmpleado: 2,
+      nombreCompletoEmpleado: 'Dra. Claudia',
+      medidas: [],
+      lentes: [
+        {
+          idLente: 1,
+          subTotal: 200,
+          nombreMaterialCristal: 'Policarbonato',
+          nombreMontura: 'Ray-Ban Aviator',
+          codigoMontura: 'RB-01',
+          tratamientos: [],
+        },
+      ],
+    };
+
+    component['aplicarRecetaAlCarrito'](recetaMock);
+    expect(component['carrito']().length).toBe(2);
+
+    // Intentar incrementar o decrementar cantidad de ítems de receta
+    component['cambiarCantidad'](0, 1);
+    expect(component['carrito']()[0].cantidad).toBe(1);
+
+    component['cambiarCantidad'](0, -1);
+    expect(component['carrito']()[0].cantidad).toBe(1);
+
+    // Intentar eliminar ítem de receta directamente
+    component['eliminarItem'](0);
+    expect(component['carrito']().length).toBe(2);
+
+    // Intentar agregar nuevamente la montura de la receta desde el catálogo
+    component['agregarMonturaAlCarrito']({
+      idProducto: 1,
+      codigo: 'RB-01',
+      nombre: 'Ray-Ban Aviator',
+      precio: 300,
+      stock: 5,
+      color: 'Dorado',
+      modeloDescripcion: null,
+      materialDescripcion: null,
+    });
+    // Debe bloquearse y no duplicar
+    expect(component['carrito']().length).toBe(2);
+  });
 });

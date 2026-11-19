@@ -157,3 +157,35 @@
   font-size: 12px;
   box-shadow: 0 8px 20px rgba(18, 28, 48, 0.08);
 }
+
+/* Control de cantidad para ítems vinculados a receta */
+.cantidad-fija {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge-fijo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #ccfbf1;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.2px;
+}
+
+.btn-disabled-receta {
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.btn-disabled-receta:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  opacity: 0.9;
+}
