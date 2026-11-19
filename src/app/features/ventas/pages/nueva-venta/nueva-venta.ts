@@ -109,6 +109,16 @@ export class NuevaVenta {
   protected readonly montoAdelanto = signal<number | null>(null);
   protected readonly fechaEntrega = signal('');
 
+  // Fecha mínima prometida de entrega (a partir de mañana)
+  protected readonly fechaEntregaMinima = computed(() => {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    const anio = manana.getFullYear();
+    const mes = String(manana.getMonth() + 1).padStart(2, '0');
+    const dia = String(manana.getDate()).padStart(2, '0');
+    return `${anio}-${mes}-${dia}`;
+  });
+
   protected readonly medioPago = signal<MetodoPago>('EFECTIVO');
   protected readonly numeroOperacion = signal('');
 
@@ -210,8 +220,8 @@ export class NuevaVenta {
     const servicioInfo = this.serviciosCatalogo().find((s) => s.id === idServicioConfeccion);
     const precioBaseConfeccion = servicioInfo?.precio ?? 200;
 
-    // Si la receta tiene lentes configurados, cargarlos
-    const items = [...this.carrito()];
+    // Si la receta tiene lentes configurados, cargarlos (filtrando previos de receta si los hubiera)
+    const items = this.carrito().filter((i) => !i.asociadoReceta);
     if (receta.lentes && receta.lentes.length > 0) {
       for (const lente of receta.lentes) {
         items.push({
@@ -223,14 +233,17 @@ export class NuevaVenta {
           asociadoReceta: true,
         });
         if (lente.nombreMontura) {
+          const monturaCatalogo =
+            this.monturasCatalogo().find((m) => m.idProducto === (lente as any).idProductoMontura) ??
+            this.monturasCatalogo().find((m) => m.codigo === lente.codigoMontura);
           const precioMonturaReal =
             lente.precioMontura ??
-            this.monturasCatalogo().find((m) => m.idProducto === (lente as any).idProductoMontura)?.precio ??
-            this.monturasCatalogo().find((m) => m.codigo === lente.codigoMontura)?.precio ??
+            monturaCatalogo?.precio ??
             320;
+          const idProd = (lente as any).idProductoMontura ?? monturaCatalogo?.idProducto;
           items.push({
-            idProducto: (lente as any).idProductoMontura || undefined,
-            nombre: `Montura: ${lente.nombreMontura}`,
+            idProducto: idProd || undefined,
+            nombre: `Montura: ${lente.codigoMontura ? lente.codigoMontura + ' - ' : ''}${lente.nombreMontura}`,
             tipo: 'Montura',
             cantidad: 1,
             precioUnit: precioMonturaReal,
@@ -295,6 +308,31 @@ export class NuevaVenta {
   }
 
   protected agregarMonturaAlCarrito(m: Montura): void {
+    // Si la montura ya está en el carrito asociada a la receta, bloquear duplicación
+    const yaAsignadaReceta = this.carrito().some(
+      (i) =>
+        i.asociadoReceta &&
+        ((m.idProducto && i.idProducto === m.idProducto) ||
+          (m.codigo && i.nombre.includes(m.codigo)) ||
+          (m.nombre && i.nombre.toLowerCase().includes(m.nombre.toLowerCase()))),
+    );
+    if (yaAsignadaReceta) {
+      this.avisos.abrir({
+        titulo: 'Montura ya asignada a la receta',
+        mensaje: `La montura "${m.codigo} - ${m.nombre}" ya está asignada a la receta médica vinculada a esta venta.`,
+      });
+      return;
+    }
+
+    // Si ya existe en el carrito como producto libre, sumar cantidad
+    const indexLibre = this.carrito().findIndex(
+      (i) => !i.asociadoReceta && i.idProducto === m.idProducto,
+    );
+    if (indexLibre >= 0) {
+      this.cambiarCantidad(indexLibre, 1);
+      return;
+    }
+
     this.carrito.update((items) => [
       ...items,
       {
@@ -375,6 +413,36 @@ export class NuevaVenta {
     precio: number;
     codigo?: string;
   }): void {
+    // Si el ítem ya está en el carrito asociado a la receta médica, bloquear duplicación
+    const yaAsignadoReceta = this.carrito().some(
+      (i) =>
+        i.asociadoReceta &&
+        ((item.idProducto && i.idProducto === item.idProducto) ||
+          (item.idServicio && i.idServicio === item.idServicio) ||
+          (item.codigo && i.nombre.includes(item.codigo))),
+    );
+    if (yaAsignadoReceta) {
+      this.avisos.abrir({
+        titulo: 'Ítem ya asignado a la receta médica',
+        mensaje: `"${item.nombre}" ya forma parte de la receta médica vinculada a esta venta.`,
+      });
+      return;
+    }
+
+    // Si ya existe como producto libre en el carrito, sumar cantidad
+    const indexLibre = this.carrito().findIndex(
+      (i) =>
+        !i.asociadoReceta &&
+        ((item.idProducto && i.idProducto === item.idProducto) ||
+          (item.idServicio && i.idServicio === item.idServicio && !item.idProducto)),
+    );
+    if (indexLibre >= 0) {
+      this.cambiarCantidad(indexLibre, 1);
+      this.terminoBusqueda.set('');
+      this.resultadosBusqueda.set([]);
+      return;
+    }
+
     const nombreItem = item.codigo ? `${item.codigo} - ${item.nombre}` : item.nombre;
     this.carrito.update((items) => [
       ...items,
@@ -407,6 +475,16 @@ export class NuevaVenta {
   }
 
   protected cambiarCantidad(index: number, delta: number): void {
+    const item = this.carrito()[index];
+    if (item?.asociadoReceta) {
+      this.avisos.abrir({
+        titulo: 'Cantidad fija por receta médica',
+        mensaje:
+          'Los productos y servicios vinculados a una receta médica corresponden a una confección óptica personalizada única (1 unidad) y no pueden modificar su cantidad.',
+      });
+      return;
+    }
+
     this.carrito.update((items) => {
       const actual = [...items];
       const nueva = actual[index].cantidad + delta;
@@ -421,6 +499,16 @@ export class NuevaVenta {
   }
 
   protected eliminarItem(index: number): void {
+    const item = this.carrito()[index];
+    if (item?.asociadoReceta) {
+      this.avisos.abrir({
+        titulo: 'Ítem vinculado a receta médica',
+        mensaje:
+          'Este ítem forma parte de la confección de la receta médica vinculada. Para retirarlo de la venta, use el botón "Desvincular Receta" en la sección superior de datos del paciente.',
+      });
+      return;
+    }
+
     this.carrito.update((items) => items.filter((_, i) => i !== index));
     this.verificarAdelantoMinimo();
   }
@@ -435,8 +523,13 @@ export class NuevaVenta {
       return;
     }
     this.modalidadPago.set(modalidad);
-    if (modalidad === 'ADELANTO' && !this.montoAdelanto()) {
-      this.montoAdelanto.set(this.adelantoMinimo());
+    if (modalidad === 'ADELANTO') {
+      if (!this.montoAdelanto()) {
+        this.montoAdelanto.set(this.adelantoMinimo());
+      }
+      if (!this.fechaEntrega() || this.fechaEntrega() < this.fechaEntregaMinima()) {
+        this.fechaEntrega.set(this.fechaEntregaMinima());
+      }
     }
   }
 
@@ -475,6 +568,12 @@ export class NuevaVenta {
       }
       if (!this.fechaEntrega()) {
         this.error.set('Debe ingresar la fecha prometida de entrega para ventas con adelanto.');
+        return;
+      }
+      if (this.fechaEntrega() < this.fechaEntregaMinima()) {
+        this.error.set(
+          'La fecha prometida de entrega debe ser a partir de mañana (no se admiten fechas pasadas ni para el mismo día).',
+        );
         return;
       }
     }

@@ -229,11 +229,17 @@
                       <span class="tipo-tag">{{ item.tipo }}</span>
                     </td>
                     <td class="text-center">
-                      <div class="cantidad-control">
-                        <button type="button" (click)="cambiarCantidad($index, -1)">-</button>
-                        <span>{{ item.cantidad }}</span>
-                        <button type="button" (click)="cambiarCantidad($index, 1)">+</button>
-                      </div>
+                      @if (item.asociadoReceta) {
+                        <div class="cantidad-fija" title="Cantidad única fijada por la receta médica">
+                          <span class="badge-fijo">1 (Fijo)</span>
+                        </div>
+                      } @else {
+                        <div class="cantidad-control">
+                          <button type="button" (click)="cambiarCantidad($index, -1)">-</button>
+                          <span>{{ item.cantidad }}</span>
+                          <button type="button" (click)="cambiarCantidad($index, 1)">+</button>
+                        </div>
+                      }
                     </td>
                     <td class="text-right">S/ {{ item.precioUnit | number: '1.2-2' }}</td>
                     <td class="text-right subtotal-bold">
@@ -243,6 +249,8 @@
                       <button
                         type="button"
                         class="btn-delete"
+                        [class.btn-disabled-receta]="item.asociadoReceta"
+                        [title]="item.asociadoReceta ? 'Ítem de receta médica (use Desvincular Receta para retirarlo)' : 'Eliminar ítem'"
                         aria-label="Eliminar ítem"
                         (click)="eliminarItem($index)"
                       >
@@ -381,6 +389,7 @@
               <input
                 id="fechaEntrega"
                 type="date"
+                [min]="fechaEntregaMinima()"
                 [ngModel]="fechaEntrega()"
                 (ngModelChange)="fechaEntrega.set($event)"
               />

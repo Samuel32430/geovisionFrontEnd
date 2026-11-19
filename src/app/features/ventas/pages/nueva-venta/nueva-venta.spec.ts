@@ -114,6 +114,52 @@ describe('NuevaVenta', () => {
     component['seleccionarModalidad']('ADELANTO');
     expect(component['modalidadPago']()).toBe('ADELANTO');
     expect(component['montoAdelanto']()).toBe(component['adelantoMinimo']());
+    expect(component['fechaEntrega']()).toBe(component['fechaEntregaMinima']());
+  });
+
+  it('no debe permitir registrar adelanto con fecha pasada o para el mismo día (RN-VE08)', () => {
+    const recetaMock: RecetaDetalle = {
+      idReceta: 84,
+      fechaRegistro: '2024-10-24T10:00:00',
+      esExterno: 0,
+      esRecetaExterna: false,
+      idPaciente: 12,
+      nombreCompletoPaciente: 'Maria Rodriguez',
+      numeroDocumentoPaciente: '45892123',
+      idEmpleado: 2,
+      nombreCompletoEmpleado: 'Dra. Claudia',
+      medidas: [],
+      lentes: [
+        {
+          idLente: 1,
+          subTotal: 200,
+          nombreMaterialCristal: 'Policarbonato',
+          nombreMontura: 'Ray-Ban Aviator',
+          codigoMontura: 'RB-01',
+          tratamientos: [],
+        },
+      ],
+    };
+
+    component['aplicarRecetaAlCarrito'](recetaMock);
+    component['seleccionarModalidad']('ADELANTO');
+
+    // Intentar asignar fecha de ayer
+    const ayer = new Date();
+    ayer.setDate(ayer.getDate() - 1);
+    const ayerStr = `${ayer.getFullYear()}-${String(ayer.getMonth() + 1).padStart(2, '0')}-${String(ayer.getDate()).padStart(2, '0')}`;
+    component['fechaEntrega'].set(ayerStr);
+
+    component['registrarVenta']();
+    expect(component['error']()).toContain('a partir de mañana');
+
+    // Intentar asignar fecha de hoy
+    const hoy = new Date();
+    const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+    component['fechaEntrega'].set(hoyStr);
+
+    component['registrarVenta']();
+    expect(component['error']()).toContain('a partir de mañana');
   });
 
   it('debe exigir voucher/operacion para pagos con tarjeta o transferencia (RN-VE12)', () => {
@@ -167,5 +213,58 @@ describe('NuevaVenta', () => {
     expect(itemReceta).toBeDefined();
     expect(itemReceta?.idServicio).toBe(25);
     expect(itemReceta?.precioUnit).toBe(200);
+  });
+
+  it('no debe permitir modificar la cantidad ni duplicar los ítems asociados a receta médica', () => {
+    const recetaMock: RecetaDetalle = {
+      idReceta: 84,
+      fechaRegistro: '2024-10-24T10:00:00',
+      esExterno: 0,
+      esRecetaExterna: false,
+      idPaciente: 12,
+      nombreCompletoPaciente: 'Maria Rodriguez',
+      numeroDocumentoPaciente: '45892123',
+      idEmpleado: 2,
+      nombreCompletoEmpleado: 'Dra. Claudia',
+      medidas: [],
+      lentes: [
+        {
+          idLente: 1,
+          subTotal: 200,
+          nombreMaterialCristal: 'Policarbonato',
+          nombreMontura: 'Ray-Ban Aviator',
+          codigoMontura: 'RB-01',
+          tratamientos: [],
+        },
+      ],
+    };
+
+    component['aplicarRecetaAlCarrito'](recetaMock);
+    expect(component['carrito']().length).toBe(2);
+
+    // Intentar incrementar o decrementar cantidad de ítems de receta
+    component['cambiarCantidad'](0, 1);
+    expect(component['carrito']()[0].cantidad).toBe(1);
+
+    component['cambiarCantidad'](0, -1);
+    expect(component['carrito']()[0].cantidad).toBe(1);
+
+    // Intentar eliminar ítem de receta directamente
+    component['eliminarItem'](0);
+    expect(component['carrito']().length).toBe(2);
+
+    // Intentar agregar nuevamente la montura de la receta desde el catálogo
+    component['agregarMonturaAlCarrito']({
+      idProducto: 1,
+      codigo: 'RB-01',
+      nombre: 'Ray-Ban Aviator',
+      precio: 300,
+      stock: 5,
+      color: 'Dorado',
+      modeloDescripcion: null,
+      materialDescripcion: null,
+    });
+    // Debe bloquearse y no duplicar
+    expect(component['carrito']().length).toBe(2);
   });
 });
