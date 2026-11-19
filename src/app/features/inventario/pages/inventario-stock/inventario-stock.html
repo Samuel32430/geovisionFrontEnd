@@ -61,20 +61,20 @@
     </div>
 
     <div class="filter-group">
-      <select [ngModel]="idCategoria()" (ngModelChange)="idCategoria.set($event ? +$event : null); buscar()">
+      <select [ngModel]="idCategoria()" (ngModelChange)="cambiarCategoria($event)">
         <option [ngValue]="null">Todas las Categorías</option>
-        <option [value]="1">Monturas</option>
-        <option [value]="2">Lunas / Cristales</option>
-        <option [value]="3">Lentes de Contacto</option>
-        <option [value]="4">Accesorios y Soluciones</option>
+        <option [ngValue]="1">Monturas</option>
+        <option [ngValue]="2">Lunas / Cristales</option>
+        <option [ngValue]="3">Lentes de Contacto</option>
+        <option [ngValue]="4">Accesorios y Soluciones</option>
       </select>
     </div>
 
     <div class="filter-group">
-      <select [ngModel]="estadoFiltro()" (ngModelChange)="estadoFiltro.set($event ? +$event : null); buscar()">
+      <select [ngModel]="estadoFiltro()" (ngModelChange)="cambiarEstado($event)">
         <option [ngValue]="null">Todos los Estados</option>
-        <option [value]="1">Activos</option>
-        <option [value]="0">Inactivos</option>
+        <option [ngValue]="1">Activos</option>
+        <option [ngValue]="0">Inactivos</option>
       </select>
     </div>
 

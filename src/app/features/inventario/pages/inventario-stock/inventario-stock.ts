@@ -115,6 +115,18 @@ export class InventarioStock implements OnInit {
     });
   }
 
+  protected cambiarCategoria(val: unknown): void {
+    const id = val !== null && val !== undefined && val !== '' ? Number(val) : null;
+    this.idCategoria.set(id);
+    this.buscar();
+  }
+
+  protected cambiarEstado(val: unknown): void {
+    const estado = val !== null && val !== undefined && val !== '' ? Number(val) : null;
+    this.estadoFiltro.set(estado);
+    this.buscar();
+  }
+
   protected buscar(): void {
     this.cargarInventario(0);
   }
