@@ -31,12 +31,12 @@ export class VentaExitosaModal implements OnInit {
   }
 
   get nombreEmpresa(): string {
-    return (
+    const raw =
       this.venta().datosEmpresa?.nombreComercial ||
       this.empresaFallback()?.nombreComercial ||
       this.empresaFallback()?.nombreLegal ||
-      'GeoVision Óptica & Laboratorio'
-    );
+      'GeoVision Óptica & Laboratorio';
+    return raw.replace(/+/g, 'Ó');
   }
 
   get rucEmpresa(): string {
