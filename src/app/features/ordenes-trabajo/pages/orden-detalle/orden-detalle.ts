@@ -4,17 +4,17 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom, Observable } from 'rxjs';
-import { mensajeErrorHttp } from '../../core/utils/http-error';
-import { AvisoService } from '../../shared/aviso-service';
-import { OrdenAcceso } from './orden-acceso';
+import { mensajeErrorHttp } from '../../../../core/utils/http-error';
+import { AvisoService } from '../../../../shared/aviso-service';
+import { OrdenAcceso } from '../../services/orden-acceso.service';
 import {
   ESTADOS,
   Lensometria,
   MedidaOrden,
-  OrdenApi,
   OrdenTrabajo,
   PoliticaCalidad,
-} from './orden-api';
+} from '../../models/orden-trabajo.model';
+import { OrdenApi } from '../../services/orden-api.service';
 
 type Accion = 'envio' | 'recepcion' | 'calidad' | 'entrega';
 type Magnitud = 'esfera' | 'cilindro' | 'eje' | 'adicion';
@@ -28,7 +28,7 @@ type Captura = Record<Ojo, Record<Magnitud, string>> & { distanciaPupilar: strin
 @Component({
   imports: [CurrencyPipe, DatePipe, FormsModule, RouterLink],
   templateUrl: './orden-detalle.html',
-  styleUrl: './ordenes.css',
+  styleUrl: '../../styles/ordenes.css',
 })
 export class OrdenDetalle {
   private readonly api = inject(OrdenApi);
@@ -76,6 +76,7 @@ export class OrdenDetalle {
   protected politica: PoliticaCalidad | null = null;
   protected captura: Captura[] = [];
   protected observaciones = '';
+  protected limiteObservaciones: number | null = null;
   protected idLaboratorio: number | null = null;
   protected fecha = '';
 
@@ -106,11 +107,13 @@ export class OrdenDetalle {
     this.resultado.set(null);
     this.accion = accion;
     this.observaciones = '';
+    this.limiteObservaciones = null;
     this.idLaboratorio = null;
     this.fecha = '';
     this.politica = null;
     this.laboratorios = [];
     try {
+      this.limiteObservaciones = await this.leer(this.api.limiteObservaciones(this.id));
       if (accion === 'envio') this.laboratorios = await this.leer(this.api.laboratorios());
       if (accion === 'calidad') {
         const ojo = () => ({ esfera: '', cilindro: '', eje: '', adicion: '' });
@@ -129,10 +132,15 @@ export class OrdenDetalle {
     }
   }
 
+  protected espacioObservaciones(): number {
+    return (this.limiteObservaciones ?? 0) - new TextEncoder().encode(this.observaciones).length;
+  }
+
   protected async guardar(): Promise<void> {
     const orden = this.orden();
     const envio = this.ultimo();
-    if (!orden || this.ocupado()) return;
+    if (!orden || this.ocupado() || this.limiteObservaciones === null || this.espacioObservaciones() < 0)
+      return;
     const observaciones = this.observaciones.trim();
     switch (this.accion) {
       case 'envio':
@@ -163,7 +171,7 @@ export class OrdenDetalle {
                 ? { texto: 'Control aprobado. Pedido listo para entrega.', tipo: 'exito' }
                 : {
                     texto:
-                      'El lente desaprobó el control de calidad. Puedes reenviarlo al laboratorio.',
+                      'Pedido retrasado por control de calidad. Puedes reenviarlo al laboratorio.',
                     tipo: 'advertencia',
                   },
           );

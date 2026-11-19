@@ -6,9 +6,9 @@ import { AuthService } from '../../core/auth/auth-service';
 import { SesionService } from '../../core/auth/sesion-service';
 import { Router } from '@angular/router';
 import { SeguridadAccess } from '../../features/seguridad/seguridad-access';
-import { OrdenAcceso } from '../../features/ordenes-trabajo/orden-acceso';
+import { OrdenAcceso } from '../../features/ordenes-trabajo/services/orden-acceso.service';
 import { ConfiguracionAccess } from '../../features/configuracion/configuracion-access';
-import { MantenimientoAccess } from '../../features/mantenimiento/mantenimiento-access';
+import { MantenimientoAccess } from '../../features/mantenimiento/services/mantenimiento-access.service';
 
 @Component({
   imports: [RouterLink, RouterLinkActive, RouterOutlet, Icono],
