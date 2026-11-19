@@ -1,22 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { timeout } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import { PaginaResponse } from '../../core/models/pagina-response';
-
-export type Catalogo =
-  'categorias' | 'materiales-cristal' | 'tratamientos-cristal' | 'servicios' | 'laboratorios';
-export interface RegistroCatalogo {
-  id?: number;
-  nombre: string;
-  descripcion?: string;
-  estado?: number;
-  precio?: number;
-  ruc?: string;
-  telefono?: string;
-  direccion?: string;
-  correo?: string;
-}
+import { environment } from '../../../../environments/environment';
+import type { PaginaResponse } from '../../../core/models/pagina-response';
+import type { Catalogo, RegistroCatalogo } from '../models/mantenimiento.model';
 
 @Injectable({ providedIn: 'root' })
 export class MantenimientoService {
