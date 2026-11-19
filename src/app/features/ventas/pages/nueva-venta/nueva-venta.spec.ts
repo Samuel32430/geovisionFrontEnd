@@ -67,7 +67,16 @@ describe('NuevaVenta', () => {
   });
 
   it('no debe permitir seleccionar adelanto si no existe receta vinculada (RN-VE06)', () => {
-    component['agregarItemPersonalizado']();
+    component['agregarMonturaAlCarrito']({
+      idProducto: 1,
+      codigo: 'RB-01',
+      nombre: 'Ray-Ban Aviator',
+      precio: 300,
+      stock: 5,
+      color: 'Dorado',
+      modeloDescripcion: null,
+      materialDescripcion: null,
+    });
     component['seleccionarModalidad']('ADELANTO');
 
     // Debe permanecer en COMPLETO
@@ -108,11 +117,34 @@ describe('NuevaVenta', () => {
   });
 
   it('debe exigir voucher/operacion para pagos con tarjeta o transferencia (RN-VE12)', () => {
-    component['agregarItemPersonalizado']();
+    component['agregarMonturaAlCarrito']({
+      idProducto: 1,
+      codigo: 'RB-01',
+      nombre: 'Ray-Ban Aviator',
+      precio: 300,
+      stock: 5,
+      color: 'Dorado',
+      modeloDescripcion: null,
+      materialDescripcion: null,
+    });
     component['seleccionarMedioPago']('TARJETA_DEBITO');
 
     component['registrarVenta']();
     expect(component['error']()).toContain('número de operación o voucher es obligatorio');
+  });
+
+  it('debe buscar en catálogo y agregar ítem desde el buscador interactivo', () => {
+    component['buscarCatalogo']('CONFECCION');
+    const req = http.expectOne((r) => r.url.includes('/productos'));
+    req.flush({ content: [{ id: 99, codigo: 'KIT-01', nombre: 'Kit Limpiador', precio: 25, stock: 10 }] });
+
+    expect(component['resultadosBusqueda']().length).toBeGreaterThan(0);
+    const servItem = component['resultadosBusqueda']().find((i) => i.tipo === 'Servicio');
+    expect(servItem).toBeDefined();
+
+    component['agregarItemDesdeBuscador'](servItem!);
+    expect(component['carrito']().length).toBe(1);
+    expect(component['carrito']()[0].idServicio).toBe(25);
   });
 
   it('debe asignar idServicio al asociar una receta para cumplir con la regla RN-VE01', () => {

@@ -83,6 +83,16 @@ export class VentaService {
       .pipe(timeout(15000));
   }
 
+  productosDisponibles(termino?: string, page = 0, size = 20) {
+    let params = new HttpParams().set('page', page).set('size', size).set('estado', 1);
+    if (termino && termino.trim()) {
+      params = params.set('termino', termino.trim());
+    }
+    return this.http
+      .get<PaginaResponse<any>>(`${environment.apiUrl}/productos`, { params })
+      .pipe(timeout(15000));
+  }
+
   generarOrdenQr(request: MercadoPagoQrRequest) {
     return this.http
       .post<MercadoPagoQrResponse>(`${this.url}/pagos/qr`, request)
