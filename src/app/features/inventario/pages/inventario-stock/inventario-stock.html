@@ -6,12 +6,14 @@
       <p>Gestión del catálogo óptico, entradas de compras, ajustes por auditoría y trazabilidad en Kardex.</p>
     </div>
 
-    <div class="header-actions">
-      <button type="button" class="btn-nuevo" (click)="abrirNuevoProducto()">
-        <app-icono nombre="plus" />
-        Nuevo Producto
-      </button>
-    </div>
+    @if (puedeCrearProducto()) {
+      <div class="header-actions">
+        <button type="button" class="btn-nuevo" (click)="abrirNuevoProducto()">
+          <app-icono nombre="plus" />
+          Nuevo Producto
+        </button>
+      </div>
+    }
   </header>
 
   <!-- Métricas superiores -->
@@ -173,53 +175,61 @@
                 </td>
                 <td>
                   <div class="actions-group">
-                    <button
-                      type="button"
-                      class="action-btn btn-entrada"
-                      title="Registrar Entrada (+ Stock)"
-                      (click)="abrirEntrada(prod)"
-                    >
-                      <app-icono nombre="plus" />
-                      Entrada
-                    </button>
+                    @if (puedeRegistrarEntrada()) {
+                      <button
+                        type="button"
+                        class="action-btn btn-entrada"
+                        title="Registrar Entrada (+ Stock)"
+                        (click)="abrirEntrada(prod)"
+                      >
+                        <app-icono nombre="plus" />
+                        Entrada
+                      </button>
+                    }
 
-                    <button
-                      type="button"
-                      class="action-btn btn-ajuste"
-                      title="Ajuste de Stock (Merma / Rotura)"
-                      (click)="abrirAjuste(prod)"
-                    >
-                      <app-icono nombre="warning" />
-                      Ajuste
-                    </button>
+                    @if (puedeAjustarStock()) {
+                      <button
+                        type="button"
+                        class="action-btn btn-ajuste"
+                        title="Ajuste de Stock (Merma / Rotura)"
+                        (click)="abrirAjuste(prod)"
+                      >
+                        <app-icono nombre="warning" />
+                        Ajuste
+                      </button>
+                    }
 
-                    <button
-                      type="button"
-                      class="action-btn btn-kardex"
-                      title="Ver Historial Kardex"
-                      (click)="abrirKardex(prod)"
-                    >
-                      <app-icono nombre="clipboard" />
-                      Kardex
-                    </button>
+                    @if (puedeVerKardex()) {
+                      <button
+                        type="button"
+                        class="action-btn btn-kardex"
+                        title="Ver Historial Kardex"
+                        (click)="abrirKardex(prod)"
+                      >
+                        <app-icono nombre="clipboard" />
+                        Kardex
+                      </button>
+                    }
 
-                    <button
-                      type="button"
-                      class="action-btn btn-edit"
-                      title="Editar producto"
-                      (click)="abrirEditarProducto(prod)"
-                    >
-                      <app-icono nombre="edit" />
-                    </button>
+                    @if (puedeEditarProducto()) {
+                      <button
+                        type="button"
+                        class="action-btn btn-edit"
+                        title="Editar producto"
+                        (click)="abrirEditarProducto(prod)"
+                      >
+                        <app-icono nombre="edit" />
+                      </button>
 
-                    <button
-                      type="button"
-                      class="action-btn btn-toggle"
-                      [title]="prod.estado === 1 ? 'Desactivar producto' : 'Activar producto'"
-                      (click)="alternarEstado(prod)"
-                    >
-                      {{ prod.estado === 1 ? 'Desactivar' : 'Activar' }}
-                    </button>
+                      <button
+                        type="button"
+                        class="action-btn btn-toggle"
+                        [title]="prod.estado === 1 ? 'Desactivar producto' : 'Activar producto'"
+                        (click)="alternarEstado(prod)"
+                      >
+                        {{ prod.estado === 1 ? 'Desactivar' : 'Activar' }}
+                      </button>
+                    }
                   </div>
                 </td>
               </tr>

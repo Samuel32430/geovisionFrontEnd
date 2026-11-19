@@ -3,6 +3,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Icono } from '../../../../shared/components/icono/icono';
 import { AvisoService } from '../../../../shared/aviso-service';
+import { SesionService } from '../../../../core/auth/sesion-service';
 import { mensajeErrorHttp } from '../../../../core/utils/http-error';
 import { InventarioService } from '../../services/inventario.service';
 import {
@@ -35,6 +36,24 @@ import { ProductoModal } from '../../components/producto-modal/producto-modal';
 export class InventarioStock implements OnInit {
   private readonly inventarioService = inject(InventarioService);
   private readonly avisos = inject(AvisoService);
+  protected readonly sesion = inject(SesionService);
+
+  // Permisos de usuario
+  protected readonly puedeCrearProducto = computed(() =>
+    this.sesion.tienePermiso(['PRODUCTOS_REGISTRAR', 'INVENTARIO_GESTIONAR']),
+  );
+  protected readonly puedeRegistrarEntrada = computed(() =>
+    this.sesion.tienePermiso(['INVENTARIO_REGISTRAR', 'INVENTARIO_GESTIONAR']),
+  );
+  protected readonly puedeAjustarStock = computed(() =>
+    this.sesion.tienePermiso(['INVENTARIO_AJUSTAR', 'INVENTARIO_GESTIONAR']),
+  );
+  protected readonly puedeEditarProducto = computed(() =>
+    this.sesion.tienePermiso(['PRODUCTOS_GESTIONAR', 'INVENTARIO_GESTIONAR']),
+  );
+  protected readonly puedeVerKardex = computed(() =>
+    this.sesion.tienePermiso(['INVENTARIO_LEER', 'PRODUCTOS_LEER']),
+  );
 
   // Filtros
   protected readonly termino = signal('');

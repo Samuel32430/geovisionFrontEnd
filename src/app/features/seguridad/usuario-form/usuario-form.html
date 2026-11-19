@@ -67,9 +67,13 @@
               formControlName="nombre"
               autocomplete="off"
               maxlength="100"
+              [readonly]="!nuevo"
+              [title]="!nuevo ? 'El identificador de usuario es permanente' : ''"
               [attr.aria-invalid]="form.controls.nombre.touched && form.controls.nombre.invalid"
             />
-            @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+            @if (!nuevo) {
+              <small class="hint">Identificador único de cuenta (no modificable).</small>
+            } @else if (form.controls.nombre.touched && form.controls.nombre.invalid) {
               <small class="error">Ingresa entre 3 y 100 caracteres y evita un nombre vacío.</small>
             }
           </label>
