@@ -49,6 +49,7 @@ describe('PacienteForm', () => {
     editar('numeroDocumento', ' 99010001 ');
     editar('nombres', ' Paciente ');
     editar('apellidos', ' Prueba ');
+    editar('telefono', ' 999123456 ');
   };
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -88,7 +89,7 @@ describe('PacienteForm', () => {
       apellidos: 'Prueba',
       fechaNacimiento: null,
       sexo: null,
-      telefono: null,
+      telefono: '999123456',
       direccion: null,
     });
     req.flush({ ...paciente, estado: 1 });
@@ -105,10 +106,12 @@ describe('PacienteForm', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('h1').textContent).toContain('Editar paciente');
     editar('nombres', 'Nombre actualizado');
+    editar('telefono', '999123456');
     enviar();
     const req = http.expectOne((r) => r.method === 'PUT');
     expect(req.request.url).toMatch(/\/pacientes\/7$/);
     expect(req.request.body.persona.nombres).toBe('Nombre actualizado');
+    expect(req.request.body.persona.telefono).toBe('999123456');
     expect(req.request.body.estado).toBeUndefined();
     expect(req.request.body.idUsuario).toBeUndefined();
     req.flush({ ...paciente, persona: { ...paciente.persona, nombres: 'Nombre actualizado' } });
