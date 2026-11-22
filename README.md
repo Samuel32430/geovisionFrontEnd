@@ -113,6 +113,21 @@ Requiere el backend y Oracle en marcha para pruebas completas de integración. R
 
 ---
 
+## Pruebas de navegador con Playwright
+
+Con las dependencias instaladas, ejecuta:
+
+```sh
+npx playwright install --no-shell chromium
+npm run test:e2e
+```
+
+Playwright inicia Angular en `http://127.0.0.1:14200` y genera el informe en `playwright-report/`. La suite verifica la redirección al login, la validación del formulario, la respuesta a un 401 y el inicio y cierre de sesión. Los casos que necesitan una respuesta de la API usan datos de prueba.
+
+Para habilitar el caso contra el backend, configura `E2E_USERNAME` y `E2E_PASSWORD` con una cuenta de pruebas. Con el servidor local, `proxy.lan.json` dirige la API a `127.0.0.1:8080`. También puedes asignar `E2E_BASE_URL` a una instalación de pruebas donde el frontend y la API ya estén disponibles.
+
+---
+
 ## Calidad del código (SonarQube)
 
 ```bash
