@@ -109,6 +109,10 @@ app-paciente-list .row-actions .icon-button {
 app-paciente-list .row-actions .deactivate {
   color: var(--ink);
 }
+
+app-paciente-list .row-actions .deactivate:hover {
+  color: #d32f2f;
+}
 app-paciente-list .actions-heading {
   text-align: center;
 }

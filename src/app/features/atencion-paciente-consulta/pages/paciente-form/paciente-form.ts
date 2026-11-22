@@ -88,7 +88,7 @@ export class PacienteForm implements OnInit {
     apellidos: ['', [requerido, Validators.maxLength(150)]],
     fechaNacimiento: ['', fechaNacimientoValida],
     sexo: this.fb.control<'' | 'MASCULINO' | 'FEMENINO'>(''),
-    telefono: ['', Validators.maxLength(50)],
+    telefono: ['', [requerido, Validators.maxLength(12)]],
     direccion: ['', Validators.maxLength(200)],
   });
   private readonly fechaNacimiento = toSignal(this.form.controls.fechaNacimiento.valueChanges, {
